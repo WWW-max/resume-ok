@@ -15,7 +15,7 @@ interface ProjectFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-9 rounded-lg";
+  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 const textareaCls =
   "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
 
@@ -58,7 +58,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
         <Button
           onClick={addItem}
           size="sm"
-          className="h-7 text-xs bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-600/30 hover:border-violet-500/50 rounded-lg gap-1.5 transition-all"
+          className="h-9 md:h-7 text-xs bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-600/30 hover:border-violet-500/50 rounded-lg gap-1.5 transition-all touch-manipulation"
         >
           <Plus className="w-3 h-3" />
           添加项目
@@ -71,7 +71,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
           className="border border-white/10 rounded-xl overflow-hidden bg-white/3 hover:border-white/15 transition-colors"
         >
           <div
-            className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation"
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
           >
             <div className="flex items-center gap-2 min-w-0">

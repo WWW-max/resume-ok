@@ -15,7 +15,7 @@ interface WorkExperienceFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-9 rounded-lg";
+  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 const textareaCls =
   "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
 
@@ -61,7 +61,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
         <Button
           onClick={addItem}
           size="sm"
-          className="h-7 text-xs bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 hover:border-blue-500/50 rounded-lg gap-1.5 transition-all"
+          className="h-9 md:h-7 text-xs bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 hover:border-blue-500/50 rounded-lg gap-1.5 transition-all touch-manipulation"
         >
           <Plus className="w-3 h-3" />
           添加经历
@@ -75,7 +75,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
         >
           {/* Item Header */}
           <div
-            className="flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-white/5 transition-colors"
+            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation"
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
           >
             <div className="flex items-center gap-2 min-w-0">

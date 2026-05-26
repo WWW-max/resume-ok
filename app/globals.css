@@ -46,6 +46,8 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* iOS safe area insets */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 :root {
@@ -126,5 +128,39 @@
   }
   html {
     @apply font-sans;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
   }
+}
+
+/* ── Safe area bottom helper ──────────────────────────────── */
+.h-safe-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Custom thin scrollbars ───────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Remove iOS tap flash on interactive elements ─────────── */
+button, [role="button"], a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Momentum scrolling on iOS ────────────────────────────── */
+.overflow-y-auto,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
 }

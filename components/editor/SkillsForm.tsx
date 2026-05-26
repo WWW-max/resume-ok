@@ -13,7 +13,7 @@ interface SkillsFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-9 rounded-lg";
+  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 
 const PRESET_CATEGORIES = [
   "编程语言",
@@ -53,7 +53,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
         <Button
           onClick={() => addItem()}
           size="sm"
-          className="h-7 text-xs bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-600/30 hover:border-amber-500/50 rounded-lg gap-1.5 transition-all"
+          className="h-9 md:h-7 text-xs bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-600/30 hover:border-amber-500/50 rounded-lg gap-1.5 transition-all touch-manipulation"
         >
           <Plus className="w-3 h-3" />
           添加技能

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "简历编辑器 — 专业简历制作工具",
   description: "在线制作专业简历，支持实时预览和一键导出 PDF。免费好用的简历编辑器。",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover", // iOS notch / safe area
 };
 
 export default function RootLayout({

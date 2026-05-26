@@ -31,8 +31,11 @@ function FormField({
   );
 }
 
+// Larger touch targets on mobile (h-11 = 44px, meets WCAG minimum)
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 focus:bg-white/8 transition-colors text-sm h-9 rounded-lg";
+  "bg-white/5 border-white/10 text-white placeholder:text-white/20 " +
+  "focus:border-blue-500/50 focus:bg-white/8 transition-colors " +
+  "text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 
 export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
   const update = (key: keyof ResumeData, value: string) => {
@@ -40,9 +43,12 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
   };
 
   return (
-    <div className="px-4 pb-6 space-y-5">
+    <div className="px-4 pb-8 space-y-5">
       {/* Avatar Upload */}
-      <div className="flex flex-col items-center py-5 border border-dashed border-white/10 rounded-xl bg-white/2 hover:border-blue-500/30 transition-colors cursor-pointer group"
+      <div
+        className="flex flex-col items-center py-6 border border-dashed border-white/10 rounded-xl
+                   bg-white/2 hover:border-blue-500/30 active:border-blue-500/40
+                   transition-colors cursor-pointer group touch-manipulation"
         onClick={() => {
           const input = document.createElement("input");
           input.type = "file";
@@ -62,14 +68,14 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
           <img
             src={data.avatar}
             alt="avatar"
-            className="w-16 h-16 rounded-full object-cover border-2 border-blue-500/50 shadow-lg shadow-blue-500/20"
+            className="w-20 h-20 rounded-full object-cover border-2 border-blue-500/50 shadow-lg shadow-blue-500/20"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600/30 to-violet-600/30 border border-white/10 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
-            <User className="w-6 h-6 text-white/30 group-hover:text-white/50 transition-colors" />
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/30 to-violet-600/30 border border-white/10 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
+            <User className="w-8 h-8 text-white/30 group-hover:text-white/50 transition-colors" />
           </div>
         )}
-        <p className="text-white/30 text-xs mt-2 group-hover:text-white/50 transition-colors">
+        <p className="text-white/30 text-xs mt-2.5 group-hover:text-white/50 transition-colors">
           点击上传头像
         </p>
       </div>
@@ -95,11 +101,13 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
       </div>
 
       {/* Contact */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormField label="手机号" icon={Phone}>
           <Input
             className={inputCls}
             placeholder="138-0000-0000"
+            type="tel"
+            inputMode="tel"
             value={data.phone}
             onChange={(e) => update("phone", e.target.value)}
           />
@@ -108,6 +116,8 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
           <Input
             className={inputCls}
             placeholder="email@example.com"
+            type="email"
+            inputMode="email"
             value={data.email}
             onChange={(e) => update("email", e.target.value)}
           />
@@ -127,6 +137,7 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
         <Input
           className={inputCls}
           placeholder="github.com/username"
+          inputMode="url"
           value={data.github}
           onChange={(e) => update("github", e.target.value)}
         />
@@ -136,6 +147,8 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
         <Input
           className={inputCls}
           placeholder="https://yourwebsite.com"
+          type="url"
+          inputMode="url"
           value={data.website}
           onChange={(e) => update("website", e.target.value)}
         />
