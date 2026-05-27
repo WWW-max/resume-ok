@@ -35,6 +35,24 @@ export interface Skill {
   items: string;
 }
 
+export type SectionKey = "summary" | "workExperiences" | "projects" | "educations" | "skills";
+
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+  "summary",
+  "workExperiences",
+  "projects",
+  "educations",
+  "skills",
+];
+
+export const SECTION_LABELS: Record<SectionKey, string> = {
+  summary: "自我评价",
+  workExperiences: "工作经历",
+  projects: "项目经历",
+  educations: "教育背景",
+  skills: "技能特长",
+};
+
 export interface ResumeData {
   name: string;
   title: string;
@@ -49,6 +67,7 @@ export interface ResumeData {
   educations: Education[];
   projects: Project[];
   skills: Skill[];
+  sectionOrder: SectionKey[];
 }
 
 export const defaultResumeData: ResumeData = {
@@ -125,4 +144,5 @@ export const defaultResumeData: ResumeData = {
       items: "Git / Webpack / Vite / Docker / Linux",
     },
   ],
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
 };

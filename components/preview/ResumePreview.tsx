@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { ResumeData } from "@/lib/resume-data";
+import { ResumeData, SectionKey, DEFAULT_SECTION_ORDER } from "@/lib/resume-data";
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -49,6 +49,280 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
   ({ data }, ref) => {
+    const sectionOrder: SectionKey[] = data.sectionOrder ?? DEFAULT_SECTION_ORDER;
+
+    const renderSection = (key: SectionKey) => {
+      switch (key) {
+        case "summary":
+          if (!data.summary) return null;
+          return (
+            <section key="summary" style={{ marginBottom: "22px" }}>
+              <SectionTitle>自我评价</SectionTitle>
+              <p
+                style={{
+                  fontSize: "12.5px",
+                  lineHeight: "1.75",
+                  color: "#475569",
+                  paddingLeft: "12px",
+                  borderLeft: "2px solid #e2e8f0",
+                }}
+              >
+                {data.summary}
+              </p>
+            </section>
+          );
+
+        case "workExperiences":
+          if (data.workExperiences.length === 0) return null;
+          return (
+            <section key="workExperiences" style={{ marginBottom: "22px" }}>
+              <SectionTitle>工作经历</SectionTitle>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {data.workExperiences.map((item) => (
+                  <div key={item.id}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <div>
+                        <span
+                          style={{
+                            fontSize: "13.5px",
+                            fontWeight: "700",
+                            color: "#1e293b",
+                          }}
+                        >
+                          {item.company}
+                        </span>
+                        {item.position && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#3b82f6",
+                              fontWeight: "600",
+                              marginLeft: "10px",
+                              background: "rgba(59,130,246,0.08)",
+                              padding: "1px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            {item.position}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#94a3b8",
+                          whiteSpace: "nowrap",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {item.startDate} — {item.current ? "至今" : item.endDate}
+                      </span>
+                    </div>
+                    <DescriptionBlock text={item.description} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+
+        case "projects":
+          if (data.projects.length === 0) return null;
+          return (
+            <section key="projects" style={{ marginBottom: "22px" }}>
+              <SectionTitle>项目经历</SectionTitle>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {data.projects.map((item) => (
+                  <div key={item.id}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <div>
+                        <span
+                          style={{
+                            fontSize: "13.5px",
+                            fontWeight: "700",
+                            color: "#1e293b",
+                          }}
+                        >
+                          {item.name}
+                        </span>
+                        {item.role && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#8b5cf6",
+                              fontWeight: "600",
+                              marginLeft: "10px",
+                              background: "rgba(139,92,246,0.08)",
+                              padding: "1px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            {item.role}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#94a3b8",
+                          whiteSpace: "nowrap",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {item.startDate && `${item.startDate} — ${item.endDate}`}
+                      </span>
+                    </div>
+                    <DescriptionBlock text={item.description} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+
+        case "educations":
+          if (data.educations.length === 0) return null;
+          return (
+            <section key="educations" style={{ marginBottom: "22px" }}>
+              <SectionTitle>教育背景</SectionTitle>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {data.educations.map((item) => (
+                  <div key={item.id}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div>
+                        <span
+                          style={{
+                            fontSize: "13.5px",
+                            fontWeight: "700",
+                            color: "#1e293b",
+                          }}
+                        >
+                          {item.school}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "#64748b",
+                            marginLeft: "8px",
+                          }}
+                        >
+                          {item.major} · {item.degree}
+                        </span>
+                        {item.gpa && (
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: "#10b981",
+                              background: "rgba(16,185,129,0.08)",
+                              padding: "1px 7px",
+                              borderRadius: "4px",
+                              marginLeft: "8px",
+                            }}
+                          >
+                            GPA {item.gpa}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#94a3b8",
+                          whiteSpace: "nowrap",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {item.startDate} — {item.endDate}
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p
+                        style={{
+                          fontSize: "12px",
+                          color: "#64748b",
+                          marginTop: "4px",
+                          lineHeight: "1.6",
+                        }}
+                      >
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+
+        case "skills":
+          if (data.skills.length === 0) return null;
+          return (
+            <section key="skills" style={{ marginBottom: "22px" }}>
+              <SectionTitle>技能特长</SectionTitle>
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                {data.skills.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{ display: "flex", alignItems: "baseline", gap: "12px" }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#334155",
+                        minWidth: "72px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {item.category}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        height: "1px",
+                        background: "#f1f5f9",
+                        flexShrink: 0,
+                        width: "12px",
+                        alignSelf: "center",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "12.5px",
+                        color: "#475569",
+                        lineHeight: "1.5",
+                        flex: 1,
+                      }}
+                    >
+                      {item.items}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+
+        default:
+          return null;
+      }
+    };
+
     return (
       <div
         ref={ref}
@@ -161,267 +435,9 @@ export const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
           </div>
         </div>
 
-        {/* Body */}
+        {/* Body — sections rendered in user-defined order */}
         <div style={{ padding: "28px 44px" }}>
-          {/* Summary */}
-          {data.summary && (
-            <section style={{ marginBottom: "22px" }}>
-              <SectionTitle>自我评价</SectionTitle>
-              <p
-                style={{
-                  fontSize: "12.5px",
-                  lineHeight: "1.75",
-                  color: "#475569",
-                  paddingLeft: "12px",
-                  borderLeft: "2px solid #e2e8f0",
-                }}
-              >
-                {data.summary}
-              </p>
-            </section>
-          )}
-
-          {/* Work Experience */}
-          {data.workExperiences.length > 0 && (
-            <section style={{ marginBottom: "22px" }}>
-              <SectionTitle>工作经历</SectionTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {data.workExperiences.map((item) => (
-                  <div key={item.id}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <div>
-                        <span
-                          style={{
-                            fontSize: "13.5px",
-                            fontWeight: "700",
-                            color: "#1e293b",
-                          }}
-                        >
-                          {item.company}
-                        </span>
-                        {item.position && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#3b82f6",
-                              fontWeight: "600",
-                              marginLeft: "10px",
-                              background: "rgba(59,130,246,0.08)",
-                              padding: "1px 8px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            {item.position}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#94a3b8",
-                          whiteSpace: "nowrap",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {item.startDate} — {item.current ? "至今" : item.endDate}
-                      </span>
-                    </div>
-                    <DescriptionBlock text={item.description} />
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Projects */}
-          {data.projects.length > 0 && (
-            <section style={{ marginBottom: "22px" }}>
-              <SectionTitle>项目经历</SectionTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {data.projects.map((item) => (
-                  <div key={item.id}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <div>
-                        <span
-                          style={{
-                            fontSize: "13.5px",
-                            fontWeight: "700",
-                            color: "#1e293b",
-                          }}
-                        >
-                          {item.name}
-                        </span>
-                        {item.role && (
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#8b5cf6",
-                              fontWeight: "600",
-                              marginLeft: "10px",
-                              background: "rgba(139,92,246,0.08)",
-                              padding: "1px 8px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            {item.role}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#94a3b8",
-                          whiteSpace: "nowrap",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {item.startDate && `${item.startDate} — ${item.endDate}`}
-                      </span>
-                    </div>
-                    <DescriptionBlock text={item.description} />
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Education */}
-          {data.educations.length > 0 && (
-            <section style={{ marginBottom: "22px" }}>
-              <SectionTitle>教育背景</SectionTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {data.educations.map((item) => (
-                  <div key={item.id}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <div>
-                        <span
-                          style={{
-                            fontSize: "13.5px",
-                            fontWeight: "700",
-                            color: "#1e293b",
-                          }}
-                        >
-                          {item.school}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "#64748b",
-                            marginLeft: "8px",
-                          }}
-                        >
-                          {item.major} · {item.degree}
-                        </span>
-                        {item.gpa && (
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              color: "#10b981",
-                              background: "rgba(16,185,129,0.08)",
-                              padding: "1px 7px",
-                              borderRadius: "4px",
-                              marginLeft: "8px",
-                            }}
-                          >
-                            GPA {item.gpa}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#94a3b8",
-                          whiteSpace: "nowrap",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {item.startDate} — {item.endDate}
-                      </span>
-                    </div>
-                    {item.description && (
-                      <p
-                        style={{
-                          fontSize: "12px",
-                          color: "#64748b",
-                          marginTop: "4px",
-                          lineHeight: "1.6",
-                        }}
-                      >
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Skills */}
-          {data.skills.length > 0 && (
-            <section>
-              <SectionTitle>技能特长</SectionTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {data.skills.map((item) => (
-                  <div
-                    key={item.id}
-                    style={{ display: "flex", alignItems: "baseline", gap: "12px" }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#334155",
-                        minWidth: "72px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {item.category}
-                    </span>
-                    <div
-                      style={{
-                        flex: 1,
-                        height: "1px",
-                        background: "#f1f5f9",
-                        flexShrink: 0,
-                        width: "12px",
-                        alignSelf: "center",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: "12.5px",
-                        color: "#475569",
-                        lineHeight: "1.5",
-                        flex: 1,
-                      }}
-                    >
-                      {item.items}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+          {sectionOrder.map(renderSection)}
         </div>
       </div>
     );

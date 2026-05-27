@@ -8,6 +8,7 @@ import { EducationForm } from "./EducationForm";
 import { ProjectForm } from "./ProjectForm";
 import { SkillsForm } from "./SkillsForm";
 import { SummaryForm } from "./SummaryForm";
+import { SectionOrderForm } from "./SectionOrderForm";
 import {
   User,
   Briefcase,
@@ -15,6 +16,7 @@ import {
   FolderOpen,
   Zap,
   FileText,
+  LayoutList,
 } from "lucide-react";
 
 interface EditorPanelProps {
@@ -29,6 +31,7 @@ const tabs = [
   { id: "project",   label: "项目", icon: FolderOpen },
   { id: "skills",    label: "技能", icon: Zap },
   { id: "summary",   label: "评价", icon: FileText },
+  { id: "order",     label: "排序", icon: LayoutList },
 ];
 
 export function EditorPanel({ data, onChange }: EditorPanelProps) {
@@ -36,16 +39,21 @@ export function EditorPanel({ data, onChange }: EditorPanelProps) {
     <Tabs defaultValue="basic" className="flex flex-col h-full">
       {/* Tab Navigation */}
       <div className="flex-shrink-0 px-3 pt-3 pb-0">
-        <TabsList className="w-full grid grid-cols-6 bg-white/5 border border-white/10 rounded-xl p-1 h-auto gap-0.5">
+        <TabsList className="w-full grid grid-cols-7 bg-white/5 border border-white/10 rounded-xl p-1 h-auto gap-0.5">
           {tabs.map(({ id, label, icon: Icon }) => (
             <TabsTrigger
               key={id}
               value={id}
-              className="flex flex-col items-center gap-0.5 py-2 px-1 rounded-lg text-white/40
-                         data-[state=active]:text-white data-[state=active]:bg-white/10
-                         transition-all duration-200 hover:text-white/70
-                         text-[10px] sm:text-[11px] font-medium
-                         min-h-[48px] touch-manipulation"
+              className={[
+                "flex flex-col items-center gap-0.5 py-2 px-1 rounded-lg text-white/40",
+                "data-[state=active]:text-white",
+                id === "order"
+                  ? "data-[state=active]:bg-gradient-to-b data-[state=active]:from-blue-600/30 data-[state=active]:to-violet-600/30 data-[state=active]:border data-[state=active]:border-blue-500/30"
+                  : "data-[state=active]:bg-white/10",
+                "transition-all duration-200 hover:text-white/70",
+                "text-[10px] sm:text-[11px] font-medium",
+                "min-h-[48px] touch-manipulation",
+              ].join(" ")}
             >
               <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
               <span className="leading-none">{label}</span>
@@ -74,6 +82,9 @@ export function EditorPanel({ data, onChange }: EditorPanelProps) {
         </TabsContent>
         <TabsContent value="summary" className="m-0">
           <SummaryForm data={data} onChange={onChange} />
+        </TabsContent>
+        <TabsContent value="order" className="m-0">
+          <SectionOrderForm data={data} onChange={onChange} />
         </TabsContent>
       </div>
     </Tabs>
