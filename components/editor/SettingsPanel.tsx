@@ -1,16 +1,106 @@
 "use client";
 import type { ResumeData } from "@/lib/resume-data";
-import { defaultAppearance, accentColors, type ResumeAppearance } from "@/lib/resume-appearance";
+import {
+  defaultAppearance,
+  accentColors,
+  type ResumeAppearance,
+} from "@/lib/resume-appearance";
 import { Check, RotateCcw } from "lucide-react";
-export function SettingsPanel({data,onChange}:{data:ResumeData;onChange:(data:ResumeData)=>void}) {
-  const appearance={...defaultAppearance,...data.appearance};
-  function update(patch:Partial<ResumeAppearance>) {onChange({...data,appearance:{...appearance,...patch}});}
-  return <div className="editor-panel"><div className="panel-heading"><h1>排版设置</h1><p>微调细节，找到最适合你的呈现方式。</p></div><div className="panel-scroll settings-panel">
-    <fieldset><legend>强调色</legend><div className="color-options">{(Object.keys(accentColors) as Array<keyof typeof accentColors>).map(color=><button key={color} className="color-swatch" style={{background:accentColors[color]}} aria-label={`${({green:"森林绿",blue:"商务蓝",slate:"石墨灰"})[color]}`} aria-pressed={appearance.accent===color} onClick={()=>update({accent:color})}>{appearance.accent===color && <Check size={17}/>}</button>)}</div></fieldset>
-    <div className="field"><label htmlFor="font-size">正文字号：{appearance.fontSize} px</label><input type="range" id="font-size" min={10} max={15} step={0.5} value={appearance.fontSize} onChange={e=>update({fontSize:Number(e.target.value)})}/><p className="subtle">较大字号更易阅读，也可能增加页数。</p></div>
-    <div className="field"><label htmlFor="resume-spacing">内容间距</label><select id="resume-spacing" value={appearance.spacing} onChange={e=>update({spacing:e.target.value as ResumeAppearance["spacing"]})}><option value="comfortable">舒适 · 更多留白</option><option value="compact">紧凑 · 更多内容</option></select></div>
-    <label className="check-field"><input type="checkbox" checked={appearance.showBrand} onChange={e=>update({showBrand:e.target.checked})}/>在简历中显示 ResumeOK 标识</label>
-    <button className="soft-button" onClick={()=>onChange({...data,appearance:{...defaultAppearance}})}><RotateCcw size={15}/>恢复默认排版</button>
-    <div className="settings-note"><h2>关于保存</h2><p>当前采用本地保存，不需要登录。数据仅存在此浏览器中，不会自动同步到其他设备。</p><p>清除浏览器数据会移除简历，请在「我的简历」中定期导出 JSON 备份。</p><h2>快捷操作</h2><p>撤销：⌘ / Ctrl + Z<br/>重做：⌘ / Ctrl + Shift + Z</p></div>
-  </div></div>;
+export function SettingsPanel({
+  data,
+  onChange,
+}: {
+  data: ResumeData;
+  onChange: (data: ResumeData) => void;
+}) {
+  const appearance = { ...defaultAppearance, ...data.appearance };
+  function update(patch: Partial<ResumeAppearance>) {
+    onChange({ ...data, appearance: { ...appearance, ...patch } });
+  }
+  return (
+    <div className="editor-panel">
+      <div className="panel-heading">
+        <h1>排版设置</h1>
+        <p>微调细节，找到最适合你的呈现方式。</p>
+      </div>
+      <div className="panel-scroll settings-panel">
+        <fieldset>
+          <legend>强调色</legend>
+          <div className="color-options">
+            {(
+              Object.keys(accentColors) as Array<keyof typeof accentColors>
+            ).map((color) => (
+              <button
+                key={color}
+                className="color-swatch"
+                style={{ background: accentColors[color] }}
+                aria-label={`${{ green: "森林绿", blue: "商务蓝", slate: "石墨灰" }[color]}`}
+                aria-pressed={appearance.accent === color}
+                onClick={() => update({ accent: color })}
+              >
+                {appearance.accent === color && <Check size={17} />}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <div className="field">
+          <label htmlFor="font-size">正文字号：{appearance.fontSize} px</label>
+          <input
+            type="range"
+            id="font-size"
+            min={10}
+            max={15}
+            step={0.5}
+            value={appearance.fontSize}
+            onChange={(e) => update({ fontSize: Number(e.target.value) })}
+          />
+          <p className="subtle">较大字号更易阅读，也可能增加页数。</p>
+        </div>
+        <div className="field">
+          <label htmlFor="resume-spacing">内容间距</label>
+          <select
+            id="resume-spacing"
+            value={appearance.spacing}
+            onChange={(e) =>
+              update({ spacing: e.target.value as ResumeAppearance["spacing"] })
+            }
+          >
+            <option value="comfortable">舒适 · 更多留白</option>
+            <option value="compact">紧凑 · 更多内容</option>
+          </select>
+        </div>
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={appearance.showBrand}
+            onChange={(e) => update({ showBrand: e.target.checked })}
+          />
+          在简历中显示 ResumeOK 标识
+        </label>
+        <button
+          className="soft-button"
+          onClick={() =>
+            onChange({ ...data, appearance: { ...defaultAppearance } })
+          }
+        >
+          <RotateCcw size={15} />
+          恢复默认排版
+        </button>
+        <div className="settings-note">
+          <h2>关于保存</h2>
+          <p>
+            当前采用本地保存，不需要登录。数据仅存在此浏览器中，不会自动同步到其他设备。
+          </p>
+          <p>
+            清除浏览器数据会移除简历，请在「我的简历」中定期导出 JSON 备份。
+          </p>
+          <h2>快捷操作</h2>
+          <p>
+            撤销：⌘ / Ctrl + Z<br />
+            重做：⌘ / Ctrl + Shift + Z
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

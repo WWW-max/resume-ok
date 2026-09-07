@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ResumeOK
 
-## Getting Started
+按 `public/designs/web-ui.png` 实现的在线简历编辑器。Next.js 16.2、React 19、TypeScript、Tailwind CSS。
 
-First, run the development server:
+## 启动
 
-```bash
+```sh
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 http://localhost:3000 。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 已实现
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 白色 / 浅蓝 / 绿色三栏工作台；小屏编辑与预览切换。
+- 个人信息、头像、工作、项目、教育、技能和自我评价编辑。
+- 模块拖拽排序、键盘可操作的上移 / 下移、隐藏与恢复。
+- 本地自动保存；新建、复制、重命名、归档与恢复简历。
+- JSON 导出备份与校验导入；导入以新副本追加，不覆盖已有简历。
+- 撤销 / 重做，支持 Cmd / Ctrl + Z 与 Cmd / Ctrl + Shift + Z。
+- 三种模板，强调色、字号、间距、品牌标识设置。
+- 自适应和 50%–150% 缩放，A4 多页 PDF 下载；失败时可使用浏览器打印。
+- 本地完整度检查与对应模块跳转。
 
-## Learn More
+## 边界
 
-To learn more about Next.js, take a look at the following resources:
+目前是本地优先的 Web 编辑器，未接入账号、云同步、付费或 AI 服务。简历检查使用明确的本地规则，不是 AI 或招聘评分。清除浏览器存储会移除本地数据，建议定期备份。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+头像接受 JPG / PNG / WebP，最大 5 MB，并缩小至最长边 400px。简历库最多 100 份，每个列表模块最多 100 条；JSON 导入文件上限 10 MB。浏览器存储不足时显示保存失败提示，不伪报成功。PDF 下载为图像式 PDF；需要可选择文字时可使用浏览器打印。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 验证
 
-## Deploy on Vercel
+```sh
+npm test
+npm run lint
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+20 项 Node 回归测试覆盖备份校验、数据隔离、日期检查、模块隐藏、历史记录与 PDF 分页边界。不需要新增测试依赖。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+本次生产构建、静态检查和 Node 测试已执行；浏览器自动化工具拒绝本地导航，因此尚未完成浏览器交互、视觉截图及 PDF 文件实测。后续浏览器验收重点：
+
+1. 在 1536px / 1280px 宽度与设计图对照；确认窄屏无横向页面溢出。
+2. 编辑姓名、上传头像、增删经历、排序与隐藏模块，观察预览并刷新验证恢复。
+3. 新建 / 复制 / 归档 / 恢复简历，导入备份，撤销与重做。
+4. 从全屏预览打开模板、助手和设置，确认侧栏可见。
+5. 导出默认单页与长篇多页 PDF，检查无空白尾页、未裁切文字；在小屏编辑状态下也验证导出。

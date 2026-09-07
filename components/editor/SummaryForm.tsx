@@ -21,11 +21,15 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
   return (
     <div className="px-4 pb-6 space-y-4">
       <div className="space-y-2">
-        <Label htmlFor={id} className="text-slate-500 text-xs font-medium flex items-center gap-1.5">
+        <Label
+          htmlFor={id}
+          className="text-slate-500 text-xs font-medium flex items-center gap-1.5"
+        >
           <FileText className="w-3 h-3" />
           自我评价
         </Label>
-        <Textarea id={id}
+        <Textarea
+          id={id}
           className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none"
           placeholder="介绍你的核心竞争力、工作风格、职业目标等..."
           value={data.summary}
@@ -47,11 +51,14 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
         <ul className="space-y-1">
           {[
             "突出你的核心技术栈和专业领域",
-            "量化成就，如\"5年经验\"、\"团队协作\"",
+            '量化成就，如"5年经验"、"团队协作"',
             "体现职业态度：学习能力、团队精神",
             "保持简洁，避免空洞的套话",
           ].map((tip, i) => (
-            <li key={i} className="text-slate-500 text-xs flex items-start gap-1.5">
+            <li
+              key={i}
+              className="text-slate-500 text-xs flex items-start gap-1.5"
+            >
               <span className="text-blue-400/60 mt-0.5">•</span>
               {tip}
             </li>

@@ -10,7 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "ResumeOK — 让每一份简历，更接近 Offer",
-  description: "在线制作专业简历，支持实时预览和一键导出 PDF。免费好用的简历编辑器。",
+  description:
+    "在线制作专业简历，支持实时预览和一键导出 PDF。免费好用的简历编辑器。",
 };
 
 export const viewport: Viewport = {
@@ -25,10 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="zh-CN"
-      className={`${inter.variable} h-full antialiased`}
-    >
+    <html lang="zh-CN" className={`${inter.variable} h-full antialiased`}>
       <body className="h-full flex flex-col overflow-hidden">{children}</body>
     </html>
   );

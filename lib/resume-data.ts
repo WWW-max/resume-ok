@@ -36,7 +36,12 @@ export interface Skill {
   items: string;
 }
 
-export type SectionKey = "summary" | "workExperiences" | "projects" | "educations" | "skills";
+export type SectionKey =
+  | "summary"
+  | "workExperiences"
+  | "projects"
+  | "educations"
+  | "skills";
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "workExperiences",
