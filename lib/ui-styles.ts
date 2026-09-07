@@ -58,7 +58,7 @@ export const ui = {
   "toolbar-group":
     "toolbar-group flex min-w-0 items-center gap-2 max-[1250px]:gap-1",
   "preview-canvas":
-    "preview-canvas flex-1 min-w-0 overflow-auto overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[540px]:px-3 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+    "preview-canvas flex-1 min-w-0 overflow-x-auto overflow-y-scroll [scrollbar-gutter:stable] overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[540px]:px-3 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
   "paper-size":
     "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
   "resume-paper":

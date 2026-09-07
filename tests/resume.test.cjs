@@ -277,3 +277,46 @@ test("all current accent settings survive backup roundtrip", () => {
     assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
   }
 });
+
+const { observePreviewSize } = require("../lib/observe-preview.ts");
+test("preview resize notifications are batched, deduplicated, and cancelled on cleanup", () => {
+  const originals = Object.fromEntries(["ResizeObserver", "requestAnimationFrame", "cancelAnimationFrame", "getComputedStyle"].map(key => [key, globalThis[key]]));
+  const frames = new Map(); let id = 0; let notify; let disconnected = false;
+  globalThis.ResizeObserver = class {
+    constructor(callback) { notify = callback; }
+    observe() {}
+    disconnect() { disconnected = true; }
+  };
+  globalThis.requestAnimationFrame = callback => { frames.set(++id, callback); return id; };
+  globalThis.cancelAnimationFrame = frame => frames.delete(frame);
+  globalThis.getComputedStyle = () => ({paddingLeft: "12px", paddingRight: "12px"});
+  const flush = () => { const pending = [...frames.values()]; frames.clear(); pending.forEach(callback => callback()); };
+  try {
+    const outer = {clientWidth: 375}, paper = {offsetHeight: 1123}, changes = [];
+    const dispose = observePreviewSize(outer, paper, "fit", value => changes.push(value));
+    notify(); notify(); notify();
+    assert.equal(frames.size, 1); assert.equal(changes.length, 0);
+    flush(); assert.equal(changes.length, 1); assert.equal(changes[0].scale, 351 / 794);
+    for (let i=0; i<30; i++) { notify(); flush(); }
+    assert.equal(changes.length, 1, "identical observer deliveries must not trigger a render loop");
+    outer.clientWidth = 320; notify(); flush();
+    assert.equal(changes.at(-1).scale, 296 / 794);
+    paper.offsetHeight = 1500; notify(); flush();
+    assert.equal(changes.at(-1).height, 1500);
+    outer.clientWidth = 0; paper.offsetHeight = 0; notify(); flush();
+    assert.equal(changes.length, 3, "hidden preview must not reset its dimensions");
+    outer.clientWidth = 390; paper.offsetHeight = 1123; notify(); flush();
+    assert.equal(changes.at(-1).scale, 366 / 794);
+    notify(); dispose(); assert.equal(frames.size, 0); assert.equal(disconnected, true);
+    notify(); assert.equal(frames.size, 0, "late deliveries after unmount must be ignored");
+    const manual = [];
+    const stopManual = observePreviewSize(outer, paper, 125, value => manual.push(value));
+    flush(); outer.clientWidth = 500; notify(); flush();
+    assert.deepEqual(manual, [{scale: 1.25, height:1123}]);
+    stopManual();
+  } finally {
+    for (const [key,value] of Object.entries(originals)) {
+      if (value === undefined) delete globalThis[key]; else globalThis[key] = value;
+    }
+  }
+});
