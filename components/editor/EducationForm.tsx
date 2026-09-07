@@ -15,9 +15,9 @@ interface EducationFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 const textareaCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
 
 const DEGREES = ["专科", "本科", "硕士", "博士", "其他"];
 
@@ -57,7 +57,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
   return (
     <div className="px-4 pb-6 space-y-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-white/40 text-xs">共 {data.educations.length} 段教育经历</p>
+        <p className="text-slate-500 text-xs">共 {data.educations.length} 段教育经历</p>
         <Button
           onClick={addItem}
           size="sm"
@@ -71,10 +71,10 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
       {data.educations.map((item) => (
         <div
           key={item.id}
-          className="border border-white/10 rounded-xl overflow-hidden bg-white/3 hover:border-white/15 transition-colors"
+          className="border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-200 transition-colors"
         >
           <div
-            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation"
+            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white transition-colors touch-manipulation"
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
           >
             <div className="flex items-center gap-2 min-w-0">
@@ -82,10 +82,10 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
                 <GraduationCap className="w-3 h-3 text-emerald-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">
+                <p className="text-slate-800 text-xs font-medium truncate">
                   {item.school || "未填写学校"}
                 </p>
-                <p className="text-white/40 text-[10px] truncate">
+                <p className="text-slate-500 text-xs truncate">
                   {item.major || "专业"} · {item.degree}
                 </p>
               </div>
@@ -93,23 +93,23 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                className="w-6 h-6 rounded-md flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                className="w-6 h-6 rounded-md flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
               {expandedId === item.id ? (
-                <ChevronUp className="w-3.5 h-3.5 text-white/30" />
+                <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
               ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
               )}
             </div>
           </div>
 
           {expandedId === item.id && (
-            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-3">
+            <div className="px-3 pb-3 space-y-2.5 border-t border-slate-200 pt-3">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">学校名称</Label>
+                  <Label className="text-slate-500 text-xs">学校名称</Label>
                   <Input
                     className={inputCls}
                     placeholder="某某大学"
@@ -118,7 +118,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">专业</Label>
+                  <Label className="text-slate-500 text-xs">专业</Label>
                   <Input
                     className={inputCls}
                     placeholder="计算机科学"
@@ -129,21 +129,21 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">学历</Label>
+                  <Label className="text-slate-500 text-xs">学历</Label>
                   <select
-                    className="w-full h-9 rounded-lg bg-white/5 border border-white/10 text-white text-sm px-2 focus:border-blue-500/50 outline-none transition-colors"
+                    className="w-full h-9 rounded-lg bg-white border border-slate-200 text-slate-800 text-sm px-2 focus:border-blue-500/50 outline-none transition-colors"
                     value={item.degree}
                     onChange={(e) => updateItem(item.id, "degree", e.target.value)}
                   >
                     {DEGREES.map((d) => (
-                      <option key={d} value={d} className="bg-[#1a1a2e]">
+                      <option key={d} value={d} className="bg-white">
                         {d}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">入学时间</Label>
+                  <Label className="text-slate-500 text-xs">入学时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="2015-09"
@@ -152,7 +152,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">毕业时间</Label>
+                  <Label className="text-slate-500 text-xs">毕业时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="2019-06"
@@ -162,7 +162,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-white/50 text-[10px]">GPA / 成绩</Label>
+                <Label className="text-slate-500 text-xs">GPA / 成绩</Label>
                 <Input
                   className={inputCls}
                   placeholder="3.8/4.0"
@@ -171,7 +171,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-white/50 text-[10px]">描述（荣誉、活动等）</Label>
+                <Label className="text-slate-500 text-xs">描述（荣誉、活动等）</Label>
                 <Textarea
                   className={textareaCls}
                   placeholder="• 主修数据结构、算法等课程&#10;• 获国家奖学金"
@@ -186,7 +186,7 @@ export function EducationForm({ data, onChange }: EducationFormProps) {
       ))}
 
       {data.educations.length === 0 && (
-        <div className="text-center py-10 text-white/25 text-sm">
+        <div className="text-center py-10 text-slate-500 text-sm">
           <GraduationCap className="w-8 h-8 mx-auto mb-2 opacity-30" />
           点击"添加教育"开始填写
         </div>

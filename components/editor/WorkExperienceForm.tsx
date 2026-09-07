@@ -15,9 +15,9 @@ interface WorkExperienceFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 const textareaCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
 
 export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) {
   const [expandedId, setExpandedId] = useState<string | null>(
@@ -57,7 +57,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
   return (
     <div className="px-4 pb-6 space-y-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-white/40 text-xs">共 {data.workExperiences.length} 段工作经历</p>
+        <p className="text-slate-500 text-xs">共 {data.workExperiences.length} 段工作经历</p>
         <Button
           onClick={addItem}
           size="sm"
@@ -71,11 +71,11 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
       {data.workExperiences.map((item) => (
         <div
           key={item.id}
-          className="border border-white/10 rounded-xl overflow-hidden bg-white/3 hover:border-white/15 transition-colors"
+          className="border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-200 transition-colors"
         >
           {/* Item Header */}
           <div
-            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation"
+            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white transition-colors touch-manipulation"
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
           >
             <div className="flex items-center gap-2 min-w-0">
@@ -83,10 +83,10 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                 <Building2 className="w-3 h-3 text-blue-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">
+                <p className="text-slate-800 text-xs font-medium truncate">
                   {item.company || "未填写公司"}
                 </p>
-                <p className="text-white/40 text-[10px] truncate">
+                <p className="text-slate-500 text-xs truncate">
                   {item.position || "职位"}{" "}
                   {item.startDate && `· ${item.startDate} — ${item.current ? "至今" : item.endDate || "?"}`}
                 </p>
@@ -95,24 +95,24 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                className="w-6 h-6 rounded-md flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                className="w-6 h-6 rounded-md flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
               {expandedId === item.id ? (
-                <ChevronUp className="w-3.5 h-3.5 text-white/30" />
+                <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
               ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
               )}
             </div>
           </div>
 
           {/* Item Form */}
           {expandedId === item.id && (
-            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-3">
+            <div className="px-3 pb-3 space-y-2.5 border-t border-slate-200 pt-3">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">公司名称</Label>
+                  <Label className="text-slate-500 text-xs">公司名称</Label>
                   <Input
                     className={inputCls}
                     placeholder="某科技公司"
@@ -121,7 +121,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">职位</Label>
+                  <Label className="text-slate-500 text-xs">职位</Label>
                   <Input
                     className={inputCls}
                     placeholder="前端工程师"
@@ -132,7 +132,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">开始时间</Label>
+                  <Label className="text-slate-500 text-xs">开始时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="2022-03"
@@ -141,7 +141,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">结束时间</Label>
+                  <Label className="text-slate-500 text-xs">结束时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="至今"
@@ -159,12 +159,12 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                   onChange={(e) => updateItem(item.id, "current", e.target.checked)}
                   className="w-3.5 h-3.5 accent-blue-500"
                 />
-                <Label htmlFor={`current-${item.id}`} className="text-white/50 text-xs cursor-pointer">
+                <Label htmlFor={`current-${item.id}`} className="text-slate-500 text-xs cursor-pointer">
                   至今在职
                 </Label>
               </div>
               <div className="space-y-1">
-                <Label className="text-white/50 text-[10px]">工作描述（每行以 • 开头）</Label>
+                <Label className="text-slate-500 text-xs">工作描述（每行以 • 开头）</Label>
                 <Textarea
                   className={textareaCls}
                   placeholder={"• 负责核心业务系统开发\n• 优化页面性能提升 40%"}
@@ -179,7 +179,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
       ))}
 
       {data.workExperiences.length === 0 && (
-        <div className="text-center py-10 text-white/25 text-sm">
+        <div className="text-center py-10 text-slate-500 text-sm">
           <Building2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
           点击"添加经历"开始填写
         </div>

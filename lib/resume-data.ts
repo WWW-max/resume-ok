@@ -38,11 +38,11 @@ export interface Skill {
 export type SectionKey = "summary" | "workExperiences" | "projects" | "educations" | "skills";
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = [
-  "summary",
   "workExperiences",
   "projects",
   "educations",
   "skills",
+  "summary",
 ];
 
 export const SECTION_LABELS: Record<SectionKey, string> = {

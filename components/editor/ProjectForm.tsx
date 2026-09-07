@@ -15,9 +15,9 @@ interface ProjectFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 const textareaCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none";
 
 export function ProjectForm({ data, onChange }: ProjectFormProps) {
   const [expandedId, setExpandedId] = useState<string | null>(
@@ -54,7 +54,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
   return (
     <div className="px-4 pb-6 space-y-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-white/40 text-xs">共 {data.projects.length} 个项目经历</p>
+        <p className="text-slate-500 text-xs">共 {data.projects.length} 个项目经历</p>
         <Button
           onClick={addItem}
           size="sm"
@@ -68,10 +68,10 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
       {data.projects.map((item) => (
         <div
           key={item.id}
-          className="border border-white/10 rounded-xl overflow-hidden bg-white/3 hover:border-white/15 transition-colors"
+          className="border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-200 transition-colors"
         >
           <div
-            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white/5 transition-colors touch-manipulation"
+            className="flex items-center justify-between px-3 py-3 md:py-2.5 cursor-pointer hover:bg-white transition-colors touch-manipulation"
             onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
           >
             <div className="flex items-center gap-2 min-w-0">
@@ -79,10 +79,10 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
                 <FolderOpen className="w-3 h-3 text-violet-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">
+                <p className="text-slate-800 text-xs font-medium truncate">
                   {item.name || "未填写项目名"}
                 </p>
-                <p className="text-white/40 text-[10px] truncate">
+                <p className="text-slate-500 text-xs truncate">
                   {item.role || "角色"}{" "}
                   {item.startDate && `· ${item.startDate} — ${item.endDate || "?"}`}
                 </p>
@@ -91,23 +91,23 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
             <div className="flex items-center gap-1 flex-shrink-0">
               <button
                 onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                className="w-6 h-6 rounded-md flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                className="w-6 h-6 rounded-md flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
               {expandedId === item.id ? (
-                <ChevronUp className="w-3.5 h-3.5 text-white/30" />
+                <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
               ) : (
-                <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
               )}
             </div>
           </div>
 
           {expandedId === item.id && (
-            <div className="px-3 pb-3 space-y-2.5 border-t border-white/5 pt-3">
+            <div className="px-3 pb-3 space-y-2.5 border-t border-slate-200 pt-3">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">项目名称</Label>
+                  <Label className="text-slate-500 text-xs">项目名称</Label>
                   <Input
                     className={inputCls}
                     placeholder="企业低代码平台"
@@ -116,7 +116,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">担任角色</Label>
+                  <Label className="text-slate-500 text-xs">担任角色</Label>
                   <Input
                     className={inputCls}
                     placeholder="技术负责人"
@@ -127,7 +127,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">开始时间</Label>
+                  <Label className="text-slate-500 text-xs">开始时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="2023-01"
@@ -136,7 +136,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white/50 text-[10px]">结束时间</Label>
+                  <Label className="text-slate-500 text-xs">结束时间</Label>
                   <Input
                     className={inputCls}
                     placeholder="2023-12"
@@ -146,7 +146,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-white/50 text-[10px] flex items-center gap-1">
+                <Label className="text-slate-500 text-xs flex items-center gap-1">
                   <Link className="w-2.5 h-2.5" />
                   项目链接（可选）
                 </Label>
@@ -158,7 +158,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-white/50 text-[10px]">项目描述（每行以 • 开头）</Label>
+                <Label className="text-slate-500 text-xs">项目描述（每行以 • 开头）</Label>
                 <Textarea
                   className={textareaCls}
                   placeholder={"• 设计并实现可视化拖拽编辑器\n• 实现多人实时协作功能"}
@@ -173,7 +173,7 @@ export function ProjectForm({ data, onChange }: ProjectFormProps) {
       ))}
 
       {data.projects.length === 0 && (
-        <div className="text-center py-10 text-white/25 text-sm">
+        <div className="text-center py-10 text-slate-500 text-sm">
           <FolderOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
           点击"添加项目"开始填写
         </div>

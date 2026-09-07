@@ -89,15 +89,15 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-white/90 text-sm font-semibold">模块顺序</h3>
-          <p className="text-white/35 text-[11px] mt-0.5">拖拽或点击箭头调整简历模块的显示顺序</p>
+          <h3 className="text-slate-500 text-sm font-semibold">模块顺序</h3>
+          <p className="text-slate-500 text-xs mt-0.5">拖拽或点击箭头调整简历模块的显示顺序</p>
         </div>
         <button
           onClick={handleReset}
           title="恢复默认顺序"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/40 hover:text-white/70
-                     hover:bg-white/8 border border-transparent hover:border-white/10
-                     text-[11px] font-medium transition-all duration-200 active:scale-95"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-slate-500
+                     hover:bg-white border border-transparent hover:border-slate-200
+                     text-xs font-medium transition-all duration-200 active:scale-95"
         >
           <RotateCcw className="w-3 h-3" />
           重置
@@ -133,12 +133,12 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
             >
               {/* Drag handle */}
               <GripVertical
-                className="w-4 h-4 text-white/25 hover:text-white/50 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors"
+                className="w-4 h-4 text-slate-500 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors"
               />
 
               {/* Index badge */}
               <span
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                 style={{
                   background:
                     "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3))",
@@ -151,7 +151,7 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
 
               {/* Icon + Label */}
               <span className="text-base flex-shrink-0">{SECTION_ICONS[key]}</span>
-              <span className="flex-1 text-white/80 text-sm font-medium">
+              <span className="flex-1 text-slate-500 text-sm font-medium">
                 {SECTION_LABELS[key]}
               </span>
 
@@ -160,8 +160,8 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                 <button
                   onClick={() => moveUp(index)}
                   disabled={index === 0}
-                  className="w-6 h-5 flex items-center justify-center rounded text-white/30
-                             hover:text-white/70 hover:bg-white/10 disabled:opacity-20
+                  className="w-6 h-5 flex items-center justify-center rounded text-slate-500
+                             hover:text-slate-500 hover:bg-white disabled:opacity-20
                              disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -169,8 +169,8 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                 <button
                   onClick={() => moveDown(index)}
                   disabled={index === order.length - 1}
-                  className="w-6 h-5 flex items-center justify-center rounded text-white/30
-                             hover:text-white/70 hover:bg-white/10 disabled:opacity-20
+                  className="w-6 h-5 flex items-center justify-center rounded text-slate-500
+                             hover:text-slate-500 hover:bg-white disabled:opacity-20
                              disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
                 >
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -182,7 +182,7 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
       </div>
 
       {/* Tip */}
-      <p className="text-white/20 text-[10px] text-center pt-1">
+      <p className="text-slate-500 text-xs text-center pt-1">
         调整后右侧预览将实时更新
       </p>
     </div>

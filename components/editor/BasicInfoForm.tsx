@@ -22,7 +22,7 @@ function FormField({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-white/60 text-xs font-medium flex items-center gap-1.5">
+      <Label className="text-slate-500 text-xs font-medium flex items-center gap-1.5">
         {Icon && <Icon className="w-3 h-3" />}
         {label}
       </Label>
@@ -33,8 +33,8 @@ function FormField({
 
 // Larger touch targets on mobile (h-11 = 44px, meets WCAG minimum)
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 " +
-  "focus:border-blue-500/50 focus:bg-white/8 transition-colors " +
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 " +
+  "focus:border-blue-500/50 focus:bg-white transition-colors " +
   "text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 
 export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
@@ -46,8 +46,8 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
     <div className="px-4 pb-8 space-y-5">
       {/* Avatar Upload */}
       <div
-        className="flex flex-col items-center py-6 border border-dashed border-white/10 rounded-xl
-                   bg-white/2 hover:border-blue-500/30 active:border-blue-500/40
+        className="flex flex-col items-center py-6 border border-dashed border-slate-200 rounded-xl
+                   bg-white hover:border-blue-500/30 active:border-blue-500/40
                    transition-colors cursor-pointer group touch-manipulation"
         onClick={() => {
           const input = document.createElement("input");
@@ -71,11 +71,11 @@ export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
             className="w-20 h-20 rounded-full object-cover border-2 border-blue-500/50 shadow-lg shadow-blue-500/20"
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/30 to-violet-600/30 border border-white/10 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
-            <User className="w-8 h-8 text-white/30 group-hover:text-white/50 transition-colors" />
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/30 to-violet-600/30 border border-slate-200 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
+            <User className="w-8 h-8 text-slate-500 group-hover:text-slate-500 transition-colors" />
           </div>
         )}
-        <p className="text-white/30 text-xs mt-2.5 group-hover:text-white/50 transition-colors">
+        <p className="text-slate-500 text-xs mt-2.5 group-hover:text-slate-500 transition-colors">
           点击上传头像
         </p>
       </div>

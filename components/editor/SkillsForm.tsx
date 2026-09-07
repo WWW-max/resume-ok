@@ -13,7 +13,7 @@ interface SkillsFormProps {
 }
 
 const inputCls =
-  "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
+  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm h-11 md:h-9 rounded-lg touch-manipulation";
 
 const PRESET_CATEGORIES = [
   "编程语言",
@@ -49,7 +49,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
   return (
     <div className="px-4 pb-6 space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-white/40 text-xs">共 {data.skills.length} 项技能</p>
+        <p className="text-slate-500 text-xs">共 {data.skills.length} 项技能</p>
         <Button
           onClick={() => addItem()}
           size="sm"
@@ -62,7 +62,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
 
       {/* Quick Add Presets */}
       <div className="space-y-1.5">
-        <p className="text-white/30 text-[10px]">快捷添加分类</p>
+        <p className="text-slate-500 text-xs">快捷添加分类</p>
         <div className="flex flex-wrap gap-1.5">
           {PRESET_CATEGORIES.filter(
             (cat) => !data.skills.find((s) => s.category === cat)
@@ -70,7 +70,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
             <button
               key={cat}
               onClick={() => addItem(cat)}
-              className="px-2 py-1 rounded-md text-[10px] bg-white/5 border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20 hover:bg-white/8 transition-all"
+              className="px-2 py-1 rounded-md text-xs bg-white border border-slate-200 text-slate-500 hover:text-slate-500 hover:border-slate-200 hover:bg-white transition-all"
             >
               + {cat}
             </button>
@@ -83,7 +83,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
         {data.skills.map((item) => (
           <div
             key={item.id}
-            className="border border-white/10 rounded-xl p-3 bg-white/3 hover:border-white/15 transition-colors"
+            className="border border-slate-200 rounded-xl p-3 bg-white hover:border-slate-200 transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-5 h-5 rounded-md bg-amber-500/20 flex items-center justify-center flex-shrink-0">
@@ -99,7 +99,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
               </div>
               <button
                 onClick={() => removeItem(item.id)}
-                className="w-6 h-6 rounded-md flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0"
+                className="w-6 h-6 rounded-md flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all flex-shrink-0"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -115,7 +115,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
       </div>
 
       {data.skills.length === 0 && (
-        <div className="text-center py-10 text-white/25 text-sm">
+        <div className="text-center py-10 text-slate-500 text-sm">
           <Zap className="w-8 h-8 mx-auto mb-2 opacity-30" />
           添加技能或使用快捷分类
         </div>
