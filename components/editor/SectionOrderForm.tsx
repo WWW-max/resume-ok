@@ -1,7 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ResumeData, SectionKey, SECTION_LABELS, DEFAULT_SECTION_ORDER } from "@/lib/resume-data";
+import {
+  ResumeData,
+  SectionKey,
+  SECTION_LABELS,
+  DEFAULT_SECTION_ORDER,
+} from "@/lib/resume-data";
 import { GripVertical, ChevronUp, ChevronDown, RotateCcw } from "lucide-react";
 
 interface SectionOrderFormProps {
@@ -90,7 +95,9 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-slate-500 text-sm font-semibold">模块顺序</h3>
-          <p className="text-slate-500 text-xs mt-0.5">拖拽或点击箭头调整简历模块的显示顺序</p>
+          <p className="text-slate-500 text-xs mt-0.5">
+            拖拽或点击箭头调整简历模块的显示顺序
+          </p>
         </div>
         <button
           onClick={handleReset}
@@ -132,25 +139,17 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                 .join(" ")}
             >
               {/* Drag handle */}
-              <GripVertical
-                className="w-4 h-4 text-slate-500 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors"
-              />
+              <GripVertical className="w-4 h-4 text-slate-500 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors" />
 
               {/* Index badge */}
-              <span
-                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3))",
-                  color: "rgba(255,255,255,0.6)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                }}
-              >
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-linear-to-br from-blue-500/30 to-violet-500/30 text-white/60 border border-white/10">
                 {index + 1}
               </span>
 
               {/* Icon + Label */}
-              <span className="text-base flex-shrink-0">{SECTION_ICONS[key]}</span>
+              <span className="text-base flex-shrink-0">
+                {SECTION_ICONS[key]}
+              </span>
               <span className="flex-1 text-slate-500 text-sm font-medium">
                 {SECTION_LABELS[key]}
               </span>

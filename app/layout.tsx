@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { documentStyles } from "@/lib/ui-styles";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -26,8 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} h-full antialiased`}>
-      <body className="h-full flex flex-col overflow-hidden">{children}</body>
+    <html
+      lang="zh-CN"
+      className={`${inter.variable} ${documentStyles} h-full overscroll-none antialiased [-webkit-text-size-adjust:100%]`}
+    >
+      <body className="h-full flex flex-col overflow-hidden bg-background text-foreground font-workspace">
+        {children}
+      </body>
     </html>
   );
 }

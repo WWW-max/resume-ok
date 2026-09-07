@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { useRef, useState } from "react";
 import { ResumeData, SectionKey, SECTION_LABELS } from "@/lib/resume-data";
 import { BasicInfoForm } from "./BasicInfoForm";
@@ -73,29 +74,32 @@ export function EditorPanel({
   const hidden = data.hiddenSections ?? [];
   const Form = active ? sectionForms[active] : null;
   return (
-    <div className="editor-panel">
-      <div className="panel-heading">
+    <div className={ui["editor-panel"]}>
+      <div className={ui["panel-heading"]}>
         <h1>编辑简历</h1>
         <p>拖拽模块排序，点击模块进行编辑，右侧实时更新</p>
       </div>
-      <div className="panel-scroll">
+      <div className={`${ui["panel-scroll"]} pt-[18px] max-[900px]:pb-6`}>
         {active && Form ? (
           <>
-            <button className="back-button" onClick={() => setActive(null)}>
+            <button
+              className={ui["back-button"]}
+              onClick={() => setActive(null)}
+            >
               <ChevronLeft size={16} />
               返回简历模块
             </button>
-            <h2 className="form-heading">
+            <h2 className={ui["form-heading"]}>
               {active === "basic" ? "个人信息" : SECTION_LABELS[active]}
             </h2>
             <Form data={data} onChange={onChange} />
           </>
         ) : (
-          <div className="module-list">
-            <div className="section-heading">
+          <div className={ui["module-list"]}>
+            <div className={ui["section-heading"]}>
               <h2>简历模块</h2>
               <button
-                className="outline-green"
+                className={ui["outline-green"]}
                 onClick={() => setAdding(!adding)}
                 aria-expanded={adding}
               >
@@ -104,7 +108,7 @@ export function EditorPanel({
               </button>
             </div>
             {adding && (
-              <div className="restore-modules">
+              <div className={ui["restore-modules"]}>
                 <p>
                   {hidden.length
                     ? "选择要恢复的模块，原有内容会保留。"
@@ -112,7 +116,7 @@ export function EditorPanel({
                 </p>
                 {hidden.map((key) => (
                   <button
-                    className="soft-button"
+                    className={ui["soft-button"]}
                     key={key}
                     onClick={() => {
                       onChange({
@@ -158,13 +162,13 @@ export function EditorPanel({
                   onDragEnd={() => {
                     dragKey.current = null;
                   }}
-                  className={`module-card ${index === 0 ? "selected" : ""}`}
+                  className={`${ui["module-card"]} ${index === 0 ? "selected" : ""}`}
                 >
                   <button
-                    className="module-main"
+                    className={ui["module-main"]}
                     onClick={() => setActive(key)}
                   >
-                    <GripVertical size={16} className="grip" />
+                    <GripVertical size={16} className={ui["grip"]} />
                     <Icon size={20} />
                     <span>
                       <strong>
@@ -174,9 +178,9 @@ export function EditorPanel({
                     </span>
                   </button>
                   {key === "basic" ? (
-                    <ChevronRight size={17} className="grip" />
+                    <ChevronRight size={17} className={ui["grip"]} />
                   ) : (
-                    <details className="module-menu">
+                    <details className={ui["module-menu"]}>
                       <summary aria-label={`${SECTION_LABELS[key]}操作`}>
                         <MoreVertical size={18} />
                       </summary>
@@ -222,7 +226,7 @@ export function EditorPanel({
           </div>
         )}
       </div>
-      <div className="assistant-banner">
+      <div className={ui["assistant-banner"]}>
         <Lightbulb size={23} />
         <div>
           <strong>简历助手 · LuckyMe</strong>

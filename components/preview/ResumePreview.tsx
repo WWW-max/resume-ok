@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { forwardRef, type CSSProperties } from "react";
 import { ResumeData, SectionKey, SECTION_LABELS } from "@/lib/resume-data";
 import { defaultAppearance, accentColors } from "@/lib/resume-appearance";
@@ -24,7 +25,7 @@ const icons = {
 };
 function Description({ text }: { text: string }) {
   return (
-    <div className="resume-description">
+    <div className={ui["resume-description"]}>
       {text
         .split("\n")
         .filter((line) => line.trim())
@@ -43,7 +44,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           return data.summary ? <Description text={data.summary} /> : null;
         case "skills":
           return data.skills.length ? (
-            <div className="skill-tags">
+            <div className={ui["skill-tags"]}>
               {data.skills
                 .flatMap((s) => s.items.split(/\s*[/、,，]\s*/).filter(Boolean))
                 .map((s, i) => (
@@ -55,7 +56,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           return data.workExperiences.length
             ? data.workExperiences.map((item) => (
                 <article key={item.id}>
-                  <div className="resume-row">
+                  <div className={ui["resume-row"]}>
                     <h3>
                       {item.company} <span>{item.position}</span>
                     </h3>
@@ -71,14 +72,16 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           return data.projects.length
             ? data.projects.map((item) => (
                 <article key={item.id}>
-                  <div className="resume-row">
+                  <div className={ui["resume-row"]}>
                     <h3>{item.name}</h3>
                     <time>
                       {item.startDate} — {item.endDate}
                     </time>
                   </div>
-                  <p className="resume-role">{item.role}</p>
-                  {item.link && <p className="resume-link">{item.link}</p>}
+                  <p className={ui["resume-role"]}>{item.role}</p>
+                  {item.link && (
+                    <p className={ui["resume-link"]}>{item.link}</p>
+                  )}
                   <Description text={item.description} />
                 </article>
               ))
@@ -87,13 +90,13 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           return data.educations.length
             ? data.educations.map((item) => (
                 <article key={item.id}>
-                  <div className="resume-row">
+                  <div className={ui["resume-row"]}>
                     <h3>{item.school}</h3>
                     <time>
                       {item.startDate} — {item.endDate}
                     </time>
                   </div>
-                  <p className="resume-role">
+                  <p className={ui["resume-role"]}>
                     {[item.major, item.degree, item.gpa && `GPA ${item.gpa}`]
                       .filter(Boolean)
                       .join(" · ")}
@@ -107,7 +110,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
     return (
       <div
         ref={ref}
-        className={`resume-paper template-${appearance.template} spacing-${appearance.spacing}`}
+        className={`${ui["resume-paper"]} template-${appearance.template} spacing-${appearance.spacing}`}
         style={
           {
             "--resume-accent": accentColors[appearance.accent],
@@ -115,13 +118,13 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           } as CSSProperties
         }
       >
-        <Clover className="paper-watermark" aria-hidden="true" />
+        <Clover className={ui["paper-watermark"]} aria-hidden="true" />
         {appearance.showBrand && <Brand small />}
-        <header className="resume-header">
+        <header className={ui["resume-header"]}>
           <div>
             <h1>{data.name || "您的姓名"}</h1>
-            <p className="resume-job">{data.title || "求职意向"}</p>
-            <div className="resume-contact">
+            <p className={ui["resume-job"]}>{data.title || "求职意向"}</p>
+            <div className={ui["resume-contact"]}>
               {[
                 [Phone, data.phone],
                 [Mail, data.email],
@@ -144,11 +147,11 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
             <img
               src={data.avatar}
               alt={`${data.name}的简历头像`}
-              className="resume-avatar"
+              className={ui["resume-avatar"]}
             />
           )}
         </header>
-        <div className="resume-sections">
+        <div className={ui["resume-sections"]}>
           {data.sectionOrder
             .filter((key) => !data.hiddenSections?.includes(key))
             .map((key) => {
@@ -159,7 +162,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
                 <section
                   key={key}
                   data-section={key}
-                  className={`resume-section ${key === "skills" || key === "summary" ? "half-section" : ""}`}
+                  className={`${ui["resume-section"]} ${key === "skills" || key === "summary" ? "half-section" : ""}`}
                 >
                   <h2>
                     <Icon size={18} />

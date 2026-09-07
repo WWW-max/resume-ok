@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { ResumeData } from "@/lib/resume-data";
 import { defaultAppearance } from "@/lib/resume-appearance";
 import { Check } from "lucide-react";
@@ -11,12 +12,12 @@ export function TemplatePanel({
 }) {
   const appearance = { ...defaultAppearance, ...data.appearance };
   return (
-    <div className="editor-panel">
-      <div className="panel-heading">
+    <div className={ui["editor-panel"]}>
+      <div className={ui["panel-heading"]}>
         <h1>模板库</h1>
         <p>切换风格，不改变你已填写的内容。</p>
       </div>
-      <div className="panel-scroll template-list">
+      <div className={`${ui["panel-scroll"]} ${ui["template-list"]}`}>
         {[
           {
             id: "classic",
@@ -38,7 +39,7 @@ export function TemplatePanel({
           },
         ].map((t) => (
           <button
-            className={`template-card ${appearance.template === t.id ? "active" : ""}`}
+            className={`${ui["template-card"]} ${appearance.template === t.id ? "active" : ""}`}
             key={t.id}
             onClick={() =>
               onChange({
@@ -51,14 +52,17 @@ export function TemplatePanel({
             }
             aria-pressed={appearance.template === t.id}
           >
-            <div className={`template-mini mini-${t.id}`} aria-hidden="true">
-              <div className="mini-head">
+            <div
+              className={`${ui["template-mini"]} mini-${t.id}`}
+              aria-hidden="true"
+            >
+              <div className={ui["mini-head"]}>
                 <span />
                 <i />
                 <i />
               </div>
               {[0, 1, 2].map((i) => (
-                <div className="mini-section" key={i}>
+                <div className={ui["mini-section"]} key={i}>
                   <b />
                   <i />
                   <i />
@@ -66,7 +70,7 @@ export function TemplatePanel({
                 </div>
               ))}
             </div>
-            <div className="template-caption">
+            <div className={ui["template-caption"]}>
               <strong>
                 {t.name}
                 <small>{t.tag}</small>

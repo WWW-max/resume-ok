@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { useEffect, useId, useRef, useState } from "react";
 import { ResumeData } from "@/lib/resume-data";
 import { Upload, UserRound, Trash2 } from "lucide-react";
@@ -66,18 +67,18 @@ export function BasicInfoForm({
     }
   }
   return (
-    <div className="resume-form">
-      <div className="avatar-editor">
+    <div className={ui["resume-form"]}>
+      <div className={ui["avatar-editor"]}>
         {data.avatar ? (
           // eslint-disable-next-line @next/next/no-img-element -- locally uploaded thumbnail
           <img src={data.avatar} alt="简历头像" />
         ) : (
-          <div className="avatar-placeholder">
+          <div className={ui["avatar-placeholder"]}>
             <UserRound size={30} />
           </div>
         )}
         <div>
-          <label className="soft-button upload-button">
+          <label className={`${ui["soft-button"]} ${ui["upload-button"]}`}>
             <Upload size={15} />
             上传头像
             <input
@@ -93,7 +94,7 @@ export function BasicInfoForm({
           <p>JPG / PNG / WebP，最大 5 MB</p>
           {data.avatar && (
             <button
-              className="text-button"
+              className={ui["text-button"]}
               onClick={() => {
                 uploadSequence.current++;
                 onChange({ ...data, avatar: "" });
@@ -106,11 +107,11 @@ export function BasicInfoForm({
         </div>
       </div>
       {error && (
-        <p className="field-error" role="alert">
+        <p className={ui["field-error"]} role="alert">
           {error}
         </p>
       )}
-      <div className="form-grid">
+      <div className={ui["form-grid"]}>
         {fields.map(([key, label, placeholder, type]) => {
           const invalid =
             key === "email" &&
@@ -118,7 +119,7 @@ export function BasicInfoForm({
             !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
           return (
             <div
-              className={`field ${key === "website" ? "wide" : ""}`}
+              className={`${ui["field"]} ${key === "website" ? "wide" : ""}`}
               key={key}
             >
               <label htmlFor={`${id}-${key}`}>{label}</label>
@@ -132,7 +133,7 @@ export function BasicInfoForm({
                 onChange={(e) => onChange({ ...data, [key]: e.target.value })}
               />
               {invalid && (
-                <p id={`${id}-email-error`} className="field-error">
+                <p id={`${id}-email-error`} className={ui["field-error"]}>
                   请输入有效邮箱。
                 </p>
               )}

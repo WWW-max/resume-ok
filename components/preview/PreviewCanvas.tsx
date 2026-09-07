@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { ResumeData } from "@/lib/resume-data";
 import { ResumePreview } from "./ResumePreview";
@@ -31,16 +32,15 @@ export function PreviewCanvas({
     return () => observer.disconnect();
   }, [previewRef, zoom]);
   return (
-    <div className="preview-canvas" ref={container}>
+    <div className={ui["preview-canvas"]} ref={container}>
       <div
-        className="paper-size"
+        className={ui["paper-size"]}
         style={{ width: 794 * size.scale, height: size.height * size.scale }}
       >
         <div
+          className="w-[794px] origin-top-left"
           style={{
-            width: 794,
             transform: `scale(${size.scale})`,
-            transformOrigin: "top left",
           }}
         >
           <ResumePreview ref={previewRef} data={data} />

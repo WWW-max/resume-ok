@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { useRef, useState } from "react";
 import { useResumeLibrary } from "@/hooks/useResumeLibrary";
 import { LibraryPanel } from "@/components/editor/LibraryPanel";
@@ -57,7 +58,7 @@ export default function Home() {
   const previewRef = useRef<HTMLDivElement>(null);
   return (
     <div
-      className={`workspace ${previewOnly ? "preview-only" : ""}`}
+      className={`${ui["workspace"]} ${previewOnly ? "preview-only" : ""}`}
       onKeyDown={(event) => {
         if (
           (event.metaKey || event.ctrlKey) &&
@@ -70,26 +71,26 @@ export default function Home() {
         }
       }}
     >
-      <header className="topbar">
+      <header className={ui["topbar"]}>
         <Brand />
-        <span className="tagline">让每一份简历，都更接近 Offer</span>
-        <div className="top-actions">
+        <span className={ui["tagline"]}>让每一份简历，都更接近 Offer</span>
+        <div className={ui["top-actions"]}>
           <button
-            className="soft-button"
+            className={ui["soft-button"]}
             onClick={() => setPreviewOnly(!previewOnly)}
           >
             <Eye size={17} />
             {previewOnly ? "返回编辑" : "预览"}
           </button>
           <button
-            className="soft-button"
+            className={ui["soft-button"]}
             onClick={() => openPanel("assistant")}
           >
             <Lightbulb size={17} />
             助手
           </button>
           <button
-            className="primary-button"
+            className={ui["primary-button"]}
             disabled={exporting || !store.ready}
             onClick={download}
           >
@@ -97,7 +98,7 @@ export default function Home() {
             {exporting ? "导出中…" : "下载简历"}
           </button>
           <button
-            className="profile-button"
+            className={ui["profile-button"]}
             aria-label="打开设置"
             onClick={() => openPanel("settings")}
           >
@@ -107,17 +108,17 @@ export default function Home() {
         </div>
       </header>
       {exportError && (
-        <div className="export-error" role="alert">
+        <div className={ui["export-error"]} role="alert">
           {exportError}
           <button onClick={() => window.print()}>使用浏览器打印</button>
           <button onClick={() => setExportError("")}>关闭</button>
         </div>
       )}
-      <div className="save-status" role="status">
+      <div className={ui["save-status"]} role="status">
         {store.loadError || store.saveStatus}
       </div>
-      <div className="workspace-body" inert={!store.ready}>
-        <nav className="side-nav" aria-label="主导航">
+      <div className={ui["workspace-body"]} inert={!store.ready}>
+        <nav className={ui["side-nav"]} aria-label="主导航">
           {[
             { id: "editor", label: "编辑简历", icon: PencilLine },
             { id: "templates", label: "模板库", icon: LayoutGrid },
@@ -140,7 +141,7 @@ export default function Home() {
             </button>
           ))}
         </nav>
-        <aside className="editing-column">
+        <aside className={ui["editing-column"]}>
           {view === "editor" ? (
             <EditorPanel
               key={`${store.active.id}-${editTarget}`}
@@ -165,11 +166,11 @@ export default function Home() {
             <SettingsPanel data={data} onChange={setData} />
           )}
         </aside>
-        <main className="preview-column" aria-label="简历预览">
-          <div className="preview-toolbar">
-            <div className="toolbar-group">
+        <main className={ui["preview-column"]} aria-label="简历预览">
+          <div className={ui["preview-toolbar"]}>
+            <div className={ui["toolbar-group"]}>
               <button
-                className="icon-button"
+                className={ui["icon-button"]}
                 aria-label="撤销"
                 disabled={!store.past.length}
                 onClick={store.undo}
@@ -177,7 +178,7 @@ export default function Home() {
                 <Undo2 size={17} />
               </button>
               <button
-                className="icon-button"
+                className={ui["icon-button"]}
                 aria-label="重做"
                 disabled={!store.future.length}
                 onClick={store.redo}
@@ -186,7 +187,7 @@ export default function Home() {
               </button>
               <Monitor size={18} />
               <select
-                className="toolbar-pill"
+                className={ui["toolbar-pill"]}
                 aria-label="预览缩放"
                 value={zoom}
                 onChange={(e) =>
@@ -203,22 +204,22 @@ export default function Home() {
                 ))}
               </select>
             </div>
-            <div className="toolbar-group">
+            <div className={ui["toolbar-group"]}>
               <button
-                className="blue-button"
+                className={ui["blue-button"]}
                 onClick={() => openPanel("templates")}
               >
                 <LayoutGrid size={15} />
                 模板库
               </button>
               <button
-                className="blue-button"
+                className={ui["blue-button"]}
                 onClick={() => openPanel("assistant")}
               >
                 <Sparkles size={15} />
                 简历检查
               </button>
-              <span className="toolbar-pill">A4 (210 × 297mm)</span>
+              <span className={ui["toolbar-pill"]}>A4 (210 × 297mm)</span>
             </div>
           </div>
           <PreviewCanvas zoom={zoom} data={data} previewRef={previewRef} />

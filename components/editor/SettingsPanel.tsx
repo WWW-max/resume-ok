@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import type { ResumeData } from "@/lib/resume-data";
 import {
   defaultAppearance,
@@ -18,22 +19,21 @@ export function SettingsPanel({
     onChange({ ...data, appearance: { ...appearance, ...patch } });
   }
   return (
-    <div className="editor-panel">
-      <div className="panel-heading">
+    <div className={ui["editor-panel"]}>
+      <div className={ui["panel-heading"]}>
         <h1>排版设置</h1>
         <p>微调细节，找到最适合你的呈现方式。</p>
       </div>
-      <div className="panel-scroll settings-panel">
+      <div className={`${ui["panel-scroll"]} ${ui["settings-panel"]}`}>
         <fieldset>
           <legend>强调色</legend>
-          <div className="color-options">
+          <div className={ui["color-options"]}>
             {(
               Object.keys(accentColors) as Array<keyof typeof accentColors>
             ).map((color) => (
               <button
                 key={color}
-                className="color-swatch"
-                style={{ background: accentColors[color] }}
+                className={`${ui["color-swatch"]} ${{ green: "bg-[#15934b]", blue: "bg-[#285ec0]", slate: "bg-[#37465b]" }[color]}`}
                 aria-label={`${{ green: "森林绿", blue: "商务蓝", slate: "石墨灰" }[color]}`}
                 aria-pressed={appearance.accent === color}
                 onClick={() => update({ accent: color })}
@@ -43,7 +43,7 @@ export function SettingsPanel({
             ))}
           </div>
         </fieldset>
-        <div className="field">
+        <div className={ui["field"]}>
           <label htmlFor="font-size">正文字号：{appearance.fontSize} px</label>
           <input
             type="range"
@@ -54,9 +54,9 @@ export function SettingsPanel({
             value={appearance.fontSize}
             onChange={(e) => update({ fontSize: Number(e.target.value) })}
           />
-          <p className="subtle">较大字号更易阅读，也可能增加页数。</p>
+          <p className={ui["subtle"]}>较大字号更易阅读，也可能增加页数。</p>
         </div>
-        <div className="field">
+        <div className={ui["field"]}>
           <label htmlFor="resume-spacing">内容间距</label>
           <select
             id="resume-spacing"
@@ -69,7 +69,7 @@ export function SettingsPanel({
             <option value="compact">紧凑 · 更多内容</option>
           </select>
         </div>
-        <label className="check-field">
+        <label className={ui["check-field"]}>
           <input
             type="checkbox"
             checked={appearance.showBrand}
@@ -78,7 +78,7 @@ export function SettingsPanel({
           在简历中显示 ResumeOK 标识
         </label>
         <button
-          className="soft-button"
+          className={ui["soft-button"]}
           onClick={() =>
             onChange({ ...data, appearance: { ...defaultAppearance } })
           }
@@ -86,7 +86,7 @@ export function SettingsPanel({
           <RotateCcw size={15} />
           恢复默认排版
         </button>
-        <div className="settings-note">
+        <div className={ui["settings-note"]}>
           <h2>关于保存</h2>
           <p>
             当前采用本地保存，不需要登录。数据仅存在此浏览器中，不会自动同步到其他设备。

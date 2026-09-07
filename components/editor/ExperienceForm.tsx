@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "@/lib/ui-styles";
 import { useId } from "react";
 import {
   ResumeData,
@@ -110,11 +111,11 @@ export function ExperienceForm({
     });
   }
   return (
-    <div className="resume-form">
-      <div className="section-heading">
-        <span className="subtle">共 {items.length} 项</span>
+    <div className={ui["resume-form"]}>
+      <div className={ui["section-heading"]}>
+        <span className={ui["subtle"]}>共 {items.length} 项</span>
         <button
-          className="outline-green"
+          className={ui["outline-green"]}
           disabled={items.length >= 100}
           title={items.length >= 100 ? "每个模块最多 100 条" : undefined}
           onClick={() => {
@@ -133,7 +134,7 @@ export function ExperienceForm({
         </button>
       </div>
       {!items.length && (
-        <div className="empty-state">
+        <div className={ui["empty-state"]}>
           还没有{config.label}
           <p>点击上方按钮开始填写。</p>
         </div>
@@ -146,14 +147,14 @@ export function ExperienceForm({
           !values.current &&
           values.endDate < values.startDate;
         return (
-          <details key={item.id} className="entry-card" open>
+          <details key={item.id} className={ui["entry-card"]} open>
             <summary>
               {String(
                 values[config.titleKey] || `${config.label} ${index + 1}`,
               )}
             </summary>
-            <div className="entry-body">
-              <div className="form-grid">
+            <div className={ui["entry-body"]}>
+              <div className={ui["form-grid"]}>
                 {config.fields.map((field) => {
                   const fieldId = `${id}-${item.id}-${field.key}`;
                   const disabled =
@@ -161,7 +162,7 @@ export function ExperienceForm({
                   return (
                     <div
                       key={field.key}
-                      className={`field ${field.wide ? "wide" : ""}`}
+                      className={`${ui["field"]} ${field.wide ? "wide" : ""}`}
                     >
                       <label htmlFor={fieldId}>{field.label}</label>
                       {field.type === "textarea" ? (
@@ -210,7 +211,7 @@ export function ExperienceForm({
                 })}
               </div>
               {section === "workExperiences" && (
-                <label className="check-field">
+                <label className={ui["check-field"]}>
                   <input
                     type="checkbox"
                     checked={values.current === true}
@@ -222,12 +223,15 @@ export function ExperienceForm({
                 </label>
               )}
               {invalidDates && (
-                <p className="field-error" id={`${id}-${item.id}-date-error`}>
+                <p
+                  className={ui["field-error"]}
+                  id={`${id}-${item.id}-date-error`}
+                >
                   结束时间不能早于开始时间。
                 </p>
               )}
               <button
-                className="text-button danger"
+                className={`${ui["text-button"]} ${ui["danger"]}`}
                 onClick={() =>
                   onChange({
                     ...data,
