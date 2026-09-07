@@ -6,10 +6,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function EditorPage({searchParams}: {
+export default async function EditorPage({
+  searchParams,
+}: {
   searchParams: Promise<{ view?: string | string[] }>;
 }) {
   const { view } = await searchParams;
-  const initialView = typeof view === "string" && ["editor","templates","assistant","resumes","settings"].includes(view) ? view : "editor";
+  const initialView =
+    typeof view === "string" &&
+    ["editor", "templates", "assistant", "resumes", "settings"].includes(view)
+      ? view
+      : "editor";
   return <EditorWorkspace key={initialView} initialView={initialView} />;
 }

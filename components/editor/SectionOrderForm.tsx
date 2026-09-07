@@ -94,16 +94,16 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-slate-500 text-sm font-semibold">模块顺序</h3>
-          <p className="text-slate-500 text-xs mt-0.5">
+          <h3 className="text-neutral-500 text-sm font-semibold">模块顺序</h3>
+          <p className="text-neutral-500 text-xs mt-0.5">
             拖拽或点击箭头调整简历模块的显示顺序
           </p>
         </div>
         <button
           onClick={handleReset}
           title="恢复默认顺序"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-slate-500
-                     hover:bg-white border border-transparent hover:border-slate-200
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-500 hover:text-neutral-500
+                     hover:bg-white border border-transparent hover:border-neutral-200
                      text-xs font-medium transition-all duration-200 active:scale-95"
         >
           <RotateCcw className="w-3 h-3" />
@@ -132,17 +132,17 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                   ? "opacity-30 scale-[0.98]"
                   : "hover:bg-white/[0.07] hover:border-white/[0.14]",
                 isOver && !isDragging
-                  ? "border-blue-500/60 bg-blue-500/10 shadow-lg shadow-blue-500/10"
+                  ? "border-green-500/60 bg-green-500/10 shadow-lg shadow-green-500/10"
                   : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
               {/* Drag handle */}
-              <GripVertical className="w-4 h-4 text-slate-500 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors" />
+              <GripVertical className="w-4 h-4 text-neutral-500 hover:text-neutral-500 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors" />
 
               {/* Index badge */}
-              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-linear-to-br from-blue-500/30 to-violet-500/30 text-white/60 border border-white/10">
+              <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 bg-linear-to-br from-green-500/30 to-green-500/30 text-white/60 border border-white/10">
                 {index + 1}
               </span>
 
@@ -150,7 +150,7 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
               <span className="text-base flex-shrink-0">
                 {SECTION_ICONS[key]}
               </span>
-              <span className="flex-1 text-slate-500 text-sm font-medium">
+              <span className="flex-1 text-neutral-500 text-sm font-medium">
                 {SECTION_LABELS[key]}
               </span>
 
@@ -159,8 +159,8 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                 <button
                   onClick={() => moveUp(index)}
                   disabled={index === 0}
-                  className="w-6 h-5 flex items-center justify-center rounded text-slate-500
-                             hover:text-slate-500 hover:bg-white disabled:opacity-20
+                  className="w-6 h-5 flex items-center justify-center rounded text-neutral-500
+                             hover:text-neutral-500 hover:bg-white disabled:opacity-20
                              disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -168,8 +168,8 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
                 <button
                   onClick={() => moveDown(index)}
                   disabled={index === order.length - 1}
-                  className="w-6 h-5 flex items-center justify-center rounded text-slate-500
-                             hover:text-slate-500 hover:bg-white disabled:opacity-20
+                  className="w-6 h-5 flex items-center justify-center rounded text-neutral-500
+                             hover:text-neutral-500 hover:bg-white disabled:opacity-20
                              disabled:cursor-not-allowed transition-all duration-150 active:scale-90"
                 >
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -181,7 +181,7 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
       </div>
 
       {/* Tip */}
-      <p className="text-slate-500 text-xs text-center pt-1">
+      <p className="text-neutral-500 text-xs text-center pt-1">
         调整后右侧预览将实时更新
       </p>
     </div>

@@ -27,7 +27,11 @@ import {
   Undo2,
   Redo2,
 } from "lucide-react";
-export default function EditorWorkspace({ initialView = "editor" }: { initialView?: string }) {
+export default function EditorWorkspace({
+  initialView = "editor",
+}: {
+  initialView?: string;
+}) {
   const store = useResumeLibrary();
   const data = store.active.data;
   const setData = store.updateData;
@@ -73,7 +77,13 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
       }}
     >
       <header className={ui["topbar"]}>
-        <Link href="/" aria-label="返回 ResumeOK 首页" className="shrink-0 rounded-lg max-[380px]:[&_.brand]:text-[17px] max-[380px]:[&_.brand-clover]:size-6 focus-visible:outline-2 focus-visible:outline-brand"><Brand /></Link>
+        <Link
+          href="/"
+          aria-label="返回 ResumeOK 首页"
+          className="shrink-0 rounded-lg max-[380px]:[&_.brand]:text-[17px] max-[380px]:[&_.brand-clover]:size-6 focus-visible:outline-2 focus-visible:outline-brand"
+        >
+          <Brand />
+        </Link>
         <span className={ui["tagline"]}>让每一份简历，都更接近 Offer</span>
         <div className={ui["top-actions"]}>
           <button
@@ -96,7 +106,10 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
             onClick={download}
           >
             <Download size={17} />
-            <span className="hidden sm:inline">{exporting ? "导出中…" : "下载简历"}</span><span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
+            <span className="hidden sm:inline">
+              {exporting ? "导出中…" : "下载简历"}
+            </span>
+            <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
           </button>
           <button
             className={ui["profile-button"]}
@@ -168,7 +181,8 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
           )}
         </aside>
         <main className={ui["preview-column"]} aria-label="简历预览">
-          <div className={ui["preview-toolbar"]}><span className="sr-only">预览控制</span>
+          <div className={ui["preview-toolbar"]}>
+            <span className="sr-only">预览控制</span>
             <div className={ui["toolbar-group"]}>
               <button
                 className={ui["icon-button"]}
@@ -207,20 +221,24 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
             </div>
             <div className={ui["toolbar-group"]}>
               <button
-                className={ui["blue-button"]}
+                className={ui["secondary-button"]}
                 onClick={() => openPanel("templates")}
               >
                 <LayoutGrid size={15} />
                 模板库
               </button>
               <button
-                className={ui["blue-button"]}
+                className={ui["secondary-button"]}
                 onClick={() => openPanel("assistant")}
               >
                 <Sparkles size={15} />
                 简历检查
               </button>
-              <span className={`${ui["toolbar-pill"]} hidden min-[1450px]:inline-flex`}>A4 (210 × 297mm)</span>
+              <span
+                className={`${ui["toolbar-pill"]} hidden min-[1450px]:inline-flex`}
+              >
+                A4 (210 × 297mm)
+              </span>
             </div>
           </div>
           <PreviewCanvas zoom={zoom} data={data} previewRef={previewRef} />

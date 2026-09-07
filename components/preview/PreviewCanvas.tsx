@@ -20,13 +20,15 @@ export function PreviewCanvas({
     if (!outer || !paper) return;
     const measure = () => {
       const styles = getComputedStyle(outer);
-      const available = Math.max(1, outer.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight));
+      const available = Math.max(
+        1,
+        outer.clientWidth -
+          parseFloat(styles.paddingLeft) -
+          parseFloat(styles.paddingRight),
+      );
       if (outer.clientWidth === 0) return;
       setSize({
-        scale:
-          zoom === "fit"
-            ? Math.min(1, available / 794)
-            : zoom / 100,
+        scale: zoom === "fit" ? Math.min(1, available / 794) : zoom / 100,
         height: paper.offsetHeight,
       });
     };

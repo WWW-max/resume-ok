@@ -3,90 +3,158 @@ export const ui = {
   "h-safe-bottom": "h-safe-bottom h-[env(safe-area-inset-bottom,_0px)]",
   "overflow-y-auto": "overflow-y-auto [-webkit-overflow-scrolling:touch]",
   "overflow-auto": "overflow-auto [-webkit-overflow-scrolling:touch]",
-  "workspace": "workspace h-dvh w-full overflow-hidden flex flex-col text-ink [background:radial-gradient(ellipse_at_100%_92%,_#e2faef_0,_transparent_27%),_#f3f8fe] print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
-  "topbar": "topbar h-19 shrink-0 flex items-center gap-6 px-8 bg-[#ffffffda] border-b border-line max-[900px]:h-16 max-[900px]:px-4 max-[540px]:px-3 max-[540px]:gap-2 print:hidden!",
-  "brand": "brand inline-flex items-center gap-3 text-[27px] font-[750] tracking-[-1.2px] whitespace-nowrap max-[900px]:text-[22px] max-[900px]:gap-2 max-[540px]:text-[19px]",
-  "brand-clover": "brand-clover w-11 h-11 text-[#37ba58] fill-[#61d477] [.brand-small_&]:w-[34px] [.brand-small_&]:h-[34px] max-[900px]:w-[34px] max-[900px]:h-[34px] max-[540px]:w-7 max-[540px]:h-7",
+  workspace:
+    "workspace h-dvh w-full overflow-hidden flex flex-col text-ink [background:radial-gradient(ellipse_at_100%_92%,_#e2faef_0,_transparent_27%),_#e7fdee] print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+  topbar:
+    "topbar h-19 shrink-0 flex items-center gap-6 px-8 bg-[#ffffffda] border-b border-line max-[900px]:h-16 max-[900px]:px-4 max-[540px]:px-3 max-[540px]:gap-2 print:hidden!",
+  brand:
+    "brand inline-flex items-center gap-3 text-[27px] font-[750] tracking-[-1.2px] whitespace-nowrap max-[900px]:text-[22px] max-[900px]:gap-2 max-[540px]:text-[19px]",
+  "brand-clover":
+    "brand-clover w-11 h-11 text-[#37ba58] fill-[#61d477] [.brand-small_&]:w-[34px] [.brand-small_&]:h-[34px] max-[900px]:w-[34px] max-[900px]:h-[34px] max-[540px]:w-7 max-[540px]:h-7",
   "brand-ok": "brand-ok text-[#0cb449]",
-  "brand-small": "brand-small [&.brand-small]:text-[23px] [&.brand-small]:gap-[9px]",
-  "tagline": "tagline text-[13px] text-muted-ink tracking-[0.3px] max-[1250px]:hidden",
-  "top-actions": "top-actions ml-auto flex min-w-0 items-center gap-3 max-[540px]:gap-1.5",
-  "soft-button": "soft-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-white border border-[#f0f3f8] hover:bg-[#f0f6fc] max-[540px]:[.top-actions_&]:[&:nth-child(2)]:hidden max-[540px]:px-2 max-[540px]:text-[12px]",
-  "primary-button": "primary-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-brand text-white border border-brand hover:bg-brand-dark max-[540px]:px-2 max-[540px]:gap-1.5 max-[540px]:text-[12px]",
-  "blue-button": "blue-button inline-flex min-h-11 items-center justify-center gap-2 text-[12px] rounded-[8px] px-2 py-2 whitespace-nowrap text-[#285da7] bg-[#eaf3ff] hover:bg-[#dcecff]",
-  "back-button": "back-button inline-flex items-center justify-center gap-2 text-[13px] rounded-[8px] p-2 whitespace-nowrap text-[#587292] [margin:0_12px_10px] hover:text-[#069b43] hover:bg-[#eef9f3] min-h-11",
-  "toolbar-pill": "toolbar-pill inline-flex min-h-11 items-center justify-center gap-2 text-[12px] rounded-[8px] px-2 py-2 whitespace-nowrap bg-white",
-  "profile-button": "profile-button flex items-center gap-2 ml-2 [&_>_span]:rounded-full [&_>_span]:w-[35px] [&_>_span]:h-[35px] [&_>_span]:bg-[#e0ede7] [&_>_span]:grid [&_>_span]:place-items-center [&_>_span]:font-bold [&_>_span]:text-[#258553] max-[900px]:hidden",
-  "workspace-body": "workspace-body flex-1 min-h-0 grid grid-cols-[142px_428px_minmax(0,1fr)] [.preview-only_&]:grid-cols-[minmax(0,1fr)] min-[1600px]:grid-cols-[148px_440px_minmax(0,1fr)] max-[1250px]:grid-cols-[100px_350px_minmax(0,1fr)] max-[900px]:grid-cols-1 max-[900px]:grid-rows-[minmax(0,1fr)_auto] print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
-  "side-nav": "side-nav flex flex-col gap-2 px-4 py-5 [&_>_button]:flex [&_>_button]:min-h-11 [&_>_button]:items-center [&_>_button]:gap-3 [&_>_button]:rounded-[8px] [&_>_button]:px-2 [&_>_button]:py-4 [&_>_button]:text-[13px] [&_>_button]:whitespace-nowrap [&_>_button]:text-[#465e80] [&_>_button:hover]:bg-[#eaf2fc] [&_>_button.active]:bg-[#e8f8ef] [&_>_button.active]:text-[#08a644] [&_>_button.active]:font-semibold min-[900px]:[.preview-only_&]:hidden max-[1250px]:px-2 max-[1250px]:[&_>_button]:gap-1.5 max-[1250px]:[&_>_button]:text-[12px] max-[900px]:col-start-1 max-[900px]:row-start-2 max-[900px]:flex-row max-[900px]:justify-around max-[900px]:gap-1 max-[900px]:border-t max-[900px]:border-line max-[900px]:bg-white max-[900px]:px-2 max-[900px]:pt-1.5 max-[900px]:pb-[max(6px,env(safe-area-inset-bottom))] max-[900px]:[&_>_button]:flex-1 max-[900px]:[&_>_button]:flex-col max-[900px]:[&_>_button]:justify-center max-[900px]:[&_>_button]:gap-1 max-[900px]:[&_>_button]:px-1 max-[900px]:[&_>_button]:py-2 max-[900px]:[&_>_button]:text-[11px] print:hidden!",
-  "editing-column": "editing-column min-w-0 bg-[#ffffffc9] min-h-0 border border-[#edf2f8] rounded-t-[9px] shadow-[0_4px_20px_#203d6b04] overflow-hidden [.preview-only_&]:hidden max-[900px]:col-start-1 max-[900px]:row-start-1 max-[900px]:rounded-none print:hidden!",
+  "brand-small":
+    "brand-small [&.brand-small]:text-[23px] [&.brand-small]:gap-[9px]",
+  tagline:
+    "tagline text-[13px] text-muted-ink tracking-[0.3px] max-[1250px]:hidden",
+  "top-actions":
+    "top-actions ml-auto flex min-w-0 items-center gap-3 max-[540px]:gap-1.5",
+  "soft-button":
+    "soft-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-white border border-[#ebf6ee] hover:bg-[#e7faed] max-[540px]:[.top-actions_&]:[&:nth-child(2)]:hidden max-[540px]:px-2 max-[540px]:text-[12px]",
+  "primary-button":
+    "primary-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-brand text-white border border-brand hover:bg-brand-dark max-[540px]:px-2 max-[540px]:gap-1.5 max-[540px]:text-[12px]",
+  "secondary-button":
+    "secondary-button inline-flex min-h-11 items-center justify-center gap-2 text-[12px] rounded-[8px] px-2 py-2 whitespace-nowrap text-[#1a6b35] bg-[#c8ffda] hover:bg-[#9dffbe]",
+  "back-button":
+    "back-button inline-flex items-center justify-center gap-2 text-[13px] rounded-[8px] p-2 whitespace-nowrap text-[#4a7a5a] [margin:0_12px_10px] hover:text-[#069b43] hover:bg-[#eef9f3] min-h-11",
+  "toolbar-pill":
+    "toolbar-pill inline-flex min-h-11 items-center justify-center gap-2 text-[12px] rounded-[8px] px-2 py-2 whitespace-nowrap bg-white",
+  "profile-button":
+    "profile-button flex items-center gap-2 ml-2 [&_>_span]:rounded-full [&_>_span]:w-[35px] [&_>_span]:h-[35px] [&_>_span]:bg-[#e0ede7] [&_>_span]:grid [&_>_span]:place-items-center [&_>_span]:font-bold [&_>_span]:text-[#258553] max-[900px]:hidden",
+  "workspace-body":
+    "workspace-body flex-1 min-h-0 grid grid-cols-[142px_428px_minmax(0,1fr)] [.preview-only_&]:grid-cols-[minmax(0,1fr)] min-[1600px]:grid-cols-[148px_440px_minmax(0,1fr)] max-[1250px]:grid-cols-[100px_350px_minmax(0,1fr)] max-[900px]:grid-cols-1 max-[900px]:grid-rows-[minmax(0,1fr)_auto] print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+  "side-nav":
+    "side-nav flex flex-col gap-2 px-4 py-5 [&_>_button]:flex [&_>_button]:min-h-11 [&_>_button]:items-center [&_>_button]:gap-3 [&_>_button]:rounded-[8px] [&_>_button]:px-2 [&_>_button]:py-4 [&_>_button]:text-[13px] [&_>_button]:whitespace-nowrap [&_>_button]:text-[#386647] [&_>_button:hover]:bg-[#d7f9e3] [&_>_button.active]:bg-[#e8f8ef] [&_>_button.active]:text-[#08a644] [&_>_button.active]:font-semibold min-[900px]:[.preview-only_&]:hidden max-[1250px]:px-2 max-[1250px]:[&_>_button]:gap-1.5 max-[1250px]:[&_>_button]:text-[12px] max-[900px]:col-start-1 max-[900px]:row-start-2 max-[900px]:flex-row max-[900px]:justify-around max-[900px]:gap-1 max-[900px]:border-t max-[900px]:border-line max-[900px]:bg-white max-[900px]:px-2 max-[900px]:pt-1.5 max-[900px]:pb-[max(6px,env(safe-area-inset-bottom))] max-[900px]:[&_>_button]:flex-1 max-[900px]:[&_>_button]:flex-col max-[900px]:[&_>_button]:justify-center max-[900px]:[&_>_button]:gap-1 max-[900px]:[&_>_button]:px-1 max-[900px]:[&_>_button]:py-2 max-[900px]:[&_>_button]:text-[11px] print:hidden!",
+  "editing-column":
+    "editing-column min-w-0 bg-[#ffffffc9] min-h-0 border border-[#e6f5eb] rounded-t-[9px] shadow-[0_4px_20px_#15462504] overflow-hidden [.preview-only_&]:hidden max-[900px]:col-start-1 max-[900px]:row-start-1 max-[900px]:rounded-none print:hidden!",
   "editor-panel": "editor-panel flex h-full flex-col",
-  "panel-heading": "panel-heading p-6 [border-bottom:1px_solid_var(--line)] [&_h1]:text-[22px] [&_h1]:font-[650] [&_h1]:[margin:0_0_6px] [&_p]:text-[12px] [&_p]:text-muted-ink [&_p]:leading-[1.7] max-[540px]:[padding:20px_16px]",
-  "panel-scroll": "panel-scroll overflow-y-auto flex-1 min-h-0 overscroll-contain",
+  "panel-heading":
+    "panel-heading p-6 [border-bottom:1px_solid_var(--line)] [&_h1]:text-[22px] [&_h1]:font-[650] [&_h1]:[margin:0_0_6px] [&_p]:text-[12px] [&_p]:text-muted-ink [&_p]:leading-[1.7] max-[540px]:[padding:20px_16px]",
+  "panel-scroll":
+    "panel-scroll overflow-y-auto flex-1 min-h-0 overscroll-contain",
   "module-list": "module-list [padding:0_22px_20px] max-[1250px]:px-4",
-  "section-heading": "section-heading flex items-center justify-between mb-[18px] [&_h2]:text-[17px] [&_h2]:font-semibold gap-2 flex-wrap",
-  "subtle": "subtle text-[12px] text-muted-ink",
-  "module-card": "module-card flex items-center w-full gap-[2px] [padding:0_10px_0_0] mb-[14px] [border:1px_solid_#f1f4f9] rounded-[9px] bg-white shadow-[0_4px_16px_#203d6b04] text-left text-[#325482] relative [&.selected]:border-[#65d995] [&.selected]:bg-[#edf9f3] hover:border-[#69d695] hover:bg-[#f2fbf6] [&_>_span]:flex-1 [&_>_span]:min-w-0 [&_strong]:block [&_strong]:text-[14px] [&_strong]:font-semibold [&_strong]:text-ink [&_small]:block [&_small]:text-[12px] [&_small]:mt-[5px] [&_small]:text-muted-ink [&.selected_>_svg:not(.grip)]:text-[#0db249] max-[540px]:[&_small]:text-[11px]",
-  "grip": "grip text-[#98abc4] shrink-0 max-[540px]:[.module-card_&]:[&:first-child]:hidden",
+  "section-heading":
+    "section-heading flex items-center justify-between mb-[18px] [&_h2]:text-[17px] [&_h2]:font-semibold gap-2 flex-wrap",
+  subtle: "subtle text-[12px] text-muted-ink",
+  "module-card":
+    "module-card flex items-center w-full gap-[2px] [padding:0_10px_0_0] mb-[14px] [border:1px_solid_#ebf7ef] rounded-[9px] bg-white shadow-[0_4px_16px_#15462504] text-left text-[#245e37] relative [&.selected]:border-[#65d995] [&.selected]:bg-[#edf9f3] hover:border-[#69d695] hover:bg-[#f2fbf6] [&_>_span]:flex-1 [&_>_span]:min-w-0 [&_strong]:block [&_strong]:text-[14px] [&_strong]:font-semibold [&_strong]:text-ink [&_small]:block [&_small]:text-[12px] [&_small]:mt-[5px] [&_small]:text-muted-ink [&.selected_>_svg:not(.grip)]:text-[#0db249] max-[540px]:[&_small]:text-[11px]",
+  grip: "grip text-[#7fb691] shrink-0 max-[540px]:[.module-card_&]:[&:first-child]:hidden",
   "form-heading": "form-heading [padding:0_17px_20px] text-[18px] font-[650]",
-  "assistant-banner": "assistant-banner mx-5 my-4 flex shrink-0 items-center gap-3 rounded-[9px] border border-[#d9f2e3] bg-[#effbf4] p-3 text-[#04a443] [&_>_div]:min-w-0 [&_>_div]:flex-1 [&_strong]:text-[13px] [&_strong]:font-semibold [&_p]:mt-1 [&_p]:text-[11px] [&_p]:text-muted-ink [&_button]:min-h-11 [&_button]:shrink-0 [&_button]:rounded-[7px] [&_button]:border [&_button]:border-[#65cc8a] [&_button]:bg-white [&_button]:px-2 [&_button]:text-[11px] max-[540px]:mx-4 max-[540px]:gap-2 max-[540px]:[&_>_svg]:hidden [@media(max-height:600px)]:hidden",
-  "preview-column": "preview-column min-w-0 min-h-0 flex flex-col max-[900px]:col-start-1 max-[900px]:row-start-1 max-[900px]:hidden max-[900px]:[.preview-only_&]:flex print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
-  "preview-toolbar": "preview-toolbar flex flex-wrap items-center justify-between gap-2 shrink-0 px-5 py-2 max-[1250px]:px-3 max-[540px]:px-2 print:hidden!",
-  "toolbar-group": "toolbar-group flex min-w-0 items-center gap-2 max-[1250px]:gap-1",
-  "preview-canvas": "preview-canvas flex-1 min-w-0 overflow-auto overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[540px]:px-3 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
-  "paper-size": "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
-  "resume-paper": "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] p-11 text-[#172e4f] shadow-[0_6px_32px_#284b8112] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[#e1eaf5] print:shadow-none print:rounded-none [&_*]:border-[#e1eaf5]",
-  "paper-watermark": "paper-watermark absolute w-[150px] h-[150px] text-[#b3f1c3] fill-[#c5f6d3] opacity-[0.23] top-[42px] right-[66px] z-[-1] [transform:rotate(15deg)] [.template-minimal_&]:hidden",
-  "resume-header": "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
+  "assistant-banner":
+    "assistant-banner mx-5 my-4 flex shrink-0 items-center gap-3 rounded-[9px] border border-[#d9f2e3] bg-[#effbf4] p-3 text-[#04a443] [&_>_div]:min-w-0 [&_>_div]:flex-1 [&_strong]:text-[13px] [&_strong]:font-semibold [&_p]:mt-1 [&_p]:text-[11px] [&_p]:text-muted-ink [&_button]:min-h-11 [&_button]:shrink-0 [&_button]:rounded-[7px] [&_button]:border [&_button]:border-[#65cc8a] [&_button]:bg-white [&_button]:px-2 [&_button]:text-[11px] max-[540px]:mx-4 max-[540px]:gap-2 max-[540px]:[&_>_svg]:hidden [@media(max-height:600px)]:hidden",
+  "preview-column":
+    "preview-column min-w-0 min-h-0 flex flex-col max-[900px]:col-start-1 max-[900px]:row-start-1 max-[900px]:hidden max-[900px]:[.preview-only_&]:flex print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+  "preview-toolbar":
+    "preview-toolbar flex flex-wrap items-center justify-between gap-2 shrink-0 px-5 py-2 max-[1250px]:px-3 max-[540px]:px-2 print:hidden!",
+  "toolbar-group":
+    "toolbar-group flex min-w-0 items-center gap-2 max-[1250px]:gap-1",
+  "preview-canvas":
+    "preview-canvas flex-1 min-w-0 overflow-auto overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[540px]:px-3 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+  "paper-size":
+    "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
+  "resume-paper":
+    "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] p-11 text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[#d3f0dd] print:shadow-none print:rounded-none [&_*]:border-[#d3f0dd]",
+  "paper-watermark":
+    "paper-watermark absolute w-[150px] h-[150px] text-[#b3f1c3] fill-[#c5f6d3] opacity-[0.23] top-[42px] right-[66px] z-[-1] [transform:rotate(15deg)] [.template-minimal_&]:hidden",
+  "resume-header":
+    "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
   "resume-job": "resume-job text-[14px] font-medium [margin:5px_0_10px]",
-  "resume-contact": "resume-contact grid grid-cols-[auto_auto] gap-[7px_24px] text-[#607493] text-[11px] [&_>_span]:flex [&_>_span]:items-center [&_>_span]:gap-[10px] [&_svg]:shrink-0 [&_svg]:text-[#224777]",
+  "resume-contact":
+    "resume-contact grid grid-cols-[auto_auto] gap-[7px_24px] text-[#517c60] text-[11px] [&_>_span]:flex [&_>_span]:items-center [&_>_span]:gap-[10px] [&_svg]:shrink-0 [&_svg]:text-[#17512a]",
   "resume-avatar": "resume-avatar w-28 h-30 object-cover rounded-[12px]",
-  "resume-sections": "resume-sections grid grid-cols-[1fr_1fr] gap-[22px_36px] [.template-minimal_&]:block [.spacing-compact_&]:gap-[15px_28px]",
-  "resume-section": "resume-section col-span-full min-w-0 [&.half-section]:col-span-1 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[10px] [&_h2]:[border-bottom:1px_solid_#e1eaf5] [&_h2]:pb-[5px] [&_h2]:mb-[10px] [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2_svg]:text-[color:var(--resume-accent,_#2354a0)] [&_article_+_article]:mt-[15px] print:[&_article]:[break-inside:avoid] print:[&_h2]:[break-after:avoid] [.template-minimal_&]:mb-6 [.template-minimal_&]:[&_h2]:[border-bottom:none] [.template-modern_&]:[&_h2]:text-[color:var(--resume-accent)] [.spacing-compact_&]:[&_article_+_article]:mt-[10px]",
-  "resume-row": "resume-row flex justify-between gap-3 items-baseline [&_h3]:text-[12px] [&_h3]:font-bold [&_h3_span]:font-normal [&_h3_span]:text-[#71809b] [&_h3_span]:ml-[7px] [&_h3_span]:text-[11px] [&_time]:text-[#71809b] [&_time]:whitespace-nowrap [&_time]:text-[11px]",
-  "resume-description": "resume-description text-[#647898] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap mt-[5px] [.spacing-compact_&]:leading-[1.6]",
-  "resume-role": "resume-role text-[#647898] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
-  "resume-link": "resume-link text-[#647898] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
-  "skill-tags": "skill-tags flex flex-wrap gap-[7px] [&_span]:text-[11px] [&_span]:leading-[1.5] [&_span]:[padding:3px_10px] [&_span]:rounded-[7px] [&_span]:bg-[#e3f9ed] [&_span]:text-[#168347] [&_span:nth-child(3n)]:bg-[#eef3fb] [&_span:nth-child(3n)]:text-[#45617f] [.template-minimal_&]:[&_span]:bg-[#f0f3f6] [.template-minimal_&]:[&_span]:text-[#37465b]",
-  "module-main": "module-main [padding:18px_10px] flex items-center gap-[14px] flex-1 min-w-0 text-left [&_>_span]:flex-1 [&_>_svg]:shrink-0 [.module-card.selected_&]:[&_>_svg:not(.grip)]:text-[#0aa54a] touch-manipulation",
-  "module-menu": "module-menu relative [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:[padding:10px_2px] [&_summary]:text-[#7590b0] [&_summary::-webkit-details-marker]:hidden [&_>_div]:absolute [&_>_div]:right-[0] [&_>_div]:top-9 [&_>_div]:w-[126px] [&_>_div]:[padding:5px] [&_>_div]:bg-white [&_>_div]:shadow-[0_6px_24px_#16335126] [&_>_div]:[border:1px_solid_var(--line)] [&_>_div]:rounded-[8px] [&_>_div]:z-[5] [&_button]:flex [&_button]:items-center [&_button]:gap-2 [&_button]:p-2 [&_button]:w-full [&_button]:text-[12px] [&_button]:rounded-[4px] [&_button:hover]:bg-[#eef8f3] [&_summary]:min-h-11 [&_summary]:min-w-9 [&_summary]:grid [&_summary]:place-items-center [&_button]:min-h-11",
-  "outline-green": "outline-green inline-flex items-center gap-[5px] [border:1px_solid_#d8efe1] bg-[#fff] text-[#109a49] rounded-[6px] text-[12px] [padding:7px_9px] hover:bg-[#eaf9ef] min-h-11",
-  "restore-modules": "restore-modules p-3 [border:1px_solid_var(--line)] mb-[15px] rounded-[8px] [&_p]:text-[12px] [&_p]:text-muted-ink [&_p]:mb-2",
+  "resume-sections":
+    "resume-sections grid grid-cols-[1fr_1fr] gap-[22px_36px] [.template-minimal_&]:block [.spacing-compact_&]:gap-[15px_28px]",
+  "resume-section":
+    "resume-section col-span-full min-w-0 [&.half-section]:col-span-1 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[10px] [&_h2]:[border-bottom:1px_solid_#d3f0dd] [&_h2]:pb-[5px] [&_h2]:mb-[10px] [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2_svg]:text-[color:var(--resume-accent,_#16632f)] [&_article_+_article]:mt-[15px] print:[&_article]:[break-inside:avoid] print:[&_h2]:[break-after:avoid] [.template-minimal_&]:mb-6 [.template-minimal_&]:[&_h2]:[border-bottom:none] [.template-modern_&]:[&_h2]:text-[color:var(--resume-accent)] [.spacing-compact_&]:[&_article_+_article]:mt-[10px]",
+  "resume-row":
+    "resume-row flex justify-between gap-3 items-baseline [&_h3]:text-[12px] [&_h3]:font-bold [&_h3_span]:font-normal [&_h3_span]:text-[#60886d] [&_h3_span]:ml-[7px] [&_h3_span]:text-[11px] [&_time]:text-[#60886d] [&_time]:whitespace-nowrap [&_time]:text-[11px]",
+  "resume-description":
+    "resume-description text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap mt-[5px] [.spacing-compact_&]:leading-[1.6]",
+  "resume-role":
+    "resume-role text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
+  "resume-link":
+    "resume-link text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
+  "skill-tags":
+    "skill-tags flex flex-wrap gap-[7px] [&_span]:text-[11px] [&_span]:leading-[1.5] [&_span]:[padding:3px_10px] [&_span]:rounded-[7px] [&_span]:bg-[#e3f9ed] [&_span]:text-[#168347] [&_span:nth-child(3n)]:bg-[#e2f8e9] [&_span:nth-child(3n)]:text-[#396949] [.template-minimal_&]:[&_span]:bg-[#edf4f0] [.template-minimal_&]:[&_span]:text-[#2e4b38]",
+  "module-main":
+    "module-main [padding:18px_10px] flex items-center gap-[14px] flex-1 min-w-0 text-left [&_>_span]:flex-1 [&_>_svg]:shrink-0 [.module-card.selected_&]:[&_>_svg:not(.grip)]:text-[#0aa54a] touch-manipulation",
+  "module-menu":
+    "module-menu relative [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:[padding:10px_2px] [&_summary]:text-[#599b6f] [&_summary::-webkit-details-marker]:hidden [&_>_div]:absolute [&_>_div]:right-[0] [&_>_div]:top-9 [&_>_div]:w-[126px] [&_>_div]:[padding:5px] [&_>_div]:bg-white [&_>_div]:shadow-[0_6px_24px_#10391d26] [&_>_div]:[border:1px_solid_var(--line)] [&_>_div]:rounded-[8px] [&_>_div]:z-[5] [&_button]:flex [&_button]:items-center [&_button]:gap-2 [&_button]:p-2 [&_button]:w-full [&_button]:text-[12px] [&_button]:rounded-[4px] [&_button:hover]:bg-[#eef8f3] [&_summary]:min-h-11 [&_summary]:min-w-9 [&_summary]:grid [&_summary]:place-items-center [&_button]:min-h-11",
+  "outline-green":
+    "outline-green inline-flex items-center gap-[5px] [border:1px_solid_#d8efe1] bg-[#fff] text-[#109a49] rounded-[6px] text-[12px] [padding:7px_9px] hover:bg-[#eaf9ef] min-h-11",
+  "restore-modules":
+    "restore-modules p-3 [border:1px_solid_var(--line)] mb-[15px] rounded-[8px] [&_p]:text-[12px] [&_p]:text-muted-ink [&_p]:mb-2",
   "resume-form": "resume-form [padding:0_18px_26px]",
-  "form-grid": "form-grid grid grid-cols-2 gap-x-3 gap-y-[17px] max-[420px]:grid-cols-1",
-  "field": "field flex flex-col gap-[7px] min-w-0 [&.wide]:col-span-full [&_label]:text-[12px] [&_label]:text-[#526780] [&_input]:w-full [&_input]:[border:1px_solid_#dce6ef] [&_input]:rounded-[7px] [&_input]:bg-[#fff] [&_input]:text-[#223a55] [&_input]:[padding:10px] [&_input]:text-[13px] [&_input]:min-w-0 [&_textarea]:w-full [&_textarea]:[border:1px_solid_#dce6ef] [&_textarea]:rounded-[7px] [&_textarea]:bg-[#fff] [&_textarea]:text-[#223a55] [&_textarea]:[padding:10px] [&_textarea]:text-[13px] [&_textarea]:min-w-0 [&_textarea]:resize-y [&_textarea]:min-h-[90px] [&_select]:w-full [&_select]:[border:1px_solid_#dce6ef] [&_select]:rounded-[7px] [&_select]:bg-[#fff] [&_select]:text-[#223a55] [&_select]:[padding:10px] [&_select]:text-[13px] [&_select]:min-w-0 [&_input:disabled]:bg-[#f0f4f8] [&_input:disabled]:text-[#8090a5] [&_input::placeholder]:text-[#a0adbc] max-[900px]:[&_input]:min-h-11 max-[900px]:[&_input]:text-base max-[900px]:[&_textarea]:text-base max-[900px]:[&_select]:min-h-11 max-[900px]:[&_select]:text-base",
+  "form-grid":
+    "form-grid grid grid-cols-2 gap-x-3 gap-y-[17px] max-[420px]:grid-cols-1",
+  field:
+    "field flex flex-col gap-[7px] min-w-0 [&.wide]:col-span-full [&_label]:text-[12px] [&_label]:text-[#466e53] [&_input]:w-full [&_input]:[border:1px_solid_#d2ebda] [&_input]:rounded-[7px] [&_input]:bg-[#fff] [&_input]:text-[#1a4026] [&_input]:[padding:10px] [&_input]:text-[13px] [&_input]:min-w-0 [&_textarea]:w-full [&_textarea]:[border:1px_solid_#d2ebda] [&_textarea]:rounded-[7px] [&_textarea]:bg-[#fff] [&_textarea]:text-[#1a4026] [&_textarea]:[padding:10px] [&_textarea]:text-[13px] [&_textarea]:min-w-0 [&_textarea]:resize-y [&_textarea]:min-h-[90px] [&_select]:w-full [&_select]:[border:1px_solid_#d2ebda] [&_select]:rounded-[7px] [&_select]:bg-[#fff] [&_select]:text-[#1a4026] [&_select]:[padding:10px] [&_select]:text-[13px] [&_select]:min-w-0 [&_input:disabled]:bg-[#ecf6ef] [&_input:disabled]:text-[#6e987c] [&_input::placeholder]:text-[#93b39e] max-[900px]:[&_input]:min-h-11 max-[900px]:[&_input]:text-base max-[900px]:[&_textarea]:text-base max-[900px]:[&_select]:min-h-11 max-[900px]:[&_select]:text-base",
   "field-error": "field-error text-[#b53d37] text-[12px] [margin:6px_0]",
-  "avatar-editor": "avatar-editor flex items-center gap-4 [padding:15px_0_24px] [&_img]:w-17 [&_img]:h-[78px] [&_img]:rounded-[9px] [&_img]:object-cover [&_p]:text-[10px] [&_p]:text-[#8192a9] [&_p]:mt-2",
-  "avatar-placeholder": "avatar-placeholder w-17 h-[78px] rounded-[9px] object-cover grid place-items-center bg-[#eaf5ef] text-[#57a879]",
-  "upload-button": "upload-button relative cursor-pointer border-[#dce6ef] [&_input]:absolute [&_input]:w-full [&_input]:h-full [&_input]:opacity-[0] [&_input]:cursor-pointer [&_input]:[inset:0] [&:focus-within]:[outline:2px_solid_#19af60] [&:focus-within]:[outline-offset:3px]",
-  "text-button": "text-button inline-flex items-center gap-[5px] [padding:6px_0] text-[#5c7492] text-[12px] [.entry-body_>_&]:mt-[14px] min-h-11",
-  "danger": "danger text-[#bd554d]",
-  "entry-card": "entry-card [border:1px_solid_var(--line)] rounded-[9px] [margin:14px_0] bg-[#fff] [&_summary]:cursor-pointer [&_summary]:[padding:14px] [&_summary]:text-[13px] [&_summary]:font-semibold [&_summary]:bg-[#f8fbfe]",
+  "avatar-editor":
+    "avatar-editor flex items-center gap-4 [padding:15px_0_24px] [&_img]:w-17 [&_img]:h-[78px] [&_img]:rounded-[9px] [&_img]:object-cover [&_p]:text-[10px] [&_p]:text-[#6c9b7c] [&_p]:mt-2",
+  "avatar-placeholder":
+    "avatar-placeholder w-17 h-[78px] rounded-[9px] object-cover grid place-items-center bg-[#eaf5ef] text-[#57a879]",
+  "upload-button":
+    "upload-button relative cursor-pointer border-[#d2ebda] [&_input]:absolute [&_input]:w-full [&_input]:h-full [&_input]:opacity-[0] [&_input]:cursor-pointer [&_input]:[inset:0] [&:focus-within]:[outline:2px_solid_#19af60] [&:focus-within]:[outline-offset:3px]",
+  "text-button":
+    "text-button inline-flex items-center gap-[5px] [padding:6px_0] text-[#4e7c5d] text-[12px] [.entry-body_>_&]:mt-[14px] min-h-11",
+  danger: "danger text-[#bd554d]",
+  "entry-card":
+    "entry-card [border:1px_solid_var(--line)] rounded-[9px] [margin:14px_0] bg-[#fff] [&_summary]:cursor-pointer [&_summary]:[padding:14px] [&_summary]:text-[13px] [&_summary]:font-semibold [&_summary]:bg-[#f3fdf6]",
   "entry-body": "entry-body [padding:16px_12px]",
-  "check-field": "check-field flex items-center gap-2 text-[12px] mt-3 [&_input]:accent-[#12b653] min-h-11 [&_input]:size-4",
-  "empty-state": "empty-state text-center [padding:35px_12px] text-[14px] text-[#60768e] [&_p]:mt-[10px] [&_p]:text-[12px]",
-  "save-status": "save-status shrink-0 min-h-6 bg-[#f5f9fd] px-6 py-1 text-[11px] leading-4 text-[#60758d] max-[900px]:px-4 max-[900px]:text-[10px] print:hidden",
-  "icon-button": "icon-button inline-grid place-items-center min-w-11 h-11 rounded-[6px] text-[#587898] hover:bg-[#e9f3fa]",
+  "check-field":
+    "check-field flex items-center gap-2 text-[12px] mt-3 [&_input]:accent-[#12b653] min-h-11 [&_input]:size-4",
+  "empty-state":
+    "empty-state text-center [padding:35px_12px] text-[14px] text-[#547d62] [&_p]:mt-[10px] [&_p]:text-[12px]",
+  "save-status":
+    "save-status shrink-0 min-h-6 bg-[#effcf3] px-6 py-1 text-[11px] leading-4 text-[#547c61] max-[900px]:px-4 max-[900px]:text-[10px] print:hidden",
+  "icon-button":
+    "icon-button inline-grid place-items-center min-w-11 h-11 rounded-[6px] text-[#4a805c] hover:bg-[#dff8e7]",
   "library-panel": "library-panel p-6",
   "button-row": "button-row flex flex-wrap gap-2 [margin:18px_0]",
-  "document-card": "document-card [border:1px_solid_var(--line)] bg-white rounded-[9px] [margin:12px_0] flex p-2 gap-[6px] items-center [&.active]:border-[#74d398] [&.active]:bg-[#f0faf4]",
-  "document-select": "document-select flex items-center gap-3 [padding:10px_4px] text-left flex-1 min-w-0 [&_>_span]:flex-1 [&_>_span]:min-w-0 [&_strong]:block [&_strong]:text-[13px] [&_strong]:[overflow-wrap:anywhere] [&_small]:block [&_small]:mt-[6px] [&_small]:text-[#7d8ea3] [&_small]:text-[11px]",
-  "archive-list": "archive-list [border-top:1px_solid_var(--line)] pt-[18px] mt-6 text-[13px] [&_summary]:cursor-pointer [&_summary]:mb-[15px]",
+  "document-card":
+    "document-card [border:1px_solid_var(--line)] bg-white rounded-[9px] [margin:12px_0] flex p-2 gap-[6px] items-center [&.active]:border-[#74d398] [&.active]:bg-[#f0faf4]",
+  "document-select":
+    "document-select flex items-center gap-3 [padding:10px_4px] text-left flex-1 min-w-0 [&_>_span]:flex-1 [&_>_span]:min-w-0 [&_strong]:block [&_strong]:text-[13px] [&_strong]:[overflow-wrap:anywhere] [&_small]:block [&_small]:mt-[6px] [&_small]:text-[#6b9679] [&_small]:text-[11px]",
+  "archive-list":
+    "archive-list [border-top:1px_solid_var(--line)] pt-[18px] mt-6 text-[13px] [&_summary]:cursor-pointer [&_summary]:mb-[15px]",
   "template-list": "template-list [padding:22px]",
-  "template-card": "template-card relative w-full flex items-center gap-4 text-left [border:1px_solid_var(--line)] rounded-[10px] p-4 mb-[15px] bg-white [&.active]:border-[#5fd28b] [&.active]:bg-[#f1fbf5] [&_>_svg]:text-[#0ca748] [&_>_svg]:ml-auto max-[380px]:gap-2 max-[380px]:p-3",
-  "template-mini": "template-mini w-[90px] h-[125px] [border:1px_solid_#e0e7ef] bg-[#fff] [padding:10px] shrink-0 shadow-[0_3px_10px_#304d6810]",
-  "mini-head": "mini-head [&_span]:block [&_span]:bg-[#597b68] [&_span]:w-[40%] [&_span]:h-1 [&_span]:[margin:4px_0] [&_i]:block [&_i]:h-[2px] [&_i]:bg-[#d6e1df] [&_i]:[margin:4px_0] [.mini-modern_&]:bg-[#e0f3e6] [.mini-modern_&]:[padding:5px] [.mini-minimal_&]:[border-bottom:1px_solid_#b3bcbd] [.mini-minimal_&]:pb-[5px]",
-  "mini-section": "mini-section [&_b]:block [&_b]:bg-[#597b68] [&_b]:w-[40%] [&_b]:h-1 [&_b]:[margin:4px_0] [&_i]:block [&_i]:h-[2px] [&_i]:bg-[#d6e1df] [&_i]:[margin:4px_0] mt-[9px] [.mini-minimal_&]:[&_b]:bg-[#3f4c55]",
-  "template-caption": "template-caption [&_strong]:block [&_strong]:text-[14px] [&_small]:text-[9px] [&_small]:text-[#289354] [&_small]:bg-[#e3f7ea] [&_small]:[padding:2px_5px] [&_small]:rounded-[4px] [&_small]:ml-[6px] [&_p]:text-[11px] [&_p]:text-[#8090a6] [&_p]:mt-2 min-w-0 [&_strong]:flex [&_strong]:flex-wrap [&_strong]:items-center [&_strong]:gap-y-1",
-  "export-error": "export-error fixed top-20 right-4 left-4 z-50 mx-auto max-w-[480px] rounded-lg border border-[#eedbc7] bg-[#fff6ec] p-4 text-[13px] shadow-[0_6px_25px_#30405020] [&_button]:min-h-11 [&_button]:text-[#1c7543] [&_button]:underline [&_button]:mr-4",
+  "template-card":
+    "template-card relative w-full flex items-center gap-4 text-left [border:1px_solid_var(--line)] rounded-[10px] p-4 mb-[15px] bg-white [&.active]:border-[#5fd28b] [&.active]:bg-[#f1fbf5] [&_>_svg]:text-[#0ca748] [&_>_svg]:ml-auto max-[380px]:gap-2 max-[380px]:p-3",
+  "template-mini":
+    "template-mini w-[90px] h-[125px] [border:1px_solid_#d8ebde] bg-[#fff] [padding:10px] shrink-0 shadow-[0_3px_10px_#27533510]",
+  "mini-head":
+    "mini-head [&_span]:block [&_span]:bg-[#597b68] [&_span]:w-[40%] [&_span]:h-1 [&_span]:[margin:4px_0] [&_i]:block [&_i]:h-[2px] [&_i]:bg-[#d6e1df] [&_i]:[margin:4px_0] [.mini-modern_&]:bg-[#e0f3e6] [.mini-modern_&]:[padding:5px] [.mini-minimal_&]:[border-bottom:1px_solid_#b3bdb6] [.mini-minimal_&]:pb-[5px]",
+  "mini-section":
+    "mini-section [&_b]:block [&_b]:bg-[#597b68] [&_b]:w-[40%] [&_b]:h-1 [&_b]:[margin:4px_0] [&_i]:block [&_i]:h-[2px] [&_i]:bg-[#d6e1df] [&_i]:[margin:4px_0] mt-[9px] [.mini-minimal_&]:[&_b]:bg-[#3b4f41]",
+  "template-caption":
+    "template-caption [&_strong]:block [&_strong]:text-[14px] [&_small]:text-[9px] [&_small]:text-[#289354] [&_small]:bg-[#e3f7ea] [&_small]:[padding:2px_5px] [&_small]:rounded-[4px] [&_small]:ml-[6px] [&_p]:text-[11px] [&_p]:text-[#6d987b] [&_p]:mt-2 min-w-0 [&_strong]:flex [&_strong]:flex-wrap [&_strong]:items-center [&_strong]:gap-y-1",
+  "export-error":
+    "export-error fixed top-20 right-4 left-4 z-50 mx-auto max-w-[480px] rounded-lg border border-[#eedbc7] bg-[#fff6ec] p-4 text-[13px] shadow-[0_6px_25px_#29443220] [&_button]:min-h-11 [&_button]:text-[#1c7543] [&_button]:underline [&_button]:mr-4",
   "assistant-panel": "assistant-panel [padding:22px]",
-  "score-card": "score-card [padding:22px] rounded-[12px] bg-[#edf9f1] text-center text-[#159b4b] [&_>_svg]:[margin:0_auto] [&_>_strong]:block [&_>_strong]:text-[44px] [&_>_strong]:leading-[1.4] [&_>_strong]:mt-2 [&_small]:text-[14px] [&_small]:ml-[6px] [&_small]:text-[#82a58e] [&_h2]:text-[15px] [&_h2]:font-semibold [&_p]:text-[12px] [&_p]:text-[#75937e] [&_p]:[margin:8px_0] [&_progress]:w-full [&_progress]:h-[6px] [&_progress]:accent-[#19ad58]",
-  "assistant-note": "assistant-note text-[11px] text-[#7c8fa4] leading-[1.8] [margin:16px_0]",
-  "check-card": "check-card [border:1px_solid_#eee5d3] rounded-[8px] [padding:14px] [margin:11px_0] bg-[#fffdf8] [&_>_div]:flex [&_>_div]:items-center [&_>_div]:gap-2 [&_>_div]:text-[#a0772c] [&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:flex-1 [&_h3]:text-[#253f5e] [&_span]:text-[10px] [&_p]:text-[12px] [&_p]:leading-[1.8] [&_p]:text-[#76869a] [&_p]:[margin:10px_0_5px] [&.passed]:bg-white [&.passed]:border-line [&.passed_>_div]:text-[#21a45a]",
-  "settings-panel": "settings-panel p-6 flex flex-col gap-[26px] [&_legend]:text-[13px] [&_legend]:mb-[14px] [&_input[type=range]]:[padding:8px_0] [&_input[type=range]]:accent-[#12b653]",
+  "score-card":
+    "score-card [padding:22px] rounded-[12px] bg-[#edf9f1] text-center text-[#159b4b] [&_>_svg]:[margin:0_auto] [&_>_strong]:block [&_>_strong]:text-[44px] [&_>_strong]:leading-[1.4] [&_>_strong]:mt-2 [&_small]:text-[14px] [&_small]:ml-[6px] [&_small]:text-[#82a58e] [&_h2]:text-[15px] [&_h2]:font-semibold [&_p]:text-[12px] [&_p]:text-[#75937e] [&_p]:[margin:8px_0] [&_progress]:w-full [&_progress]:h-[6px] [&_progress]:accent-[#19ad58]",
+  "assistant-note":
+    "assistant-note text-[11px] text-[#6a9779] leading-[1.8] [margin:16px_0]",
+  "check-card":
+    "check-card [border:1px_solid_#eee5d3] rounded-[8px] [padding:14px] [margin:11px_0] bg-[#fffdf8] [&_>_div]:flex [&_>_div]:items-center [&_>_div]:gap-2 [&_>_div]:text-[#a0772c] [&_h3]:text-[13px] [&_h3]:font-semibold [&_h3]:flex-1 [&_h3]:text-[#1b462a] [&_span]:text-[10px] [&_p]:text-[12px] [&_p]:leading-[1.8] [&_p]:text-[#688d74] [&_p]:[margin:10px_0_5px] [&.passed]:bg-white [&.passed]:border-line [&.passed_>_div]:text-[#21a45a]",
+  "settings-panel":
+    "settings-panel p-6 flex flex-col gap-[26px] [&_legend]:text-[13px] [&_legend]:mb-[14px] [&_input[type=range]]:[padding:8px_0] [&_input[type=range]]:accent-[#12b653]",
   "color-options": "color-options flex gap-[15px]",
-  "color-swatch": "color-swatch w-11 h-11 rounded-full text-white grid place-items-center [border:3px_solid_white] shadow-[0_0_0_1px_#e1e8f0] [&[aria-pressed=true]]:shadow-[0_0_0_2px_#97b9a4]",
-  "settings-note": "settings-note pt-[18px] [border-top:1px_solid_var(--line)] [&_h2]:text-[13px] [&_h2]:font-semibold [&_h2]:[margin:14px_0_8px] [&_p]:text-[12px] [&_p]:leading-[1.9] [&_p]:text-[#788a9e] [&_p]:mb-2"
+  "color-swatch":
+    "color-swatch w-11 h-11 rounded-full text-white grid place-items-center [border:3px_solid_white] shadow-[0_0_0_1px_#d9ecdf] [&[aria-pressed=true]]:shadow-[0_0_0_2px_#97b9a4]",
+  "settings-note":
+    "settings-note pt-[18px] [border-top:1px_solid_var(--line)] [&_h2]:text-[13px] [&_h2]:font-semibold [&_h2]:[margin:14px_0_8px] [&_p]:text-[12px] [&_p]:leading-[1.9] [&_p]:text-[#689176] [&_p]:mb-2",
 } as const;
 
-export const documentStyles = "[:where(&,&_*)]:border-border [:where(&,&_*)]:outline-ring/50 [&_::-webkit-scrollbar]:w-[6px] [&_::-webkit-scrollbar]:h-[6px] [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-[#cad6e4] [&_::-webkit-scrollbar-thumb]:rounded-full [&_::-webkit-scrollbar-thumb:hover]:bg-[rgba(255,_255,_255,_0.15)] [&_button]:[-webkit-tap-highlight-color:transparent] [&_button]:cursor-pointer [&_button]:[transition:background-color_0.16s,_border-color_0.16s,_color_0.16s] [&_[role=button]]:[-webkit-tap-highlight-color:transparent] [&_a]:[-webkit-tap-highlight-color:transparent] [&_select]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-[0.4] [&_button:focus-visible]:[outline:2px_solid_#19af60] [&_button:focus-visible]:[outline-offset:3px] [&_select:focus-visible]:[outline:2px_solid_#19af60] [&_select:focus-visible]:[outline-offset:3px] [&_input:focus-visible]:[outline:2px_solid_#19af60] [&_input:focus-visible]:[outline-offset:3px] [&_textarea:focus-visible]:[outline:2px_solid_#19af60] [&_textarea:focus-visible]:[outline-offset:3px] [&_summary:focus-visible]:[outline:2px_solid_#19af60] [&_summary:focus-visible]:[outline-offset:3px] motion-reduce:[&_*]:[animation:none]! motion-reduce:[&_*]:[transition:none]! motion-reduce:[&_*::before]:[animation:none]! motion-reduce:[&_*::before]:[transition:none]! motion-reduce:[&_*::after]:[animation:none]! motion-reduce:[&_*::after]:[transition:none]! print:h-auto! print:overflow-visible! print:bg-white print:[&_body]:h-auto! print:[&_body]:overflow-visible! print:[&_body]:bg-white";
+export const documentStyles =
+  "[:where(&,&_*)]:border-border [:where(&,&_*)]:outline-ring/50 [&_::-webkit-scrollbar]:w-[6px] [&_::-webkit-scrollbar]:h-[6px] [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-[#bcddc7] [&_::-webkit-scrollbar-thumb]:rounded-full [&_::-webkit-scrollbar-thumb:hover]:bg-[rgba(255,_255,_255,_0.15)] [&_button]:[-webkit-tap-highlight-color:transparent] [&_button]:cursor-pointer [&_button]:[transition:background-color_0.16s,_border-color_0.16s,_color_0.16s] [&_[role=button]]:[-webkit-tap-highlight-color:transparent] [&_a]:[-webkit-tap-highlight-color:transparent] [&_select]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-[0.4] [&_button:focus-visible]:[outline:2px_solid_#19af60] [&_button:focus-visible]:[outline-offset:3px] [&_select:focus-visible]:[outline:2px_solid_#19af60] [&_select:focus-visible]:[outline-offset:3px] [&_input:focus-visible]:[outline:2px_solid_#19af60] [&_input:focus-visible]:[outline-offset:3px] [&_textarea:focus-visible]:[outline:2px_solid_#19af60] [&_textarea:focus-visible]:[outline-offset:3px] [&_summary:focus-visible]:[outline:2px_solid_#19af60] [&_summary:focus-visible]:[outline-offset:3px] motion-reduce:[&_*]:[animation:none]! motion-reduce:[&_*]:[transition:none]! motion-reduce:[&_*::before]:[animation:none]! motion-reduce:[&_*::before]:[transition:none]! motion-reduce:[&_*::after]:[animation:none]! motion-reduce:[&_*::after]:[transition:none]! print:h-auto! print:overflow-visible! print:bg-white print:[&_body]:h-auto! print:[&_body]:overflow-visible! print:[&_body]:bg-white";

@@ -249,3 +249,31 @@ test("100 entries roundtrip but 101 entries are rejected", () => {
   data.skills.push({ id: "100", category: "category", items: "item" });
   assert.equal(isResumeData(data), false);
 });
+
+test("legacy blue and slate accents migrate to green shades without losing resume data", () => {
+  for (const [legacy, expected] of [
+    ["blue", "fresh"],
+    ["slate", "forest"],
+  ]) {
+    const library = createLibrary();
+    library.documents[0].data.appearance = {
+      ...defaultAppearance,
+      accent: legacy,
+    };
+    const parsed = parseLibrary(JSON.stringify(library));
+    assert.equal(parsed.documents[0].data.appearance.accent, expected);
+    assert.equal(parsed.documents[0].data.name, library.documents[0].data.name);
+    assert.deepEqual(
+      parsed.documents[0].data.workExperiences,
+      library.documents[0].data.workExperiences,
+    );
+  }
+});
+
+test("all current accent settings survive backup roundtrip", () => {
+  for (const accent of ["green", "fresh", "forest"]) {
+    const library = createLibrary();
+    library.documents[0].data.appearance = { ...defaultAppearance, accent };
+    assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
+  }
+});

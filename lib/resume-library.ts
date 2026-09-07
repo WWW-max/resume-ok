@@ -140,7 +140,7 @@ export function isResumeData(value: unknown): value is ResumeData {
     if (
       !isRecord(a) ||
       !["classic", "minimal", "modern"].includes(String(a.template)) ||
-      !["green", "blue", "slate"].includes(String(a.accent)) ||
+      !["green", "fresh", "forest"].includes(String(a.accent)) ||
       typeof a.fontSize !== "number" ||
       a.fontSize < 10 ||
       a.fontSize > 15 ||
@@ -162,6 +162,17 @@ export function parseLibrary(raw: string): ResumeLibrary {
     value.documents.length > 100
   )
     throw new Error("简历备份格式无效或版本不兼容。");
+  for (const document of value.documents) {
+    if (
+      !isRecord(document) ||
+      !isRecord(document.data) ||
+      !isRecord(document.data.appearance)
+    )
+      continue;
+    const appearance = document.data.appearance;
+    if (appearance.accent === "blue") appearance.accent = "fresh";
+    if (appearance.accent === "slate") appearance.accent = "forest";
+  }
   if (
     !value.documents.every(
       (doc) =>

@@ -23,30 +23,30 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
       <div className="space-y-2">
         <Label
           htmlFor={id}
-          className="text-slate-500 text-xs font-medium flex items-center gap-1.5"
+          className="text-neutral-500 text-xs font-medium flex items-center gap-1.5"
         >
           <FileText className="w-3 h-3" />
           自我评价
         </Label>
         <Textarea
           id={id}
-          className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-base min-[900px]:text-sm rounded-lg resize-y"
+          className="bg-white border-neutral-200 text-neutral-800 placeholder:text-neutral-500 focus:border-green-500/50 transition-colors text-base min-[900px]:text-sm rounded-lg resize-y"
           placeholder="介绍你的核心竞争力、工作风格、职业目标等..."
           value={data.summary}
           onChange={(e) => onChange({ ...data, summary: e.target.value })}
           rows={8}
         />
         <div className="flex items-center justify-between">
-          <p className="text-slate-500 text-xs">建议 80-150 字</p>
-          <p className="text-slate-500 text-xs">{data.summary.length} 字</p>
+          <p className="text-neutral-500 text-xs">建议 80-150 字</p>
+          <p className="text-neutral-500 text-xs">{data.summary.length} 字</p>
         </div>
       </div>
 
       {/* Writing Tips */}
-      <div className="border border-slate-200 rounded-xl p-3 bg-blue-500/5">
+      <div className="border border-neutral-200 rounded-xl p-3 bg-green-500/5">
         <div className="flex items-center gap-1.5 mb-2">
-          <Lightbulb className="w-3 h-3 text-blue-400" />
-          <p className="text-blue-400 text-xs font-medium">写作建议</p>
+          <Lightbulb className="w-3 h-3 text-green-400" />
+          <p className="text-green-400 text-xs font-medium">写作建议</p>
         </div>
         <ul className="space-y-1">
           {[
@@ -57,9 +57,9 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
           ].map((tip, i) => (
             <li
               key={i}
-              className="text-slate-500 text-xs flex items-start gap-1.5"
+              className="text-neutral-500 text-xs flex items-start gap-1.5"
             >
-              <span className="text-blue-400/60 mt-0.5">•</span>
+              <span className="text-green-400/60 mt-0.5">•</span>
               {tip}
             </li>
           ))}
@@ -68,14 +68,14 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
 
       {/* Template Quick Fill */}
       <div className="space-y-1.5">
-        <p className="text-slate-500 text-xs flex items-center gap-1">
+        <p className="text-neutral-500 text-xs flex items-center gap-1">
           <span>模板参考（点击填入）</span>
         </p>
         {TEMPLATES.map((tpl, i) => (
           <button
             key={i}
             onClick={() => onChange({ ...data, summary: tpl })}
-            className="w-full text-left px-3 py-2 rounded-lg border border-slate-200 bg-white hover:border-slate-200 hover:bg-white transition-all text-slate-500 hover:text-slate-500 text-xs leading-relaxed"
+            className="w-full text-left px-3 py-2 rounded-lg border border-neutral-200 bg-white hover:border-neutral-200 hover:bg-white transition-all text-neutral-500 hover:text-neutral-500 text-xs leading-relaxed"
           >
             {tpl}
           </button>

@@ -33,8 +33,8 @@ export function SettingsPanel({
             ).map((color) => (
               <button
                 key={color}
-                className={`${ui["color-swatch"]} ${{ green: "bg-[#15934b]", blue: "bg-[#285ec0]", slate: "bg-[#37465b]" }[color]}`}
-                aria-label={`${{ green: "森林绿", blue: "商务蓝", slate: "石墨灰" }[color]}`}
+                className={`${ui["color-swatch"]} ${{ green: "bg-[#15934b]", fresh: "bg-[#16a34a]", forest: "bg-[#166534]" }[color]}`}
+                aria-label={`${{ green: "品牌绿", fresh: "清新绿", forest: "森林绿" }[color]}`}
                 aria-pressed={appearance.accent === color}
                 onClick={() => update({ accent: color })}
               >
