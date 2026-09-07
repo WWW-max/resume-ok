@@ -12,8 +12,8 @@ export type EditorSection = "basic" | SectionKey;
 export const sectionIcons = { basic: UserRound, workExperiences: BriefcaseBusiness, educations: GraduationCap, projects: Folders, skills: Star, summary: UserRound };
 const hints = { basic: "姓名、电话、邮箱、地址、求职意向等", workExperiences: "工作经历、职责与成就", projects: "项目经验、角色与成果", educations: "学历、学校、专业等", skills: "专业技能、工具、语言等", summary: "个人优势、职业倾向等" };
 export const sectionForms = { basic: BasicInfoForm, workExperiences: WorkExperienceForm, educations: EducationForm, projects: ProjectForm, skills: SkillsForm, summary: SummaryForm };
-export function EditorPanel({ data, onChange, onAssistant }: { data: ResumeData; onChange: (data: ResumeData) => void; onAssistant: () => void }) {
-  const [active, setActive] = useState<EditorSection | null>(null);
+export function EditorPanel({ data, onChange, onAssistant, initialSection = null }: { data: ResumeData; onChange: (data: ResumeData) => void; onAssistant: () => void; initialSection?: EditorSection | null }) {
+  const [active, setActive] = useState<EditorSection | null>(initialSection);
   const dragKey = useRef<SectionKey | null>(null);
   const [adding, setAdding] = useState(false);
   function move(key: SectionKey, target: number) {
