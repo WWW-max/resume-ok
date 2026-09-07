@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { ResumeData } from "@/lib/resume-data";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,14 +17,15 @@ const TEMPLATES = [
 ];
 
 export function SummaryForm({ data, onChange }: SummaryFormProps) {
+  const id = useId();
   return (
     <div className="px-4 pb-6 space-y-4">
       <div className="space-y-2">
-        <Label className="text-slate-500 text-xs font-medium flex items-center gap-1.5">
+        <Label htmlFor={id} className="text-slate-500 text-xs font-medium flex items-center gap-1.5">
           <FileText className="w-3 h-3" />
           自我评价
         </Label>
-        <Textarea
+        <Textarea id={id}
           className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none"
           placeholder="介绍你的核心竞争力、工作风格、职业目标等..."
           value={data.summary}

@@ -68,6 +68,7 @@ export interface ResumeData {
   projects: Project[];
   skills: Skill[];
   sectionOrder: SectionKey[];
+  hiddenSections?: SectionKey[];
 }
 
 export const defaultResumeData: ResumeData = {

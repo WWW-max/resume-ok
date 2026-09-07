@@ -25,7 +25,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(({
       })}</div></div>{data.avatar &&
       // eslint-disable-next-line @next/next/no-img-element -- user-uploaded data URL
       <img src={data.avatar} alt={`${data.name}的简历头像`} className="resume-avatar" />}</header>
-    <div className="resume-sections">{data.sectionOrder.map(key => {
+    <div className="resume-sections">{data.sectionOrder.filter(key => !data.hiddenSections?.includes(key)).map(key => {
       const body = content(key); if (!body) return null;
       const Icon = icons[key];
       return <section key={key} data-section={key} className={`resume-section ${key === "skills" || key === "summary" ? "half-section" : ""}`}><h2><Icon size={18} />{SECTION_LABELS[key]}</h2>{body}</section>;

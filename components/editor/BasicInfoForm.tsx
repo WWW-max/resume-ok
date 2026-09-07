@@ -1,158 +1,39 @@
 "use client";
-
+import { useId, useState } from "react";
 import { ResumeData } from "@/lib/resume-data";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Phone, Mail, MapPin, GitBranch, Globe, User, Briefcase } from "lucide-react";
-
-interface BasicInfoFormProps {
-  data: ResumeData;
-  onChange: (data: ResumeData) => void;
-}
-
-function FormField({
-  label,
-  icon: Icon,
-  children,
-}: {
-  label: string;
-  icon?: React.ElementType;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-slate-500 text-xs font-medium flex items-center gap-1.5">
-        {Icon && <Icon className="w-3 h-3" />}
-        {label}
-      </Label>
-      {children}
-    </div>
-  );
-}
-
-// Larger touch targets on mobile (h-11 = 44px, meets WCAG minimum)
-const inputCls =
-  "bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 " +
-  "focus:border-blue-500/50 focus:bg-white transition-colors " +
-  "text-sm h-11 md:h-9 rounded-lg touch-manipulation";
-
-export function BasicInfoForm({ data, onChange }: BasicInfoFormProps) {
-  const update = (key: keyof ResumeData, value: string) => {
-    onChange({ ...data, [key]: value });
-  };
-
-  return (
-    <div className="px-4 pb-8 space-y-5">
-      {/* Avatar Upload */}
-      <div
-        className="flex flex-col items-center py-6 border border-dashed border-slate-200 rounded-xl
-                   bg-white hover:border-blue-500/30 active:border-blue-500/40
-                   transition-colors cursor-pointer group touch-manipulation"
-        onClick={() => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = () => update("avatar", reader.result as string);
-              reader.readAsDataURL(file);
-            }
-          };
-          input.click();
-        }}
-      >
-        {data.avatar ? (
-          <img
-            src={data.avatar}
-            alt="avatar"
-            className="w-20 h-20 rounded-full object-cover border-2 border-blue-500/50 shadow-lg shadow-blue-500/20"
-          />
-        ) : (
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600/30 to-violet-600/30 border border-slate-200 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
-            <User className="w-8 h-8 text-slate-500 group-hover:text-slate-500 transition-colors" />
-          </div>
-        )}
-        <p className="text-slate-500 text-xs mt-2.5 group-hover:text-slate-500 transition-colors">
-          点击上传头像
-        </p>
-      </div>
-
-      {/* Name & Title */}
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="姓名" icon={User}>
-          <Input
-            className={inputCls}
-            placeholder="张三"
-            value={data.name}
-            onChange={(e) => update("name", e.target.value)}
-          />
-        </FormField>
-        <FormField label="求职意向" icon={Briefcase}>
-          <Input
-            className={inputCls}
-            placeholder="前端工程师"
-            value={data.title}
-            onChange={(e) => update("title", e.target.value)}
-          />
-        </FormField>
-      </div>
-
-      {/* Contact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <FormField label="手机号" icon={Phone}>
-          <Input
-            className={inputCls}
-            placeholder="138-0000-0000"
-            type="tel"
-            inputMode="tel"
-            value={data.phone}
-            onChange={(e) => update("phone", e.target.value)}
-          />
-        </FormField>
-        <FormField label="邮箱" icon={Mail}>
-          <Input
-            className={inputCls}
-            placeholder="email@example.com"
-            type="email"
-            inputMode="email"
-            value={data.email}
-            onChange={(e) => update("email", e.target.value)}
-          />
-        </FormField>
-      </div>
-
-      <FormField label="所在城市" icon={MapPin}>
-        <Input
-          className={inputCls}
-          placeholder="北京市"
-          value={data.location}
-          onChange={(e) => update("location", e.target.value)}
-        />
-      </FormField>
-
-      <FormField label="GitHub" icon={GitBranch}>
-        <Input
-          className={inputCls}
-          placeholder="github.com/username"
-          inputMode="url"
-          value={data.github}
-          onChange={(e) => update("github", e.target.value)}
-        />
-      </FormField>
-
-      <FormField label="个人网站" icon={Globe}>
-        <Input
-          className={inputCls}
-          placeholder="https://yourwebsite.com"
-          type="url"
-          inputMode="url"
-          value={data.website}
-          onChange={(e) => update("website", e.target.value)}
-        />
-      </FormField>
-    </div>
-  );
+import { Upload, UserRound, Trash2 } from "lucide-react";
+const fields = [
+  ["name", "姓名", "张三", "text"], ["title", "求职意向", "前端工程师", "text"],
+  ["phone", "手机号", "138-0000-0000", "tel"], ["email", "邮箱", "name@example.com", "email"],
+  ["location", "所在城市", "北京市", "text"], ["github", "GitHub", "github.com/username", "text"],
+  ["website", "个人网站", "https://example.com", "url"],
+] as const;
+export function BasicInfoForm({ data, onChange }: { data: ResumeData; onChange: (data: ResumeData) => void }) {
+  const id = useId();
+  const [error, setError] = useState("");
+  async function upload(file?: File) {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setError("请选择 JPG、PNG 或 WebP 图片。"); return; }
+    if (file.size > 5 * 1024 * 1024) { setError("图片不能超过 5 MB。"); return; }
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      const ratio = Math.min(1, 400 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.round(bitmap.width * ratio); canvas.height = Math.round(bitmap.height * ratio);
+      const ctx = canvas.getContext("2d"); if (!ctx) throw new Error("图片处理失败");
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close();
+      onChange({ ...data, avatar: canvas.toDataURL("image/jpeg", 0.85) }); setError("");
+    } catch { setError("无法读取图片，请换一张图片重试。"); }
+  }
+  return <div className="resume-form"><div className="avatar-editor">
+    {data.avatar ?
+      // eslint-disable-next-line @next/next/no-img-element -- locally uploaded thumbnail
+      <img src={data.avatar} alt="简历头像" /> : <div className="avatar-placeholder"><UserRound size={30} /></div>}
+    <div><label className="soft-button upload-button"><Upload size={15} />上传头像<input aria-label="上传头像" type="file" accept="image/png,image/jpeg,image/webp" onChange={e => {void upload(e.target.files?.[0]); e.target.value = "";}} /></label><p>JPG / PNG / WebP，最大 5 MB</p>{data.avatar && <button className="text-button" onClick={() => onChange({...data,avatar:""})}><Trash2 size={13} />移除头像</button>}</div>
+    </div>{error && <p className="field-error" role="alert">{error}</p>}
+    <div className="form-grid">{fields.map(([key,label,placeholder,type]) => {
+      const invalid = key === "email" && !!data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+      return <div className={`field ${key === "website" ? "wide" : ""}`} key={key}><label htmlFor={`${id}-${key}`}>{label}</label><input id={`${id}-${key}`} type={type} value={data[key]} placeholder={placeholder} aria-invalid={invalid} aria-describedby={invalid ? `${id}-email-error` : undefined} onChange={e => onChange({...data,[key]:e.target.value})} />{invalid && <p id={`${id}-email-error`} className="field-error">请输入有效邮箱。</p>}</div>;
+    })}</div>
+  </div>;
 }
