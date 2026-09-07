@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
 import {
   blankResume,
   createLibrary,
@@ -22,6 +22,23 @@ export function useResumeLibrary() {
   const [loadError, setLoadError] = useState("");
   const [blocked, setBlocked] = useState(false);
   const persisted = useRef<ResumeLibrary | null>(null);
+  const pending = useRef<ResumeLibrary | null>(null);
+  useLayoutEffect(() => {
+    pending.current = state.ready && !blocked ? state.library : null;
+  }, [state.library, state.ready, blocked]);
+  useEffect(() => () => {
+    // Next.js client navigation does not fire pagehide. Flush the latest draft
+    // before the editor unmounts, even inside the 400 ms debounce window.
+    const latest = pending.current;
+    if (!latest || latest === persisted.current) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(latest));
+      persisted.current = latest;
+    } catch {
+      // Normal autosave already exposes storage failures while mounted.
+      // Never overwrite the stored copy with a fallback on navigation.
+    }
+  }, []);
   useEffect(() => {
     // Client-only storage is hydrated after SSR; one initialization render is intentional.
     try {

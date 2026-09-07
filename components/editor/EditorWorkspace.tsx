@@ -73,15 +73,15 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
       }}
     >
       <header className={ui["topbar"]}>
-        <Link href="/" aria-label="返回 ResumeOK 首页" className="shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-brand"><Brand /></Link>
+        <Link href="/" aria-label="返回 ResumeOK 首页" className="shrink-0 rounded-lg max-[380px]:[&_.brand]:text-[17px] max-[380px]:[&_.brand-clover]:size-6 focus-visible:outline-2 focus-visible:outline-brand"><Brand /></Link>
         <span className={ui["tagline"]}>让每一份简历，都更接近 Offer</span>
         <div className={ui["top-actions"]}>
           <button
             className={ui["soft-button"]}
             onClick={() => setPreviewOnly(!previewOnly)}
           >
-            <Eye size={17} />
-            {previewOnly ? "返回编辑" : "预览"}
+            <Eye size={17} className="max-[380px]:hidden" />
+            {previewOnly ? "编辑" : "预览"}
           </button>
           <button
             className={ui["soft-button"]}
@@ -96,7 +96,7 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
             onClick={download}
           >
             <Download size={17} />
-            {exporting ? "导出中…" : "下载简历"}
+            <span className="hidden sm:inline">{exporting ? "导出中…" : "下载简历"}</span><span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
           </button>
           <button
             className={ui["profile-button"]}
@@ -168,7 +168,7 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
           )}
         </aside>
         <main className={ui["preview-column"]} aria-label="简历预览">
-          <div className={ui["preview-toolbar"]}>
+          <div className={ui["preview-toolbar"]}><span className="sr-only">预览控制</span>
             <div className={ui["toolbar-group"]}>
               <button
                 className={ui["icon-button"]}
@@ -186,7 +186,7 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
               >
                 <Redo2 size={17} />
               </button>
-              <Monitor size={18} />
+              <Monitor size={18} className="hidden xl:block" />
               <select
                 className={ui["toolbar-pill"]}
                 aria-label="预览缩放"
@@ -220,7 +220,7 @@ export default function EditorWorkspace({ initialView = "editor" }: { initialVie
                 <Sparkles size={15} />
                 简历检查
               </button>
-              <span className={ui["toolbar-pill"]}>A4 (210 × 297mm)</span>
+              <span className={`${ui["toolbar-pill"]} hidden min-[1450px]:inline-flex`}>A4 (210 × 297mm)</span>
             </div>
           </div>
           <PreviewCanvas zoom={zoom} data={data} previewRef={previewRef} />

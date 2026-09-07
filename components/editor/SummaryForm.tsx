@@ -30,7 +30,7 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
         </Label>
         <Textarea
           id={id}
-          className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-sm rounded-lg resize-none"
+          className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-blue-500/50 transition-colors text-base min-[900px]:text-sm rounded-lg resize-y"
           placeholder="介绍你的核心竞争力、工作风格、职业目标等..."
           value={data.summary}
           onChange={(e) => onChange({ ...data, summary: e.target.value })}
