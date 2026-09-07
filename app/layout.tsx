@@ -29,9 +29,9 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${inter.variable} ${documentStyles} h-full overscroll-none antialiased [-webkit-text-size-adjust:100%]`}
+      className={`${inter.variable} ${documentStyles} min-h-full antialiased [-webkit-text-size-adjust:100%]`}
     >
-      <body className="h-full flex flex-col overflow-hidden bg-background text-foreground font-workspace">
+      <body className="min-h-full bg-background text-foreground font-workspace">
         {children}
       </body>
     </html>
