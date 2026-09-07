@@ -1,3 +1,4 @@
+import type { ResumeAppearance } from "./resume-appearance";
 export interface WorkExperience {
   id: string;
   company: string;
@@ -69,6 +70,7 @@ export interface ResumeData {
   skills: Skill[];
   sectionOrder: SectionKey[];
   hiddenSections?: SectionKey[];
+  appearance?: ResumeAppearance;
 }
 
 export const defaultResumeData: ResumeData = {

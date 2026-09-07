@@ -20,6 +20,10 @@ export function isResumeData(value: unknown): value is ResumeData {
   }
   if(!Array.isArray(value.sectionOrder) || value.sectionOrder.length !== DEFAULT_SECTION_ORDER.length || new Set(value.sectionOrder).size !== DEFAULT_SECTION_ORDER.length || !value.sectionOrder.every(k => DEFAULT_SECTION_ORDER.includes(k))) return false;
   if(value.hiddenSections !== undefined && (!Array.isArray(value.hiddenSections) || !value.hiddenSections.every(k => DEFAULT_SECTION_ORDER.includes(k)))) return false;
+  if(value.appearance !== undefined) {
+    const a = value.appearance;
+    if(!isRecord(a) || !["classic","minimal","modern"].includes(String(a.template)) || !["green","blue","slate"].includes(String(a.accent)) || typeof a.fontSize !== "number" || a.fontSize < 10 || a.fontSize > 15 || !["comfortable","compact"].includes(String(a.spacing)) || typeof a.showBrand !== "boolean") return false;
+  }
   return true;
 }
 export function parseLibrary(raw: string): ResumeLibrary {

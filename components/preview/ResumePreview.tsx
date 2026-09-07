@@ -1,6 +1,7 @@
 "use client";
-import { forwardRef } from "react";
+import { forwardRef, type CSSProperties } from "react";
 import { ResumeData, SectionKey, SECTION_LABELS } from "@/lib/resume-data";
+import { defaultAppearance, accentColors } from "@/lib/resume-appearance";
 import { Brand } from "@/components/Brand";
 import { Phone, Mail, MapPin, Link as LinkIcon, Clover, UserRound, BriefcaseBusiness, GraduationCap, Folders, Star } from "lucide-react";
 const icons = { workExperiences: BriefcaseBusiness, educations: GraduationCap, projects: Folders, skills: Star, summary: UserRound };
@@ -8,6 +9,7 @@ function Description({ text }: { text: string }) {
   return <div className="resume-description">{text.split("\n").filter(line => line.trim()).map((line, index) => <p key={index}>{line}</p>)}</div>;
 }
 export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(({ data }, ref) => {
+  const appearance = {...defaultAppearance,...data.appearance};
   function content(key: SectionKey) {
     switch (key) {
       case "summary": return data.summary ? <Description text={data.summary} /> : null;
@@ -17,7 +19,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(({
       case "educations": return data.educations.length ? data.educations.map(item => <article key={item.id}><div className="resume-row"><h3>{item.school}</h3><time>{item.startDate} — {item.endDate}</time></div><p className="resume-role">{[item.major, item.degree, item.gpa && `GPA ${item.gpa}`].filter(Boolean).join(" · ")}</p><Description text={item.description} /></article>) : null;
     }
   }
-  return <div ref={ref} className="resume-paper"><Clover className="paper-watermark" aria-hidden="true" /><Brand small />
+  return <div ref={ref} className={`resume-paper template-${appearance.template} spacing-${appearance.spacing}`} style={{"--resume-accent":accentColors[appearance.accent],"--resume-font-size":`${appearance.fontSize}px`} as CSSProperties}><Clover className="paper-watermark" aria-hidden="true" />{appearance.showBrand && <Brand small />}
     <header className="resume-header"><div><h1>{data.name || "您的姓名"}</h1><p className="resume-job">{data.title || "求职意向"}</p><div className="resume-contact">
       {[[Phone, data.phone], [Mail, data.email], [MapPin, data.location], [LinkIcon, data.github], [LinkIcon, data.website]].map(([Icon, text], i) => {
         const ContactIcon = Icon as typeof Phone;
