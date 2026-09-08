@@ -63,8 +63,6 @@ export const ui = {
     "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
   "resume-paper":
     "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] p-11 text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[#d3f0dd] print:shadow-none print:rounded-none [&_*]:border-[#d3f0dd]",
-  "paper-watermark":
-    "paper-watermark absolute w-[150px] h-[150px] text-[#b3f1c3] fill-[#c5f6d3] opacity-[0.23] top-[42px] right-[66px] z-[-1] [transform:rotate(15deg)] [.template-minimal_&]:hidden",
   "resume-header":
     "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
   "resume-job": "resume-job text-[14px] font-medium [margin:5px_0_10px]",

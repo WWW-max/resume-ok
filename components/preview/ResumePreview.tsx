@@ -9,7 +9,6 @@ import {
   Mail,
   MapPin,
   Link as LinkIcon,
-  Clover,
   UserRound,
   BriefcaseBusiness,
   GraduationCap,
@@ -118,7 +117,6 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           } as CSSProperties
         }
       >
-        <Clover className={ui["paper-watermark"]} aria-hidden="true" />
         {appearance.showBrand && <Brand small />}
         <header className={ui["resume-header"]}>
           <div>
