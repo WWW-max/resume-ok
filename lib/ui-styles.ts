@@ -62,7 +62,7 @@ export const ui = {
   "paper-size":
     "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
   "resume-paper":
-    "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] p-11 text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[#d3f0dd] print:shadow-none print:rounded-none [&_*]:border-[#d3f0dd]",
+    "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[color:var(--resume-divider,_#d3f0dd)] print:shadow-none print:rounded-none [&_*]:border-[color:var(--resume-divider,_#d3f0dd)]",
   "resume-header":
     "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
   "resume-school-logo":
@@ -74,7 +74,7 @@ export const ui = {
   "resume-sections":
     "resume-sections grid grid-cols-[1fr_1fr] gap-[22px_36px] [.template-minimal_&]:block [.spacing-compact_&]:gap-[15px_28px]",
   "resume-section":
-    "resume-section col-span-full min-w-0 [&.half-section]:col-span-1 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[10px] [&_h2]:[border-bottom:1px_solid_#d3f0dd] [&_h2]:pb-[5px] [&_h2]:mb-[10px] [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2_svg]:text-[color:var(--resume-accent,_#16632f)] [&_article_+_article]:mt-[15px] print:[&_article]:[break-inside:avoid] print:[&_h2]:[break-after:avoid] [.template-minimal_&]:mb-6 [.template-minimal_&]:[&_h2]:[border-bottom:none] [.template-modern_&]:[&_h2]:text-[color:var(--resume-accent)] [.spacing-compact_&]:[&_article_+_article]:mt-[10px]",
+    "resume-section col-span-full min-w-0 [&.half-section]:col-span-1 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[10px] [&_h2]:[border-bottom:1px_solid_var(--resume-divider,_#d3f0dd)] [&_h2]:pb-[5px] [&_h2]:mb-[10px] [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2_svg]:text-[color:var(--resume-accent,_#16632f)] [&_article_+_article]:mt-[15px] print:[&_article]:[break-inside:avoid] print:[&_h2]:[break-after:avoid] [.template-minimal_&]:mb-6 [.template-minimal_&]:[&_h2]:[border-bottom:none] [.template-modern_&]:[&_h2]:text-[color:var(--resume-accent)] [.spacing-compact_&]:[&_article_+_article]:mt-[10px]",
   "resume-row":
     "resume-row flex justify-between gap-3 items-baseline [&_h3]:text-[12px] [&_h3]:font-bold [&_h3_span]:font-normal [&_h3_span]:text-[#60886d] [&_h3_span]:ml-[7px] [&_h3_span]:text-[11px] [&_time]:text-[#60886d] [&_time]:whitespace-nowrap [&_time]:text-[11px]",
   "resume-description":

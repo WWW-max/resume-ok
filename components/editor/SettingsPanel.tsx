@@ -69,6 +69,51 @@ export function SettingsPanel({
             <option value="compact">紧凑 · 更多内容</option>
           </select>
         </div>
+        <fieldset>
+          <legend>页面边距</legend>
+          <div className="grid grid-cols-2 gap-4">
+            {(
+              [
+                ["paddingTop", "上"],
+                ["paddingRight", "右"],
+                ["paddingBottom", "下"],
+                ["paddingLeft", "左"],
+              ] as const
+            ).map(([key, label]) => (
+              <div className={ui["field"]} key={key}>
+                <label htmlFor={key}>
+                  {label}边距：{appearance[key]} px
+                </label>
+                <input
+                  id={key}
+                  type="range"
+                  min={16}
+                  max={96}
+                  step={1}
+                  value={appearance[key]}
+                  onChange={(e) => update({ [key]: Number(e.target.value) })}
+                />
+              </div>
+            ))}
+          </div>
+        </fieldset>
+        <div className={ui["field"]}>
+          <label htmlFor="divider-color">模块分割线颜色</label>
+          <input
+            id="divider-color"
+            type="color"
+            value={appearance.dividerColor}
+            onChange={(e) => update({ dividerColor: e.target.value })}
+          />
+        </div>
+        <label className={ui["check-field"]}>
+          <input
+            type="checkbox"
+            checked={appearance.showIcons}
+            onChange={(e) => update({ showIcons: e.target.checked })}
+          />
+          显示模块标题与联系方式图标
+        </label>
         <button
           className={ui["soft-button"]}
           onClick={() =>

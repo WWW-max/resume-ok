@@ -113,6 +113,11 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           {
             "--resume-accent": accentColors[appearance.accent],
             "--resume-font-size": `${appearance.fontSize}px`,
+            "--resume-divider": appearance.dividerColor,
+            paddingTop: appearance.paddingTop,
+            paddingRight: appearance.paddingRight,
+            paddingBottom: appearance.paddingBottom,
+            paddingLeft: appearance.paddingLeft,
           } as CSSProperties
         }
       >
@@ -139,7 +144,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
                 const ContactIcon = Icon as typeof Phone;
                 return typeof text === "string" && text ? (
                   <span key={i}>
-                    <ContactIcon size={14} />
+                    {appearance.showIcons && <ContactIcon size={14} />}
                     {text}
                   </span>
                 ) : null;
@@ -169,7 +174,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
                   className={`${ui["resume-section"]} ${key === "skills" || key === "summary" ? "half-section" : ""}`}
                 >
                   <h2>
-                    <Icon size={18} />
+                    {appearance.showIcons && <Icon size={18} />}
                     {SECTION_LABELS[key]}
                   </h2>
                   {body}

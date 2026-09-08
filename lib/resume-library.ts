@@ -3,6 +3,7 @@ import {
   DEFAULT_SECTION_ORDER,
   type ResumeData,
 } from "./resume-data";
+import { defaultAppearance } from "./resume-appearance";
 export const STORAGE_KEY = "resumeok.library.v1";
 export interface ResumeDocument {
   id: string;
@@ -151,7 +152,14 @@ export function isResumeData(value: unknown): value is ResumeData {
       a.fontSize < 10 ||
       a.fontSize > 15 ||
       !["comfortable", "compact"].includes(String(a.spacing)) ||
-      typeof a.showBrand !== "boolean"
+      typeof a.showBrand !== "boolean" ||
+      ![a.paddingTop, a.paddingRight, a.paddingBottom, a.paddingLeft].every(
+        (padding) =>
+          typeof padding === "number" && padding >= 16 && padding <= 96,
+      ) ||
+      typeof a.dividerColor !== "string" ||
+      !/^#[0-9a-fA-F]{6}$/.test(a.dividerColor) ||
+      typeof a.showIcons !== "boolean"
     )
       return false;
   }
@@ -181,6 +189,16 @@ export function parseLibrary(raw: string): ResumeLibrary {
     const appearance = document.data.appearance;
     if (appearance.accent === "blue") appearance.accent = "fresh";
     if (appearance.accent === "slate") appearance.accent = "forest";
+    for (const key of [
+      "paddingTop",
+      "paddingRight",
+      "paddingBottom",
+      "paddingLeft",
+      "dividerColor",
+      "showIcons",
+    ] as const) {
+      if (appearance[key] === undefined) appearance[key] = defaultAppearance[key];
+    }
   }
   if (
     !value.documents.every(

@@ -28,6 +28,12 @@ test("backup roundtrip preserves content, ordering, hidden sections and appearan
   library.documents[0].data.appearance = {
     ...defaultAppearance,
     fontSize: 13.5,
+    paddingTop: 32,
+    paddingRight: 36,
+    paddingBottom: 40,
+    paddingLeft: 48,
+    dividerColor: "#123456",
+    showIcons: false,
   };
   assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
 });
@@ -110,6 +116,11 @@ test("unsafe image URLs and invalid appearance values are rejected", () => {
     { template: "unknown" },
     { accent: "url(x)" },
     { spacing: "unknown" },
+    { paddingTop: 4 },
+    { paddingRight: 100 },
+    { dividerColor: "red" },
+    { dividerColor: "#fff; background:url(x)" },
+    { showIcons: "yes" },
   ]) {
     const data = blankResume();
     data.appearance = { ...defaultAppearance, ...patch };
@@ -301,6 +312,23 @@ test("all current accent settings survive backup roundtrip", () => {
     library.documents[0].data.appearance = { ...defaultAppearance, accent };
     assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
   }
+});
+
+test("legacy appearance settings migrate to current global style defaults", () => {
+  const library = createLibrary();
+  const appearance = { ...defaultAppearance };
+  for (const key of [
+    "paddingTop",
+    "paddingRight",
+    "paddingBottom",
+    "paddingLeft",
+    "dividerColor",
+    "showIcons",
+  ])
+    delete appearance[key];
+  library.documents[0].data.appearance = appearance;
+  const parsed = parseLibrary(JSON.stringify(library));
+  assert.deepEqual(parsed.documents[0].data.appearance, defaultAppearance);
 });
 
 const { observePreviewSize } = require("../lib/observe-preview.ts");
