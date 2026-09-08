@@ -6,6 +6,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 <!-- END:nextjs-agent-rules -->
 
+## 技术栈与架构约定
+
+- 前端统一使用 Next.js App Router 与 TypeScript；页面、布局和组件遵循 Next.js 当前版本的目录与服务端/客户端组件约定。
+- 样式统一使用 Tailwind CSS，不引入其他 CSS 框架。
+- 后端接口统一使用 Next.js Route Handlers，放在 `app/api/**/route.ts`；不单独搭建 Express、Koa 等后端服务。
+- 数据库统一使用 PostgreSQL。所有数据库访问仅在服务端代码或 Route Handlers 中执行，禁止在浏览器端直接连接数据库或暴露数据库凭据。
+- 新增功能应沿用以上技术栈；如确需引入其他框架、后端服务或数据库，必须先说明原因并获得项目负责人确认。
+
 ## 样式约定
 
 - 项目页面和组件样式统一使用 Tailwind CSS 工具类，重复组合可提取为静态类常量。
