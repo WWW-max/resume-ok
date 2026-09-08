@@ -64,7 +64,7 @@ export const ui = {
   "resume-paper":
     "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[color:var(--resume-divider,_#d3f0dd)] print:shadow-none print:rounded-none [&_*]:border-[color:var(--resume-divider,_#d3f0dd)]",
   "resume-header":
-    "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
+    "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [&.personal-layout-left]:flex-col [&.personal-layout-left]:items-start [&.personal-layout-center]:flex-col [&.personal-layout-center]:items-center [&.personal-layout-center]:text-center [&.personal-layout-center_.resume-contact]:justify-center [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
   "resume-school-logo":
     "resume-school-logo block max-w-32 h-12 object-contain object-left",
   "resume-job": "resume-job text-[14px] font-medium [margin:5px_0_10px]",

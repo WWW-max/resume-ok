@@ -159,7 +159,8 @@ export function isResumeData(value: unknown): value is ResumeData {
       ) ||
       typeof a.dividerColor !== "string" ||
       !/^#[0-9a-fA-F]{6}$/.test(a.dividerColor) ||
-      typeof a.showIcons !== "boolean"
+      typeof a.showIcons !== "boolean" ||
+      !["left", "center", "split"].includes(String(a.personalInfoLayout))
     )
       return false;
   }
@@ -196,6 +197,7 @@ export function parseLibrary(raw: string): ResumeLibrary {
       "paddingLeft",
       "dividerColor",
       "showIcons",
+      "personalInfoLayout",
     ] as const) {
       if (appearance[key] === undefined) appearance[key] = defaultAppearance[key];
     }

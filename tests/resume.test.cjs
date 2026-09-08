@@ -34,6 +34,7 @@ test("backup roundtrip preserves content, ordering, hidden sections and appearan
     paddingLeft: 48,
     dividerColor: "#123456",
     showIcons: false,
+    personalInfoLayout: "center",
   };
   assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
 });
@@ -121,6 +122,7 @@ test("unsafe image URLs and invalid appearance values are rejected", () => {
     { dividerColor: "red" },
     { dividerColor: "#fff; background:url(x)" },
     { showIcons: "yes" },
+    { personalInfoLayout: "stacked" },
   ]) {
     const data = blankResume();
     data.appearance = { ...defaultAppearance, ...patch };
@@ -314,6 +316,17 @@ test("all current accent settings survive backup roundtrip", () => {
   }
 });
 
+test("all personal info layouts survive backup roundtrip", () => {
+  for (const personalInfoLayout of ["left", "center", "split"]) {
+    const library = createLibrary();
+    library.documents[0].data.appearance = {
+      ...defaultAppearance,
+      personalInfoLayout,
+    };
+    assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
+  }
+});
+
 test("legacy appearance settings migrate to current global style defaults", () => {
   const library = createLibrary();
   const appearance = { ...defaultAppearance };
@@ -324,6 +337,7 @@ test("legacy appearance settings migrate to current global style defaults", () =
     "paddingLeft",
     "dividerColor",
     "showIcons",
+    "personalInfoLayout",
   ])
     delete appearance[key];
   library.documents[0].data.appearance = appearance;

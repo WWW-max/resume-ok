@@ -70,6 +70,28 @@ export function SettingsPanel({
           </select>
         </div>
         <fieldset>
+          <legend>个人信息布局</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {(
+              [
+                ["left", "左对齐"],
+                ["center", "居中"],
+                ["split", "左右布局"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={`${ui["soft-button"]} ${appearance.personalInfoLayout === value ? "border-green-500 bg-green-50 text-green-800" : ""}`}
+                aria-pressed={appearance.personalInfoLayout === value}
+                onClick={() => update({ personalInfoLayout: value })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset>
           <legend>页面边距</legend>
           <div className="grid grid-cols-2 gap-4">
             {(

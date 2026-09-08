@@ -10,6 +10,7 @@ export interface ResumeAppearance {
   paddingLeft: number;
   dividerColor: string;
   showIcons: boolean;
+  personalInfoLayout: "left" | "center" | "split";
 }
 export const defaultAppearance: ResumeAppearance = {
   template: "classic",
@@ -23,6 +24,7 @@ export const defaultAppearance: ResumeAppearance = {
   paddingLeft: 44,
   dividerColor: "#d3f0dd",
   showIcons: true,
+  personalInfoLayout: "split",
 };
 export const accentColors = {
   green: "#15934b",

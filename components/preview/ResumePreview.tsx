@@ -129,7 +129,9 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
             className={ui["resume-school-logo"]}
           />
         )}
-        <header className={ui["resume-header"]}>
+        <header
+          className={`${ui["resume-header"]} personal-layout-${appearance.personalInfoLayout}`}
+        >
           <div>
             <h1>{data.name || "您的姓名"}</h1>
             <p className={ui["resume-job"]}>{data.title || "求职意向"}</p>
