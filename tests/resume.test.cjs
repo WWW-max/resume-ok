@@ -387,3 +387,37 @@ test("preview resize notifications are batched, deduplicated, and cancelled on c
     }
   }
 });
+
+const {
+  normalizeEmail,
+  isValidEmail,
+  passwordError,
+  safeNextPath,
+} = require("../lib/auth-validation.ts");
+const { hashSessionToken } = require("../lib/session-token.ts");
+test("authentication input normalization and password byte boundaries are enforced", () => {
+  assert.equal(normalizeEmail("  Person@Example.COM "), "person@example.com");
+  assert.equal(isValidEmail("person@example.com"), true);
+  assert.equal(isValidEmail("missing-at.example.com"), false);
+  assert.match(passwordError("short"), /至少/);
+  assert.equal(passwordError("correct horse"), null);
+  assert.match(passwordError("界".repeat(25)), /72/);
+});
+test("post-login redirects only accept same-origin relative paths", () => {
+  assert.equal(safeNextPath("/editor?view=resumes"), "/editor?view=resumes");
+  for (const unsafe of [
+    "https://evil.example/steal",
+    "//evil.example/steal",
+    "javascript:alert(1)",
+    "editor",
+  ])
+    assert.equal(safeNextPath(unsafe), "/editor");
+});
+test("session tokens are stored as deterministic SHA-256 hashes, never raw values", () => {
+  const token = "private-session-token";
+  const hash = hashSessionToken(token);
+  assert.equal(hash.length, 64);
+  assert.notEqual(hash, token);
+  assert.equal(hashSessionToken(token), hash);
+  assert.notEqual(hashSessionToken(`${token}-other`), hash);
+});
