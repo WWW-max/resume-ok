@@ -39,16 +39,16 @@ export function LandingHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-1 sm:gap-6">
           <Link
-            href="/editor?view=resumes"
+            href="/login"
             className="hidden rounded-md py-3 text-sm text-neutral-500 hover:text-brand sm:inline-flex"
           >
-            我的简历
+            登录
           </Link>
           <Link
-            href="/editor"
+            href="/register"
             className="inline-flex min-h-11 items-center justify-center gap-1 rounded-full bg-brand px-3 text-xs sm:px-5 sm:text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-dark"
           >
-            免费使用
+            创建账号
             <ArrowUpRight size={15} className="hidden sm:block" />
           </Link>
           <button
@@ -75,7 +75,7 @@ export function LandingHeader() {
           }}
           className="grid gap-1 border-t border-neutral-100 bg-white p-4 shadow-lg lg:hidden"
         >
-          {[...links, { href: "/editor?view=resumes", label: "我的简历" }].map(
+          {[...links, { href: "/login", label: "登录" }, { href: "/register", label: "创建账号" }].map(
             (link) => (
               <Link
                 key={link.href}

@@ -52,7 +52,7 @@ const features = [
   {
     icon: Smartphone,
     title: "多端轻松编辑",
-    text: "电脑与手机都能使用，通过备份文件迁移你的简历。",
+    text: "登录同一账号，在电脑与手机间继续编辑你的简历。",
     href: "/editor?view=resumes",
   },
 ];
@@ -114,7 +114,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
                 <Link
-                  href="/editor"
+                  href="/register?next=%2Feditor"
                   className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-brand px-7 text-sm font-semibold text-white shadow-[0_8px_20px_#13ad5025] transition-colors hover:bg-brand-dark"
                 >
                   <Clover size={19} className="fill-white/30" />
@@ -130,7 +130,7 @@ export default function LandingPage() {
                 </Link>
               </div>
               <div className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-neutral-500 lg:justify-start">
-                {["精选专业模板", "免费开始制作", "一键导出 PDF"].map((t) => (
+                {["精选专业模板", "账号专属存储", "一键导出 PDF"].map((t) => (
                   <span className="inline-flex items-center gap-1.5" key={t}>
                     <Check
                       size={13}
@@ -245,13 +245,13 @@ export default function LandingPage() {
               好简历，不应该有门槛
             </h2>
             <p className="mt-3 text-sm text-neutral-500">
-              免费使用，无需注册。把时间留给内容，把排版交给 ResumeOK。
+              免费注册并登录。把时间留给内容，把排版和可靠保存交给 ResumeOK。
             </p>
             <div className="mt-9 grid grid-cols-2 gap-7 sm:grid-cols-4">
               {[
                 { icon: LayoutTemplate, value: "3 种", label: "精选简历模板" },
                 { icon: FileText, value: "6 大", label: "可编辑内容模块" },
-                { icon: LockKeyhole, value: "本地保存", label: "简历由你掌握" },
+                { icon: LockKeyhole, value: "账号隔离", label: "PostgreSQL 持久化" },
                 { icon: Star, value: "免费", label: "编辑与 PDF 导出" },
               ].map(({ icon: Icon, value, label }) => (
                 <div
@@ -289,7 +289,7 @@ export default function LandingPage() {
           <p className="max-w-sm text-center text-xs leading-6 text-neutral-500 sm:text-right">
             专注于简单、自由的简历制作。
             <br />
-            简历保存在当前浏览器，可导出备份迁移到其他设备。
+            简历按账号隔离保存在数据库，也可随时导出 JSON 备份。
           </p>
           <Link
             href="/editor"

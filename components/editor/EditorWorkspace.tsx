@@ -1,6 +1,7 @@
 "use client";
 import { ui } from "@/lib/ui-styles";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useResumeLibrary } from "@/hooks/useResumeLibrary";
 import { LibraryPanel } from "@/components/editor/LibraryPanel";
@@ -26,12 +27,16 @@ import {
   Lightbulb,
   Undo2,
   Redo2,
+  LogOut,
 } from "lucide-react";
 export default function EditorWorkspace({
   initialView = "editor",
+  user,
 }: {
   initialView?: string;
+  user: { id: string; email: string };
 }) {
+  const router = useRouter();
   const store = useResumeLibrary();
   const data = store.active.data;
   const setData = store.updateData;
@@ -41,6 +46,11 @@ export default function EditorWorkspace({
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/login");
+    router.refresh();
+  }
   async function download() {
     if (!previewRef.current || exporting) return;
     setExporting(true);
@@ -112,12 +122,21 @@ export default function EditorWorkspace({
             <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
           </button>
           <button
-            className={ui["profile-button"]}
-            aria-label="打开设置"
+            className={`${ui["soft-button"]} hidden max-w-52 lg:inline-flex`}
+            aria-label={`当前账号 ${user.email}，打开设置`}
             onClick={() => openPanel("settings")}
           >
-            <span>{data.name.slice(0, 1) || "我"}</span>
-            <ChevronDown size={14} />
+            <span className="truncate">{user.email}</span>
+            <ChevronDown size={14} className="shrink-0" />
+          </button>
+          <button
+            className={ui["profile-button"]}
+            aria-label={`退出账号 ${user.email}`}
+            title={`退出 ${user.email}`}
+            onClick={() => void logout()}
+          >
+            <span>{user.email.slice(0, 1).toUpperCase()}</span>
+            <LogOut size={14} />
           </button>
         </div>
       </header>
