@@ -3,6 +3,7 @@ import { ui } from "@/lib/ui-styles";
 import { useEffect, useId, useRef, useState } from "react";
 import { ResumeData } from "@/lib/resume-data";
 import { Upload, UserRound, Trash2, School } from "lucide-react";
+import { ClearableInput } from "./ClearableField";
 const fields = [
   ["name", "姓名", "张三", "text"],
   ["title", "求职意向", "前端工程师", "text"],
@@ -195,10 +196,12 @@ export function BasicInfoForm({
               key={key}
             >
               <label htmlFor={`${id}-${key}`}>{label}</label>
-              <input
+              <ClearableInput
                 id={`${id}-${key}`}
                 type={type}
                 value={data[key]}
+                clearLabel={`清空${label}`}
+                onClear={() => onChange({ ...data, [key]: "" })}
                 placeholder={placeholder}
                 aria-invalid={invalid}
                 aria-describedby={invalid ? `${id}-email-error` : undefined}

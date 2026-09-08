@@ -3,8 +3,8 @@
 import { useId } from "react";
 import { ResumeData } from "@/lib/resume-data";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { FileText, Lightbulb } from "lucide-react";
+import { ClearableTextarea } from "./ClearableField";
 
 interface SummaryFormProps {
   data: ResumeData;
@@ -28,11 +28,13 @@ export function SummaryForm({ data, onChange }: SummaryFormProps) {
           <FileText className="w-3 h-3" />
           自我评价
         </Label>
-        <Textarea
+        <ClearableTextarea
           id={id}
           className="bg-white border-neutral-200 text-neutral-800 placeholder:text-neutral-500 focus:border-green-500/50 transition-colors text-base min-[900px]:text-sm rounded-lg resize-y"
           placeholder="介绍你的核心竞争力、工作风格、职业目标等..."
           value={data.summary}
+          clearLabel="清空自我评价"
+          onClear={() => onChange({ ...data, summary: "" })}
           onChange={(e) => onChange({ ...data, summary: e.target.value })}
           rows={8}
         />

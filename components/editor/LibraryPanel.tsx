@@ -13,6 +13,7 @@ import {
   FileText,
   Check,
 } from "lucide-react";
+import { ClearableInput } from "./ClearableField";
 export function LibraryPanel({
   store,
 }: {
@@ -28,10 +29,12 @@ export function LibraryPanel({
       <div className={`${ui["panel-scroll"]} ${ui["library-panel"]}`}>
         <div className={ui["field"]}>
           <label htmlFor="resume-name">当前简历名称</label>
-          <input
+          <ClearableInput
             id="resume-name"
             maxLength={80}
             value={store.active.name}
+            clearLabel="清空当前简历名称"
+            onClear={() => store.rename("")}
             onChange={(e) => store.rename(e.target.value)}
           />
         </div>

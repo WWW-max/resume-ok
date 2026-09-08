@@ -9,6 +9,7 @@ import {
   Skill,
 } from "@/lib/resume-data";
 import { Plus, Trash2 } from "lucide-react";
+import { ClearableInput, ClearableTextarea } from "./ClearableField";
 type ListKey = "workExperiences" | "educations" | "projects" | "skills";
 type Item = WorkExperience | Education | Project | Skill;
 type Field = { key: string; label: string; type?: string; wide?: boolean };
@@ -76,7 +77,7 @@ const configs: Record<
       { key: "role", label: "担任角色" },
       { key: "startDate", label: "开始时间", type: "month" },
       { key: "endDate", label: "结束时间", type: "month" },
-      { key: "link", label: "项目链接", wide: true },
+      { key: "link", label: "项目链接", type: "url", wide: true },
       { key: "description", label: "项目描述", type: "textarea", wide: true },
     ],
   },
@@ -166,10 +167,12 @@ export function ExperienceForm({
                     >
                       <label htmlFor={fieldId}>{field.label}</label>
                       {field.type === "textarea" ? (
-                        <textarea
+                        <ClearableTextarea
                           id={fieldId}
                           rows={5}
                           value={String(values[field.key])}
+                          clearLabel={`清空${field.label}`}
+                          onClear={() => update(item.id, field.key, "")}
                           placeholder="写清职责、行动和结果；每行一条更易阅读"
                           onChange={(e) =>
                             update(item.id, field.key, e.target.value)
@@ -190,11 +193,13 @@ export function ExperienceForm({
                           )}
                         </select>
                       ) : (
-                        <input
+                        <ClearableInput
                           id={fieldId}
                           type={field.type || "text"}
                           disabled={disabled}
                           value={String(values[field.key])}
+                          clearLabel={`清空${field.label}`}
+                          onClear={() => update(item.id, field.key, "")}
                           aria-invalid={field.key === "endDate" && invalidDates}
                           aria-describedby={
                             field.key === "endDate" && invalidDates
