@@ -1,64 +1,97 @@
 # ResumeOK
 
-按 `public/designs/web-ui.png` 实现的在线简历编辑器。Next.js 16.2、React 19、TypeScript、Tailwind CSS。
+按 `public/designs/web-ui.png` 实现的在线简历编辑器。Next.js 16.2、React 19、TypeScript、Tailwind CSS，后端使用 Next.js Route Handlers 与本地 PostgreSQL。
 
-## 启动
+## 本地启动
+
+需要 Node.js 20+、pnpm 与 Docker Compose。
 
 ```sh
-npm install
-npm run dev
+pnpm install
+cp .env.example .env.local
+docker compose up -d
+pnpm run db:migrate
+pnpm run dev
 ```
 
-打开 http://localhost:3000 查看首页，http://localhost:3000/editor 进入编辑器。
+打开 http://localhost:3000 查看首页，访问 http://localhost:3000/editor 会要求登录。验证码邮件在 Mailpit 的 http://localhost:8025 查看。
 
-首页参照 `public/designs/landing.png` 实现，现有 Web 编辑器为独立路由。导航支持 `/editor?view=templates`、`assistant`、`resumes`、`settings` 直达对应面板。
+`docker-compose.yml` 只将 PostgreSQL、Mailpit SMTP 和 Mailpit Web 收件箱绑定到 `127.0.0.1`。PostgreSQL 使用 `trust` 认证仅为本机开发便利，不能用于共享或生产环境。`.env.example` 只包含非秘密的本地开发配置；生产环境必须使用独立的数据库认证、HTTPS 和受保护的 SMTP 配置。
+
+## 账号与认证
+
+- `/register`：邮箱注册，密码使用 bcrypt 哈希后保存。
+- `/login`：支持邮箱 + 密码，以及邮箱 + 6 位验证码登录。
+- 验证码只发送给已注册邮箱，接口始终返回统一提示，避免暴露账号是否存在。
+- 验证码只存 bcrypt 哈希，10 分钟过期、一次性使用，最多尝试 5 次；同一账号 60 秒内不能重复请求，每小时最多请求 5 次。
+- 会话令牌通过密码学随机数生成，数据库只保存 SHA-256 哈希；浏览器使用 `HttpOnly`、`SameSite=Lax` Cookie，生产环境自动启用 `Secure`。
+- 登录后 `next` 跳转仅接受同源相对路径，所有写接口拒绝跨源浏览器请求。
+
+本地验证码端到端流程：先注册并退出，进入 `/login` 切换“验证码登录”，输入已注册邮箱并发送验证码，然后在 Mailpit 收件箱打开邮件并输入 6 位验证码。
+
+## 数据存储边界
+
+简历库保存在 PostgreSQL 的 `resume_libraries` 表，并以 `user_id` 作为主键和外键。`/api/resumes` 只从当前会话取得用户 ID，客户端不能提交或选择用户 ID，因此不同账号的数据彼此隔离。服务端在写入前调用现有 `parseLibrary` 完整校验，JSON 请求限制为 5 MiB。
+
+浏览器 `localStorage` 不再是主存储。账号首次登录且服务器还没有简历库时，编辑器会读取合法的旧 `resumeok.library.v1` 数据、上传到当前账号，并在成功后删除本地副本；如果服务器已有数据，则服务器优先并清理旧副本，避免账号之间串数据。之后编辑器以 500 ms debounce 自动保存到 API，并在页面隐藏或卸载时尽可能使用 keepalive 刷新。JSON 导入、导出仍可用于手动备份和迁移。
+
+数据库包含：
+
+- `users`：规范化唯一邮箱和密码哈希。
+- `sessions`：会话令牌哈希、过期时间和用户外键。
+- `login_codes`：验证码哈希、过期/消费时间、尝试次数和节流记录。
+- `resume_libraries`：每个用户一份经过校验的 JSONB 简历库。
+
+`db/schema.sql` 与 `pnpm run db:migrate` 都是幂等的。数据库访问只发生在运行时请求路径，执行生产构建不需要数据库在线。
+
+## API
+
+- `POST /api/auth/register`
+- `POST /api/auth/login/password`
+- `POST /api/auth/login/code/request`
+- `POST /api/auth/login/code/verify`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `GET /api/resumes`
+- `PUT /api/resumes`
+
+除 GET 外，接口接收 `application/json`（登出无请求体），统一错误格式为 `{ "error": { "code", "message" } }`。
 
 ## 已实现
 
 - 统一绿色主题的三栏工作台；手机底部导航、单栏编辑与预览切换、窄屏单列表单。
+- 邮箱注册、密码登录、Mailpit 验证码登录、注销与账号专属会话。
 - 个人信息、头像、工作、项目、教育、技能和自我评价编辑。
 - 模块拖拽排序、键盘可操作的上移 / 下移、隐藏与恢复。
-- 本地自动保存；新建、复制、重命名、归档与恢复简历。
-- JSON 导出备份与校验导入；导入以新副本追加，不覆盖已有简历。
+- PostgreSQL 账号数据自动保存；新建、复制、重命名、归档与恢复简历。
+- 旧版浏览器数据一次性迁移；JSON 导出备份与校验导入。
 - 撤销 / 重做，支持 Cmd / Ctrl + Z 与 Cmd / Ctrl + Shift + Z。
 - 三种模板，强调色、字号、间距、品牌标识设置。
 - 自适应和 50%–150% 缩放，A4 多页 PDF 下载；失败时可使用浏览器打印。
 - 本地完整度检查与对应模块跳转。
 
-## 边界
+## 数据与功能限制
 
-目前是本地优先的 Web 编辑器，未接入账号、云同步、付费或 AI 服务。简历检查使用明确的本地规则，不是 AI 或招聘评分。清除浏览器存储会移除本地数据，建议定期备份。
-
-头像接受 JPG / PNG / WebP，最大 5 MB，并缩小至最长边 400px。简历库最多 100 份，每个列表模块最多 100 条；JSON 导入文件上限 10 MB。浏览器存储不足时显示保存失败提示，不伪报成功。PDF 下载为图像式 PDF；需要可选择文字时可使用浏览器打印。
+头像接受 JPG / PNG / WebP，最大 5 MB，并缩小至最长边 400px。简历库最多 100 份，每个列表模块最多 100 条；JSON 导入文件上限 10 MB，API 简历库请求上限 5 MiB。PDF 下载为图像式 PDF；需要可选择文字时可使用浏览器打印。简历检查使用明确的本地规则，不是 AI 或招聘评分。
 
 ## 验证
 
 ```sh
-npm test
-npm run lint
-npm run build
+pnpm test
+pnpm lint
+pnpm build
+RUN_DB_INTEGRATION=1 pnpm run test:integration
 ```
 
-22 项 Node 回归测试覆盖备份校验、数据隔离、日期检查、模块隐藏、历史记录与 PDF 分页边界与旧版主题兼容。不需要新增测试依赖。
+数据库集成测试要求 Compose PostgreSQL 已启动并完成迁移。测试使用带随机标记的临时用户，并只清理自己创建的数据。它验证两个用户的同名简历互不可见、会话仅存哈希、验证码过期以及验证码一次性消费。
 
-本次生产构建、静态检查和 Node 测试已执行；浏览器自动化工具拒绝本地导航，因此尚未完成浏览器交互、视觉截图及 PDF 文件实测。后续浏览器验收重点：
-
-1. 在 1536px / 1280px 宽度与设计图对照；确认窄屏无横向页面溢出。
-2. 编辑姓名、上传头像、增删经历、排序与隐藏模块，观察预览并刷新验证恢复。
-3. 新建 / 复制 / 归档 / 恢复简历，导入备份，撤销与重做。
-4. 从全屏预览打开模板、助手和设置，确认侧栏可见。
-5. 导出默认单页与长篇多页 PDF，检查无空白尾页、未裁切文字；在小屏编辑状态下也验证导出。
-
-## 样式规范
-
-样式统一使用 Tailwind CSS。组件通过 `className` 使用工具类，重复组合集中在 `lib/ui-styles.ts`；响应式、交互状态和打印使用 Tailwind variants。`app/globals.css` 只保留框架入口、主题 token 和 `@page`。运行时预览缩放和可调字号通过内联数值或 CSS 变量传入，不新增组件 CSS。
+如需完全重置本项目的本地数据库，可在确认不再需要数据后手动执行 `docker compose down -v`；普通停止使用 `docker compose down`，不会删除卷。
 
 ## 首页与响应式
 
-- `/` 为可滚动 Landing 首页；`/editor` 为全屏工作台，不影响已存储简历。
+- `/` 为可滚动 Landing 首页；`/editor` 为受登录保护的全屏工作台。
 - 首页采用移动优先布局，窄屏折叠菜单、功能网格及步骤卡片。
 - 编辑器在 900px 以下切换到底部导航和单面板；420px 以下表单切换单列。
 - 触控输入字号为 16px，主要操作最小高度 44px；底部导航包含安全区间距。
 - 预览根据容器实际内边距计算缩放，纸张内部保持 A4 排版；手动放大后仅预览区域横向滚动。
-- 返回首页会刷新待保存草稿，避免在自动保存等待时间内跳转导致丢失修改。
 - 所有主题强调色统一绿色；历史蓝/灰强调色设置导入时迁移为绿色系，简历内容不变。
