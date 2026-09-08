@@ -2,7 +2,7 @@
 import { ui } from "@/lib/ui-styles";
 import { useEffect, useId, useRef, useState } from "react";
 import { ResumeData } from "@/lib/resume-data";
-import { Upload, UserRound, Trash2 } from "lucide-react";
+import { Upload, UserRound, Trash2, School } from "lucide-react";
 const fields = [
   ["name", "姓名", "张三", "text"],
   ["title", "求职意向", "前端工程师", "text"],
@@ -23,12 +23,14 @@ export function BasicInfoForm({
   const [error, setError] = useState("");
   const current = useRef({ data, onChange });
   const uploadSequence = useRef(0);
+  const logoUploadSequence = useRef(0);
   useEffect(() => {
     current.current = { data, onChange };
   }, [data, onChange]);
   useEffect(
     () => () => {
       uploadSequence.current++;
+      logoUploadSequence.current++;
     },
     [],
   );
@@ -63,6 +65,38 @@ export function BasicInfoForm({
       setError("");
     } catch {
       if (sequence !== uploadSequence.current) return;
+      setError("无法读取图片，请换一张图片重试。");
+    }
+  }
+  async function uploadLogo(file?: File) {
+    if (!file) return;
+    const sequence = ++logoUploadSequence.current;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setError("请选择 JPG、PNG 或 WebP 图片。");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("图片不能超过 5 MB。");
+      return;
+    }
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas");
+      const ratio = Math.min(1, 500 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+      canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("图片处理失败");
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      if (sequence !== logoUploadSequence.current) return;
+      current.current.onChange({
+        ...current.current.data,
+        schoolLogo: canvas.toDataURL("image/png"),
+      });
+      setError("");
+    } catch {
+      if (sequence !== logoUploadSequence.current) return;
       setError("无法读取图片，请换一张图片重试。");
     }
   }
@@ -102,6 +136,44 @@ export function BasicInfoForm({
             >
               <Trash2 size={13} />
               移除头像
+            </button>
+          )}
+        </div>
+      </div>
+      <div className={ui["logo-editor"]}>
+        {data.schoolLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element -- locally uploaded thumbnail
+          <img src={data.schoolLogo} alt="学校校徽" />
+        ) : (
+          <div className={ui["logo-placeholder"]}>
+            <School size={28} />
+          </div>
+        )}
+        <div>
+          <label className={`${ui["soft-button"]} ${ui["upload-button"]}`}>
+            <Upload size={15} />
+            上传学校校徽
+            <input
+              aria-label="上传学校校徽"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => {
+                void uploadLogo(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <p>JPG / PNG / WebP，最大 5 MB</p>
+          {data.schoolLogo && (
+            <button
+              className={ui["text-button"]}
+              onClick={() => {
+                logoUploadSequence.current++;
+                onChange({ ...data, schoolLogo: "" });
+              }}
+            >
+              <Trash2 size={13} />
+              移除校徽
             </button>
           )}
         </div>

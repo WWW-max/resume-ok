@@ -69,14 +69,6 @@ export function SettingsPanel({
             <option value="compact">紧凑 · 更多内容</option>
           </select>
         </div>
-        <label className={ui["check-field"]}>
-          <input
-            type="checkbox"
-            checked={appearance.showBrand}
-            onChange={(e) => update({ showBrand: e.target.checked })}
-          />
-          在简历中显示 ResumeOK 标识
-        </label>
         <button
           className={ui["soft-button"]}
           onClick={() =>

@@ -40,6 +40,7 @@ export function blankResume(): ResumeData {
     github: "",
     website: "",
     avatar: "",
+    schoolLogo: "",
     summary: "",
     workExperiences: [],
     educations: [],
@@ -66,10 +67,15 @@ export function isResumeData(value: unknown): value is ResumeData {
     ].every((k) => typeof value[k] === "string")
   )
     return false;
+  if (value.schoolLogo !== undefined && typeof value.schoolLogo !== "string")
+    return false;
   if (
-    value.avatar &&
-    !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(
-      String(value.avatar),
+    [value.avatar, value.schoolLogo].some(
+      (image) =>
+        image &&
+        !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(
+          String(image),
+        ),
     )
   )
     return false;
@@ -163,6 +169,9 @@ export function parseLibrary(raw: string): ResumeLibrary {
   )
     throw new Error("简历备份格式无效或版本不兼容。");
   for (const document of value.documents) {
+    if (isRecord(document) && isRecord(document.data)) {
+      if (document.data.schoolLogo === undefined) document.data.schoolLogo = "";
+    }
     if (
       !isRecord(document) ||
       !isRecord(document.data) ||

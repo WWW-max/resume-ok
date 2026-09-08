@@ -65,6 +65,8 @@ export const ui = {
     "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] p-11 text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[#d3f0dd] print:shadow-none print:rounded-none [&_*]:border-[#d3f0dd]",
   "resume-header":
     "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
+  "resume-school-logo":
+    "resume-school-logo block max-w-32 h-12 object-contain object-left",
   "resume-job": "resume-job text-[14px] font-medium [margin:5px_0_10px]",
   "resume-contact":
     "resume-contact grid grid-cols-[auto_auto] gap-[7px_24px] text-[#517c60] text-[11px] [&_>_span]:flex [&_>_span]:items-center [&_>_span]:gap-[10px] [&_svg]:shrink-0 [&_svg]:text-[#17512a]",
@@ -101,6 +103,10 @@ export const ui = {
     "avatar-editor flex items-center gap-4 [padding:15px_0_24px] [&_img]:w-17 [&_img]:h-[78px] [&_img]:rounded-[9px] [&_img]:object-cover [&_p]:text-[10px] [&_p]:text-[#6c9b7c] [&_p]:mt-2",
   "avatar-placeholder":
     "avatar-placeholder w-17 h-[78px] rounded-[9px] object-cover grid place-items-center bg-[#eaf5ef] text-[#57a879]",
+  "logo-editor":
+    "logo-editor flex items-center gap-4 [padding:0_0_24px] [&_img]:w-24 [&_img]:h-[68px] [&_img]:rounded-[9px] [&_img]:object-contain [&_img]:bg-white [&_img]:border [&_img]:border-[#d2ebda] [&_p]:text-[10px] [&_p]:text-[#6c9b7c] [&_p]:mt-2",
+  "logo-placeholder":
+    "logo-placeholder w-24 h-[68px] rounded-[9px] grid place-items-center bg-[#eaf5ef] text-[#57a879]",
   "upload-button":
     "upload-button relative cursor-pointer border-[#d2ebda] [&_input]:absolute [&_input]:w-full [&_input]:h-full [&_input]:opacity-[0] [&_input]:cursor-pointer [&_input]:[inset:0] [&:focus-within]:[outline:2px_solid_#19af60] [&:focus-within]:[outline-offset:3px]",
   "text-button":

@@ -36,6 +36,8 @@ test("new blank resume is complete schema and never inherits sample personal dat
   assert.equal(isResumeData(data), true);
   assert.equal(data.name, "");
   assert.deepEqual(data.workExperiences, []);
+  assert.equal(data.schoolLogo, "");
+  assert.equal(defaultAppearance.showBrand, false);
 });
 test("malformed or future-version backups are rejected", () => {
   for (const raw of [
@@ -85,7 +87,7 @@ test("duplicate document and entry IDs are rejected", () => {
   data.workExperiences.push(structuredClone(data.workExperiences[0]));
   assert.equal(isResumeData(data), false);
 });
-test("unsafe avatar URLs and invalid appearance values are rejected", () => {
+test("unsafe image URLs and invalid appearance values are rejected", () => {
   for (const avatar of [
     "https://tracker.invalid/a.png",
     "javascript:alert(1)",
@@ -93,6 +95,14 @@ test("unsafe avatar URLs and invalid appearance values are rejected", () => {
   ]) {
     const data = blankResume();
     data.avatar = avatar;
+    assert.equal(isResumeData(data), false);
+  }
+  for (const schoolLogo of [
+    "https://tracker.invalid/logo.png",
+    "data:image/svg+xml;base64,PHN2Zz4=",
+  ]) {
+    const data = blankResume();
+    data.schoolLogo = schoolLogo;
     assert.equal(isResumeData(data), false);
   }
   for (const patch of [
@@ -105,6 +115,21 @@ test("unsafe avatar URLs and invalid appearance values are rejected", () => {
     data.appearance = { ...defaultAppearance, ...patch };
     assert.equal(isResumeData(data), false);
   }
+});
+test("school logo survives roundtrip and legacy backups gain an empty logo", () => {
+  const library = createLibrary();
+  library.documents[0].data.schoolLogo = "data:image/png;base64,YQ==";
+  assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
+
+  const legacy = createLibrary();
+  delete legacy.documents[0].data.schoolLogo;
+  legacy.documents[0].data.appearance = {
+    ...defaultAppearance,
+    showBrand: true,
+  };
+  const parsed = parseLibrary(JSON.stringify(legacy));
+  assert.equal(parsed.documents[0].data.schoolLogo, "");
+  assert.equal(parsed.documents[0].data.appearance.showBrand, true);
 });
 test("resume checks ignore intentionally hidden sections", () => {
   const data = blankResume();

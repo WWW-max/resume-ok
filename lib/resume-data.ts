@@ -68,6 +68,7 @@ export interface ResumeData {
   github: string;
   website: string;
   avatar: string;
+  schoolLogo: string;
   summary: string;
   workExperiences: WorkExperience[];
   educations: Education[];
@@ -87,6 +88,7 @@ export const defaultResumeData: ResumeData = {
   github: "github.com/zhangsan",
   website: "",
   avatar: "",
+  schoolLogo: "",
   summary:
     "5年前端开发经验，熟练掌握 React、Vue、TypeScript 等主流技术栈，有大型复杂项目的架构设计和团队协作经验。热爱技术，持续学习，追求高质量代码与极致用户体验。",
   workExperiences: [

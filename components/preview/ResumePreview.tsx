@@ -3,7 +3,6 @@ import { ui } from "@/lib/ui-styles";
 import { forwardRef, type CSSProperties } from "react";
 import { ResumeData, SectionKey, SECTION_LABELS } from "@/lib/resume-data";
 import { defaultAppearance, accentColors } from "@/lib/resume-appearance";
-import { Brand } from "@/components/Brand";
 import {
   Phone,
   Mail,
@@ -117,7 +116,14 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           } as CSSProperties
         }
       >
-        {appearance.showBrand && <Brand small />}
+        {data.schoolLogo && (
+          // eslint-disable-next-line @next/next/no-img-element -- user-uploaded data URL
+          <img
+            src={data.schoolLogo}
+            alt="学校校徽"
+            className={ui["resume-school-logo"]}
+          />
+        )}
         <header className={ui["resume-header"]}>
           <div>
             <h1>{data.name || "您的姓名"}</h1>

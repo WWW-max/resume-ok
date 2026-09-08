@@ -10,7 +10,7 @@ export const defaultAppearance: ResumeAppearance = {
   accent: "green",
   fontSize: 12,
   spacing: "comfortable",
-  showBrand: true,
+  showBrand: false,
 };
 export const accentColors = {
   green: "#15934b",
