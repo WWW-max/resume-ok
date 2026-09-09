@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes, createHash } from "node:crypto";
 import pg from "pg";
+import bcrypt from "bcryptjs";
 
 const enabled = process.env.RUN_HTTP_INTEGRATION === "1";
 const integration = enabled ? test : test.skip;
@@ -71,8 +72,10 @@ integration("HTTP auth, Mailpit code login, and per-user resume isolation work e
   try {
     const agents = [client(), client()];
     for (let index = 0; index < agents.length; index++) {
-      const response = await jsonRequest(agents[index], "/api/auth/register", { email: emails[index], password });
-      assert.equal(response.status, 201);
+      // Seed a legacy password account; registration now requires mailbox verification.
+      await pool.query("INSERT INTO users (email, password_hash) VALUES ($1, $2)", [emails[index], await bcrypt.hash(password, 4)]);
+      const response = await jsonRequest(agents[index], "/api/auth/login/password", { email: emails[index], password });
+      assert.equal(response.status, 200);
       assert.match(agents[index].cookie, /^resumeok_session=/);
       const library = resumeLibrary(index === 0 ? "A" : "B");
       const saved = await agents[index].request("/api/resumes", {
@@ -140,9 +143,50 @@ integration("HTTP auth, Mailpit code login, and per-user resume isolation work e
     const reused = await jsonRequest(client(), "/api/auth/login/code/verify", { email: emails[0], code });
     assert.equal(reused.status, 401);
   } finally {
+    await pool.query("DELETE FROM login_codes WHERE email = ANY($1::text[])", [emails]);
     await pool.query("DELETE FROM users WHERE email = ANY($1::text[])", [emails]);
     await pool.end();
     if (mailId)
       await fetch(`${mailpitUrl}/api/v1/messages/${mailId}`, { method: "DELETE" }).catch(() => {});
+  }
+});
+
+
+integration("Unified auth creates accounts only after verification and rejects code replay", async () => {
+  const email = `unified-${Date.now()}-${randomBytes(4).toString("hex")}@example.test`;
+  const pool = new pg.Pool({ connectionString });
+  try {
+    const oldRegistration = await jsonRequest(client(), "/api/auth/register", {email, password: "unused-password"});
+    assert.equal(oldRegistration.status, 410);
+    const requested = await jsonRequest(client(), "/api/auth/login/code/request", {email});
+    assert.equal(requested.status, 200);
+    assert.equal((await pool.query("SELECT id FROM users WHERE email = $1", [email])).rowCount, 0);
+    assert.equal((await jsonRequest(client(), "/api/auth/login/code/request", {email})).status, 429);
+    // Control only the test account's hash, then exercise actual HTTP verification.
+    await pool.query("UPDATE login_codes SET code_hash = $2 WHERE email = $1", [email, await bcrypt.hash("123456", 4)]);
+    assert.equal((await jsonRequest(client(), "/api/auth/login/code/verify", {email, code:"999999"})).status, 401);
+    assert.equal((await pool.query("SELECT id FROM users WHERE email = $1", [email])).rowCount, 0);
+    const agent = client();
+    assert.equal((await jsonRequest(agent, "/api/auth/login/code/verify", {email, code:"123456"})).status, 200);
+    assert.match(agent.cookie, /^resumeok_session=/);
+    const account = await pool.query("SELECT id, password_hash FROM users WHERE email = $1", [email]);
+    assert.equal(account.rowCount, 1);
+    assert.equal(account.rows[0].password_hash, null);
+    assert.equal((await jsonRequest(client(), "/api/auth/login/code/verify", {email, code:"123456"})).status, 401);
+    assert.equal((await jsonRequest(client(), "/api/auth/login/password", {email, password:"resume-ok-dummy-password"})).status, 401);
+    await pool.query("INSERT INTO login_codes (email, code_hash, expires_at) VALUES ($1, $2, now() + interval '10 minutes')", [email, await bcrypt.hash("234567", 4)]);
+    const concurrent = await Promise.all([client(), client()].map(c => jsonRequest(c, "/api/auth/login/code/verify", {email, code:"234567"})));
+    assert.deepEqual(concurrent.map(r => r.status).sort(), [200,401]);
+    assert.equal((await pool.query("SELECT id FROM users WHERE email = $1", [email])).rows[0].id, account.rows[0].id);
+    await pool.query("INSERT INTO login_codes (email, code_hash, expires_at) VALUES ($1, $2, now() + interval '10 minutes')", [email, await bcrypt.hash("345678", 4)]);
+    for (let i = 0; i < 5; i++) assert.equal((await jsonRequest(client(), "/api/auth/login/code/verify", {email, code:"999999"})).status, 401);
+    assert.equal((await jsonRequest(client(), "/api/auth/login/code/verify", {email, code:"345678"})).status, 401);
+    const redirected = await fetch(`${baseUrl}/register?next=%2Feditor%3Fview%3Dtemplates`, {redirect:"manual"});
+    assert.equal(redirected.status, 307);
+    assert.equal(redirected.headers.get("location"), "/login?next=%2Feditor%3Fview%3Dtemplates");
+  } finally {
+    await pool.query("DELETE FROM login_codes WHERE email = $1", [email]);
+    await pool.query("DELETE FROM users WHERE email = $1", [email]);
+    await pool.end();
   }
 });

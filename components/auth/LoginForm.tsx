@@ -8,7 +8,7 @@ type Mode = "password" | "code";
 
 export function LoginForm({ next, mailboxUrl }: { next: string; mailboxUrl: string }) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("password");
+  const [mode, setMode] = useState<Mode>("code");
   const [pending, setPending] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [message, setMessage] = useState("");
@@ -32,7 +32,7 @@ export function LoginForm({ next, mailboxUrl }: { next: string; mailboxUrl: stri
       });
       const text = await apiMessage(response);
       if (!response.ok) throw new Error(text);
-      setMessage(`${text} 本地开发时请在 Mailpit 收件箱查看。`);
+      setMessage(text);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "验证码请求失败。");
     } finally {
@@ -69,7 +69,7 @@ export function LoginForm({ next, mailboxUrl }: { next: string; mailboxUrl: stri
   return (
     <>
       <div className="grid grid-cols-2 rounded-xl bg-green-50 p-1" role="tablist" aria-label="登录方式">
-        {(["password", "code"] as const).map((value) => (
+        {(["code", "password"] as const).map((value) => (
           <button key={value} type="button" role="tab" aria-selected={mode === value} onClick={() => { setMode(value); setError(""); setMessage(""); }} className={`min-h-10 rounded-lg text-sm font-medium ${mode === value ? "bg-white text-green-800 shadow-sm" : "text-neutral-500"}`}>
             {value === "password" ? "密码登录" : "验证码登录"}
           </button>
@@ -87,9 +87,10 @@ export function LoginForm({ next, mailboxUrl }: { next: string; mailboxUrl: stri
             </button>
           </div>
         )}
-        {message && <p role="status" className="rounded-lg bg-green-50 px-3 py-2 text-sm leading-6 text-green-800">{message} <a href={mailboxUrl} target="_blank" rel="noreferrer" className="font-semibold underline">打开 Mailpit</a></p>}
+        {message && <p role="status" className="rounded-lg bg-green-50 px-3 py-2 text-sm leading-6 text-green-800">{message} {mailboxUrl && <a href={mailboxUrl} target="_blank" rel="noreferrer" className="font-semibold underline">打开开发收件箱</a>}</p>}
         {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        <AuthSubmit pending={pending}>登录</AuthSubmit>
+        <p className="text-xs leading-5 text-neutral-500">{mode === "code" ? "未注册的邮箱将在验证成功后自动创建账号。" : "密码登录仅适用于已设置密码的账号，新用户请使用验证码登录。"}</p>
+        <AuthSubmit pending={pending}>{mode === "code" ? "登录 / 注册" : "登录"}</AuthSubmit>
       </form>
     </>
   );

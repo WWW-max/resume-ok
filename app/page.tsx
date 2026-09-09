@@ -114,7 +114,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
                 <Link
-                  href="/register?next=%2Feditor"
+                  href="/login?next=%2Feditor"
                   className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-brand px-7 text-sm font-semibold text-white shadow-[0_8px_20px_#13ad5025] transition-colors hover:bg-brand-dark"
                 >
                   <Clover size={19} className="fill-white/30" />

@@ -23,17 +23,15 @@ export const POST = withApiErrors(async (request) => {
     const result = isValidEmail(email)
       ? await client.query<{
           id: string;
-          user_id: string;
           email: string;
           code_hash: string;
           attempts: number;
           expires_at: Date;
         }>(
-          `SELECT login_codes.id, login_codes.user_id, users.email,
+          `SELECT login_codes.id, login_codes.email,
                   login_codes.code_hash, login_codes.attempts, login_codes.expires_at
              FROM login_codes
-             JOIN users ON users.id = login_codes.user_id
-            WHERE users.email = $1 AND login_codes.consumed_at IS NULL
+            WHERE login_codes.email = $1 AND login_codes.consumed_at IS NULL
             ORDER BY login_codes.created_at DESC
             LIMIT 1
             FOR UPDATE OF login_codes`,
@@ -60,7 +58,15 @@ export const POST = withApiErrors(async (request) => {
     await client.query("UPDATE login_codes SET consumed_at = now() WHERE id = $1", [
       loginCode.id,
     ]);
-    return { id: loginCode.user_id, email: loginCode.email };
+    // A code proves mailbox ownership. Never create an account before this point.
+    await client.query(
+      "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING",
+      [email],
+    );
+    const account = await client.query<{ id: string; email: string }>(
+      "SELECT id, email FROM users WHERE email = $1", [email],
+    );
+    return account.rows[0];
   });
 
   if (!user)

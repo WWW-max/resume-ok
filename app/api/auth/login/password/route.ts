@@ -18,7 +18,7 @@ export const POST = withApiErrors(async (request) => {
   const email = normalizeEmail(body.email);
   const password = typeof body.password === "string" ? body.password : "";
   const result = isValidEmail(email)
-    ? await db().query<{ id: string; email: string; password_hash: string }>(
+    ? await db().query<{ id: string; email: string; password_hash: string | null }>(
         "SELECT id, email, password_hash FROM users WHERE email = $1",
         [email],
       )
@@ -28,7 +28,7 @@ export const POST = withApiErrors(async (request) => {
     password || "invalid",
     user?.password_hash ?? DUMMY_PASSWORD_HASH,
   );
-  if (!user || !valid)
+  if (!user?.password_hash || !valid)
     throw new ApiError(401, "invalid_credentials", "邮箱或密码错误。");
   await startSession(user.id);
   return Response.json({ user: { id: user.id, email: user.email } });

@@ -43,3 +43,12 @@ CREATE TABLE IF NOT EXISTS resume_libraries (
   CONSTRAINT resume_libraries_version_positive CHECK (version > 0),
   CONSTRAINT resume_libraries_library_object CHECK (jsonb_typeof(library) = 'object')
 );
+
+-- Unified email authentication: codes can exist before a user is created.
+ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+ALTER TABLE login_codes ADD COLUMN IF NOT EXISTS email text;
+UPDATE login_codes SET email = users.email FROM users
+ WHERE login_codes.user_id = users.id AND login_codes.email IS NULL;
+ALTER TABLE login_codes ALTER COLUMN user_id DROP NOT NULL;
+CREATE INDEX IF NOT EXISTS login_codes_email_created_idx
+ ON login_codes(email, created_at DESC);
