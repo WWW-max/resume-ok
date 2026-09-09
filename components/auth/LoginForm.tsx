@@ -99,7 +99,7 @@ export function LoginForm({
               setError("");
               setMessage("");
             }}
-            className={`min-h-10 rounded-lg text-sm font-medium ${
+            className={`min-h-9 rounded-lg text-sm font-medium ${
               mode === value
                 ? "bg-white text-green-800 shadow-sm"
                 : "text-neutral-500"
@@ -109,7 +109,7 @@ export function LoginForm({
           </button>
         ))}
       </div>
-      <form onSubmit={submit} className="mt-5 grid gap-4">
+      <form onSubmit={submit} className="mt-4 grid gap-3">
         <AuthField
           label="邮箱"
           name="email"
@@ -142,7 +142,7 @@ export function LoginForm({
               type="button"
               disabled={requesting}
               onClick={(event) => requestCode(event.currentTarget.form!)}
-              className="min-h-12 rounded-xl border border-green-200 px-4 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
+              className="min-h-11 rounded-xl border border-green-200 px-4 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
             >
               {requesting ? "发送中…" : "发送验证码"}
             </button>

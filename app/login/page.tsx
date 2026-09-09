@@ -53,17 +53,17 @@ export default async function LoginPage({
       {notice && (
         <p
           role="status"
-          className="mb-5 rounded-xl bg-green-50 px-4 py-3 text-sm leading-6 text-green-900"
+          className="mb-4 rounded-xl bg-green-50 px-4 py-2.5 text-sm leading-5 text-green-900"
         >
           {notice}
         </p>
       )}
       {googleConfig() ? (
-        <form action="/api/auth/google" method="get" className="mb-5">
+        <form action="/api/auth/google" method="get" className="mb-4">
           <input type="hidden" name="next" value={next} />
           <button
             type="submit"
-            className="flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-neutral-500 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full border border-neutral-500 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <Image
               src="/brand/google-g.png"
@@ -77,12 +77,12 @@ export default async function LoginPage({
           </button>
         </form>
       ) : (
-        <div className="mb-5">
+        <div className="mb-4">
           <button
             type="button"
             disabled
             aria-describedby="google-unavailable"
-            className="flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 disabled:cursor-not-allowed"
+            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 disabled:cursor-not-allowed"
           >
             <Image
               src="/brand/google-g.png"
@@ -96,13 +96,13 @@ export default async function LoginPage({
           </button>
           <p
             id="google-unavailable"
-            className="mt-2 text-center text-xs text-neutral-500"
+            className="mt-1.5 text-center text-xs text-neutral-500"
           >
             暂不可用，请使用邮箱登录
           </p>
         </div>
       )}
-      <div className="mb-5 flex items-center gap-3 text-xs text-neutral-400">
+      <div className="mb-4 flex items-center gap-3 text-xs text-neutral-400">
         <span className="h-px flex-1 bg-neutral-100" />
         或使用邮箱
         <span className="h-px flex-1 bg-neutral-100" />
