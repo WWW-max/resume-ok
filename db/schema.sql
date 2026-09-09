@@ -52,3 +52,29 @@ UPDATE login_codes SET email = users.email FROM users
 ALTER TABLE login_codes ALTER COLUMN user_id DROP NOT NULL;
 CREATE INDEX IF NOT EXISTS login_codes_email_created_idx
  ON login_codes(email, created_at DESC);
+
+-- Google identities use the provider's stable subject, never the mutable email, as their key.
+CREATE TABLE IF NOT EXISTS google_accounts (
+  google_subject text PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS google_accounts_user_idx ON google_accounts(user_id);
+
+CREATE TABLE IF NOT EXISTS google_login_requests (
+  state_hash char(64) PRIMARY KEY,
+  browser_hash char(64) NOT NULL,
+  code_verifier text NOT NULL,
+  nonce text NOT NULL,
+  next_path text NOT NULL,
+  expires_at timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS google_login_requests_expiry_idx ON google_login_requests(expires_at);
+
+CREATE TABLE IF NOT EXISTS google_email_links (
+  token_hash char(64) PRIMARY KEY,
+  google_subject text NOT NULL,
+  email text NOT NULL,
+  expires_at timestamptz NOT NULL
+);
+CREATE INDEX IF NOT EXISTS google_email_links_expiry_idx ON google_email_links(expires_at);

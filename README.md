@@ -31,6 +31,23 @@ pnpm run dev
 
 升级已有数据库前先运行 `pnpm run db:migrate`：迁移会保留原账号与验证码，允许无密码账号和按邮箱签发验证码。
 
+## Google 一键登录
+
+登录页支持 Google 登录，继续使用现有 PostgreSQL 账号和会话。首次登录自动创建账号；已关联的 Google 身份按稳定的 `sub` 查找账号，不因邮箱变化切换账号。
+
+### 配置
+
+1. 在 [Google Auth Platform](https://console.cloud.google.com/auth/clients) 创建 **Web 应用** OAuth 客户端，完成同意屏幕配置；测试状态下添加测试用户。
+2. 添加授权重定向 URI：本地为 `http://localhost:3000/api/auth/google/callback`；线上为 `https://你的域名/api/auth/google/callback`。必须与实际部署地址完全一致。
+3. 通过本机编辑器在未提交的 `.env.local`，或部署平台的受保护环境变量设置中填写 `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET`、`APP_URL`。不要将密钥发送到聊天、写入命令行或提交仓库。`APP_URL` 只填站点 origin（不带路径），线上使用 HTTPS。
+4. 运行 `pnpm run db:migrate` 并重启应用。未配置完整时，Google 按钮会禁用，邮箱登录仍可用。
+
+实现采用 Google 官方 `google-auth-library` 的授权码流程，使用 PKCE、nonce、浏览器绑定的一次性 state（10 分钟有效），服务端校验 ID token 的签名、签发方和受众。只申请 `openid email` 权限，不保存 Google access token、refresh token 或 ID token，不访问 Drive/Gmail 数据。
+
+Google 对 Gmail / Google Workspace 邮箱的身份验证可用于关联相同邮箱的现有账号，不覆盖密码和简历。其他第三方邮箱首次需要再完成本站邮箱验证码验证，才创建或关联账号；待关联身份只在 HttpOnly Cookie 对应的服务端记录中保存，10 分钟后失效。参见 [Google OIDC 文档](https://developers.google.com/identity/openid-connect/openid-connect)。
+
+Google 按钮使用 [官方品牌图标](https://developers.google.com/identity/branding-guidelines)，第三方标志保留原色，项目自身主题仍为绿色。
+
 ## 数据存储边界
 
 简历库保存在 PostgreSQL 的 `resume_libraries` 表，并以 `user_id` 作为主键和外键。`/api/resumes` 只从当前会话取得用户 ID，客户端不能提交或选择用户 ID，因此不同账号的数据彼此隔离。服务端在写入前调用现有 `parseLibrary` 完整校验，JSON 请求限制为 5 MiB。
@@ -49,6 +66,8 @@ pnpm run dev
 ## API
 
 - `POST /api/auth/register`（已停用，返回 410 并提示使用验证码）
+- `GET /api/auth/google?next=/editor`
+- `GET /api/auth/google/callback`
 - `POST /api/auth/login/password`
 - `POST /api/auth/login/code/request`
 - `POST /api/auth/login/code/verify`
