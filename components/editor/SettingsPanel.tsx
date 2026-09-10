@@ -33,12 +33,21 @@ export function SettingsPanel({
             ).map((color) => (
               <button
                 key={color}
-                className={`${ui["color-swatch"]} ${{ green: "bg-[#15934b]", fresh: "bg-[#16a34a]", forest: "bg-[#166534]" }[color]}`}
-                aria-label={`${{ green: "品牌绿", fresh: "清新绿", forest: "森林绿" }[color]}`}
+                className={`${ui["color-swatch"]} ${{ none: "bg-white text-neutral-800", green: "bg-[#15934b]", fresh: "bg-[#16a34a]", forest: "bg-[#166534]" }[color]}`}
+                aria-label={`${{ none: "无色（黑白）", green: "品牌绿", fresh: "清新绿", forest: "森林绿" }[color]}`}
                 aria-pressed={appearance.accent === color}
                 onClick={() => update({ accent: color })}
               >
-                {appearance.accent === color && <Check size={17} />}
+                {appearance.accent === color ? (
+                  <Check size={17} />
+                ) : (
+                  color === "none" && (
+                    <span
+                      aria-hidden="true"
+                      className="h-px w-5 -rotate-45 bg-neutral-500"
+                    />
+                  )
+                )}
               </button>
             ))}
           </div>

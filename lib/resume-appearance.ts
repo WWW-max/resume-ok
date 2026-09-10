@@ -1,6 +1,6 @@
 export interface ResumeAppearance {
   template: "classic" | "minimal" | "modern";
-  accent: "green" | "fresh" | "forest";
+  accent: "none" | "green" | "fresh" | "forest";
   fontSize: number;
   spacing: "comfortable" | "compact";
   showBrand: boolean;
@@ -27,6 +27,7 @@ export const defaultAppearance: ResumeAppearance = {
   personalInfoLayout: "split",
 };
 export const accentColors = {
+  none: "#171717",
   green: "#15934b",
   fresh: "#16a34a",
   forest: "#166534",

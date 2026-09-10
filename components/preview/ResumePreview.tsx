@@ -108,12 +108,13 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
     return (
       <div
         ref={ref}
-        className={`${ui["resume-paper"]} template-${appearance.template} spacing-${appearance.spacing}`}
+        className={`${ui["resume-paper"]} template-${appearance.template} spacing-${appearance.spacing} ${appearance.accent === "none" ? "accent-none" : ""}`}
         style={
           {
             "--resume-accent": accentColors[appearance.accent],
             "--resume-font-size": `${appearance.fontSize}px`,
-            "--resume-divider": appearance.dividerColor,
+            "--resume-divider":
+              appearance.accent === "none" ? "#d4d4d4" : appearance.dividerColor,
             paddingTop: appearance.paddingTop,
             paddingRight: appearance.paddingRight,
             paddingBottom: appearance.paddingBottom,

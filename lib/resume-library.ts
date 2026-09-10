@@ -147,7 +147,7 @@ export function isResumeData(value: unknown): value is ResumeData {
     if (
       !isRecord(a) ||
       !["classic", "minimal", "modern"].includes(String(a.template)) ||
-      !["green", "fresh", "forest"].includes(String(a.accent)) ||
+      !["none", "green", "fresh", "forest"].includes(String(a.accent)) ||
       typeof a.fontSize !== "number" ||
       a.fontSize < 10 ||
       a.fontSize > 15 ||

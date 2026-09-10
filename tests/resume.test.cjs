@@ -20,7 +20,11 @@ const {
   blankResume,
   isResumeData,
 } = require("../lib/resume-library.ts");
-const { defaultAppearance } = require("../lib/resume-appearance.ts");
+const {
+  defaultAppearance,
+  accentColors,
+} = require("../lib/resume-appearance.ts");
+const { ui } = require("../lib/ui-styles.ts");
 const { checkResume } = require("../lib/resume-checks.ts");
 test("backup roundtrip preserves content, ordering, hidden sections and appearance", () => {
   const library = createLibrary();
@@ -309,11 +313,18 @@ test("legacy blue and slate accents migrate to green shades without losing resum
 });
 
 test("all current accent settings survive backup roundtrip", () => {
-  for (const accent of ["green", "fresh", "forest"]) {
+  for (const accent of ["none", "green", "fresh", "forest"]) {
     const library = createLibrary();
     library.documents[0].data.appearance = { ...defaultAppearance, accent };
     assert.deepEqual(parseLibrary(JSON.stringify(library)), library);
   }
+});
+
+test("colorless accent renders with a neutral black-and-white palette", () => {
+  assert.equal(accentColors.none, "#171717");
+  assert.match(ui["resume-paper"], /accent-none.*#171717/);
+  assert.match(ui["resume-header"], /accent-none\.template-modern.*bg-white/);
+  assert.match(ui["skill-tags"], /accent-none.*bg-white/);
 });
 
 test("all personal info layouts survive backup roundtrip", () => {

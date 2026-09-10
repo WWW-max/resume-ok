@@ -62,29 +62,29 @@ export const ui = {
   "paper-size":
     "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
   "resume-paper":
-    "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[color:var(--resume-divider,_#d3f0dd)] print:shadow-none print:rounded-none [&_*]:border-[color:var(--resume-divider,_#d3f0dd)]",
+    "resume-paper relative w-[794px] min-h-[1123px] bg-[#fff] text-[#0f351c] shadow-[0_6px_32px_#1b562e12] rounded-[5px] [overflow-wrap:anywhere] text-[length:var(--resume-font-size,_12px)] leading-[1.75] isolate border-[color:var(--resume-divider,_#d3f0dd)] print:shadow-none print:rounded-none [&_*]:border-[color:var(--resume-divider,_#d3f0dd)] [&.accent-none]:text-[#171717]",
   "resume-header":
-    "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [&.personal-layout-left]:flex-col [&.personal-layout-left]:items-start [&.personal-layout-center]:flex-col [&.personal-layout-center]:items-center [&.personal-layout-center]:text-center [&.personal-layout-center_.resume-contact]:justify-center [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.spacing-compact_&]:mb-5",
+    "resume-header flex justify-between gap-5 mt-[22px] mb-[30px] [&_h1]:text-[30px] [&_h1]:font-bold [&_h1]:leading-[1.3] [&_h1]:tracking-[1px] [&.personal-layout-left]:flex-col [&.personal-layout-left]:items-start [&.personal-layout-center]:flex-col [&.personal-layout-center]:items-center [&.personal-layout-center]:text-center [&.personal-layout-center_.resume-contact]:justify-center [.template-minimal_&]:[border-bottom:2px_solid_var(--resume-accent)] [.template-minimal_&]:pb-[22px] [.template-modern_&]:bg-[#eff6f2] [.template-modern_&]:[border-left:5px_solid_var(--resume-accent)] [.template-modern_&]:[padding:22px] [.template-modern_&]:mx-[-10px] [.accent-none.template-modern_&]:bg-white [.spacing-compact_&]:mb-5",
   "resume-school-logo":
     "resume-school-logo block max-w-32 h-12 object-contain object-left",
   "resume-job": "resume-job text-[14px] font-medium [margin:5px_0_10px]",
   "resume-contact":
-    "resume-contact grid grid-cols-[auto_auto] gap-[7px_24px] text-[#517c60] text-[11px] [&_>_span]:flex [&_>_span]:items-center [&_>_span]:gap-[10px] [&_svg]:shrink-0 [&_svg]:text-[#17512a]",
+    "resume-contact grid grid-cols-[auto_auto] gap-[7px_24px] text-[#517c60] text-[11px] [&_>_span]:flex [&_>_span]:items-center [&_>_span]:gap-[10px] [&_svg]:shrink-0 [&_svg]:text-[#17512a] [.accent-none_&]:text-[#404040] [.accent-none_&_svg]:text-[#171717]",
   "resume-avatar": "resume-avatar w-28 h-30 object-cover rounded-[12px]",
   "resume-sections":
     "resume-sections grid grid-cols-[1fr_1fr] gap-[22px_36px] [.template-minimal_&]:block [.spacing-compact_&]:gap-[15px_28px]",
   "resume-section":
     "resume-section col-span-full min-w-0 [&.half-section]:col-span-1 [&_h2]:flex [&_h2]:items-center [&_h2]:gap-[10px] [&_h2]:[border-bottom:1px_solid_var(--resume-divider,_#d3f0dd)] [&_h2]:pb-[5px] [&_h2]:mb-[10px] [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2_svg]:text-[color:var(--resume-accent,_#16632f)] [&_article_+_article]:mt-[15px] print:[&_article]:[break-inside:avoid] print:[&_h2]:[break-after:avoid] [.template-minimal_&]:mb-6 [.template-minimal_&]:[&_h2]:[border-bottom:none] [.template-modern_&]:[&_h2]:text-[color:var(--resume-accent)] [.spacing-compact_&]:[&_article_+_article]:mt-[10px]",
   "resume-row":
-    "resume-row flex justify-between gap-3 items-baseline [&_h3]:text-[12px] [&_h3]:font-bold [&_h3_span]:font-normal [&_h3_span]:text-[#60886d] [&_h3_span]:ml-[7px] [&_h3_span]:text-[11px] [&_time]:text-[#60886d] [&_time]:whitespace-nowrap [&_time]:text-[11px]",
+    "resume-row flex justify-between gap-3 items-baseline [&_h3]:text-[12px] [&_h3]:font-bold [&_h3_span]:font-normal [&_h3_span]:text-[#60886d] [&_h3_span]:ml-[7px] [&_h3_span]:text-[11px] [&_time]:text-[#60886d] [&_time]:whitespace-nowrap [&_time]:text-[11px] [.accent-none_&_h3_span]:text-[#404040] [.accent-none_&_time]:text-[#404040]",
   "resume-description":
-    "resume-description text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap mt-[5px] [.spacing-compact_&]:leading-[1.6]",
+    "resume-description text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap mt-[5px] [.accent-none_&]:text-[#262626] [.spacing-compact_&]:leading-[1.6]",
   "resume-role":
-    "resume-role text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
+    "resume-role text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap [.accent-none_&]:text-[#262626]",
   "resume-link":
-    "resume-link text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap",
+    "resume-link text-[#558163] text-[length:calc(var(--resume-font-size,_12px)_-_0.5px)] leading-[1.9] whitespace-pre-wrap [.accent-none_&]:text-[#262626]",
   "skill-tags":
-    "skill-tags flex flex-wrap gap-[7px] [&_span]:text-[11px] [&_span]:leading-[1.5] [&_span]:[padding:3px_10px] [&_span]:rounded-[7px] [&_span]:bg-[#e3f9ed] [&_span]:text-[#168347] [&_span:nth-child(3n)]:bg-[#e2f8e9] [&_span:nth-child(3n)]:text-[#396949] [.template-minimal_&]:[&_span]:bg-[#edf4f0] [.template-minimal_&]:[&_span]:text-[#2e4b38]",
+    "skill-tags flex flex-wrap gap-[7px] [&_span]:text-[11px] [&_span]:leading-[1.5] [&_span]:[padding:3px_10px] [&_span]:rounded-[7px] [&_span]:bg-[#e3f9ed] [&_span]:text-[#168347] [&_span:nth-child(3n)]:bg-[#e2f8e9] [&_span:nth-child(3n)]:text-[#396949] [.template-minimal_&]:[&_span]:bg-[#edf4f0] [.template-minimal_&]:[&_span]:text-[#2e4b38] [.accent-none_&]:[&_span]:border [.accent-none_&]:[&_span]:border-neutral-300 [.accent-none_&]:[&_span]:bg-white! [.accent-none_&]:[&_span]:text-[#171717]!",
   "module-main":
     "module-main [padding:18px_10px] flex items-center gap-[14px] flex-1 min-w-0 text-left [&_>_span]:flex-1 [&_>_svg]:shrink-0 [.module-card.selected_&]:[&_>_svg:not(.grip)]:text-[#0aa54a] touch-manipulation",
   "module-menu":
