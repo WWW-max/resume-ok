@@ -18,14 +18,39 @@ export function observePreviewSize(
     frame = null;
     if (disposed || outer.clientWidth <= 0 || paper.offsetHeight <= 0) return;
     const style = getComputedStyle(outer);
-    const available = Math.floor(
+    const availableWidth = Math.floor(
       outer.clientWidth -
         (parseFloat(style.paddingLeft) || 0) -
         (parseFloat(style.paddingRight) || 0),
     );
-    if (available <= 0) return;
+    if (availableWidth <= 0) return;
+
+    const hasHeight =
+      typeof outer.clientHeight === "number" && outer.clientHeight > 0;
+    const availableHeight = hasHeight
+      ? Math.floor(
+          outer.clientHeight -
+            (parseFloat(style.paddingTop) || 0) -
+            (parseFloat(style.paddingBottom) || 0),
+        )
+      : 0;
+
+    let scale: number;
+    if (zoom === "fit") {
+      const scaleWidth = availableWidth / 794;
+      if (hasHeight && availableHeight > 0 && paper.offsetHeight > 0) {
+        // 同时适配容器宽度与高度（预留 2px 安全边距），确保整页 A4 纸完整展现在屏幕中，无需垂直滚动
+        const scaleHeight = (availableHeight - 2) / paper.offsetHeight;
+        scale = Math.min(1, scaleWidth, scaleHeight);
+      } else {
+        scale = Math.min(1, scaleWidth);
+      }
+    } else {
+      scale = zoom / 100;
+    }
+
     const next = {
-      scale: zoom === "fit" ? Math.min(1, available / 794) : zoom / 100,
+      scale,
       height: paper.offsetHeight,
     };
     if (previous?.scale === next.scale && previous.height === next.height)

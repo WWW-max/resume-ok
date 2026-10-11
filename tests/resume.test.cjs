@@ -392,6 +392,17 @@ test("preview resize notifications are batched, deduplicated, and cancelled on c
     flush(); outer.clientWidth = 500; notify(); flush();
     assert.deepEqual(manual, [{scale: 1.25, height:1123}]);
     stopManual();
+
+    // Height-constrained viewport test: ensures full A4 page fits vertically without scrolling
+    globalThis.getComputedStyle = () => ({paddingLeft: "10px", paddingRight: "10px", paddingTop: "20px", paddingBottom: "30px"});
+    const heightConstrainedOuter = {clientWidth: 1000, clientHeight: 600};
+    const heightChanges = [];
+    const stopHeightTest = observePreviewSize(heightConstrainedOuter, paper, "fit", value => heightChanges.push(value));
+    flush();
+    // availableWidth = 1000 - 20 = 980 -> scaleWidth = 980/794 > 1
+    // availableHeight = 600 - 50 = 550 -> scaleHeight = (550 - 2) / 1123 = 548 / 1123
+    assert.equal(heightChanges[0].scale, 548 / 1123);
+    stopHeightTest();
   } finally {
     for (const [key,value] of Object.entries(originals)) {
       if (value === undefined) delete globalThis[key]; else globalThis[key] = value;
