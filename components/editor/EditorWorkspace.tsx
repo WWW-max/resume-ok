@@ -2,7 +2,7 @@
 import { ui } from "@/lib/ui-styles";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useResumeLibrary } from "@/hooks/useResumeLibrary";
 import { LibraryPanel } from "@/components/editor/LibraryPanel";
 import {
@@ -22,7 +22,10 @@ import {
   Sparkles,
   Files,
   Settings,
-  Monitor,
+  Maximize2,
+  Minimize2,
+  ZoomIn,
+  ZoomOut,
   ChevronDown,
   Lightbulb,
   Undo2,
@@ -44,8 +47,52 @@ export default function EditorWorkspace({
   const [previewOnly, setPreviewOnly] = useState(false);
   const [editTarget, setEditTarget] = useState<EditorSection | null>(null);
   const [zoom, setZoom] = useState<number | "fit">("fit");
+  const [actualScale, setActualScale] = useState(0.85);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const workspaceRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        setPreviewOnly(true);
+        if (workspaceRef.current?.requestFullscreen) {
+          await workspaceRef.current.requestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setPreviewOnly(false);
+      }
+    } catch {
+      setPreviewOnly((prev) => !prev);
+    }
+  }
+
+  function handleZoomIn() {
+    const currentPercent = Math.round(actualScale * 100);
+    const next = Math.min(200, Math.floor(currentPercent / 10) * 10 + 10);
+    setZoom(next);
+  }
+
+  function handleZoomOut() {
+    const currentPercent = Math.round(actualScale * 100);
+    const next = Math.max(30, Math.ceil(currentPercent / 10) * 10 - 10);
+    setZoom(next);
+  }
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
@@ -73,6 +120,7 @@ export default function EditorWorkspace({
   const previewRef = useRef<HTMLDivElement>(null);
   return (
     <div
+      ref={workspaceRef}
       className={`${ui["workspace"]} ${previewOnly ? "preview-only" : ""}`}
       onKeyDown={(event) => {
         if (
@@ -219,24 +267,67 @@ export default function EditorWorkspace({
               >
                 <Redo2 size={17} />
               </button>
-              <Monitor size={18} className="hidden xl:block" />
-              <select
-                className={ui["toolbar-pill"]}
-                aria-label="预览缩放"
-                value={zoom}
-                onChange={(e) =>
-                  setZoom(
-                    e.target.value === "fit" ? "fit" : Number(e.target.value),
-                  )
+              <button
+                className={ui["icon-button"]}
+                aria-label={
+                  isFullscreen || previewOnly ? "退出全屏预览" : "全屏幕预览"
                 }
+                title={
+                  isFullscreen || previewOnly
+                    ? "退出全屏预览 (Esc)"
+                    : "全屏幕预览"
+                }
+                onClick={toggleFullscreen}
               >
-                <option value="fit">自适应</option>
-                {[50, 75, 100, 125, 150].map((z) => (
-                  <option key={z} value={z}>
-                    {z}%
+                {isFullscreen || previewOnly ? (
+                  <Minimize2 size={17} />
+                ) : (
+                  <Maximize2 size={17} />
+                )}
+              </button>
+              <div className="inline-flex items-center rounded-[8px] bg-white border border-[#ebf6ee] p-0.5 shadow-2xs">
+                <button
+                  className="inline-grid place-items-center size-8 rounded-[6px] text-[#4a805c] hover:bg-[#dff8e7] disabled:opacity-35 disabled:hover:bg-transparent"
+                  aria-label="缩小"
+                  title="缩小 (Ctrl + 滚轮向下)"
+                  disabled={typeof zoom === "number" && zoom <= 30}
+                  onClick={handleZoomOut}
+                >
+                  <ZoomOut size={15} />
+                </button>
+                <select
+                  className="bg-transparent text-[12px] px-1.5 py-1 text-[#1a4026] cursor-pointer focus:outline-none"
+                  aria-label="预览缩放比例"
+                  value={zoom}
+                  onChange={(e) =>
+                    setZoom(
+                      e.target.value === "fit" ? "fit" : Number(e.target.value),
+                    )
+                  }
+                >
+                  <option value="fit">
+                    自适应 ({Math.round(actualScale * 100)}%)
                   </option>
-                ))}
-              </select>
+                  {[50, 75, 100, 125, 150, 200].map((z) => (
+                    <option key={z} value={z}>
+                      {z}%
+                    </option>
+                  ))}
+                  {typeof zoom === "number" &&
+                    ![50, 75, 100, 125, 150, 200].includes(zoom) && (
+                      <option value={zoom}>{zoom}%</option>
+                    )}
+                </select>
+                <button
+                  className="inline-grid place-items-center size-8 rounded-[6px] text-[#4a805c] hover:bg-[#dff8e7] disabled:opacity-35 disabled:hover:bg-transparent"
+                  aria-label="放大"
+                  title="放大 (Ctrl + 滚轮向上)"
+                  disabled={typeof zoom === "number" && zoom >= 200}
+                  onClick={handleZoomIn}
+                >
+                  <ZoomIn size={15} />
+                </button>
+              </div>
             </div>
             <div className={ui["toolbar-group"]}>
               <button
@@ -260,7 +351,13 @@ export default function EditorWorkspace({
               </span>
             </div>
           </div>
-          <PreviewCanvas zoom={zoom} data={data} previewRef={previewRef} />
+          <PreviewCanvas
+            zoom={zoom}
+            data={data}
+            previewRef={previewRef}
+            onZoomChange={setZoom}
+            onScaleChange={setActualScale}
+          />
         </main>
       </div>
     </div>
