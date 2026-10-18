@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.cjs",
-    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
-    "test:integration": "node --env-file-if-exists=.env.local --test tests/integration/*.test.mjs"
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "test:integration": "node --env-file=.env.local --test tests/integration/*.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
