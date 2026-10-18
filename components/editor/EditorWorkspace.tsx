@@ -2,7 +2,7 @@
 import { ui } from "@/lib/ui-styles";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useResumeLibrary } from "@/hooks/useResumeLibrary";
 import { LibraryPanel } from "@/components/editor/LibraryPanel";
 import {
@@ -31,6 +31,8 @@ import {
   Undo2,
   Redo2,
   LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 export default function EditorWorkspace({
   initialView = "editor",
@@ -45,6 +47,9 @@ export default function EditorWorkspace({
   const setData = store.updateData;
   const [view, setView] = useState(initialView);
   const [previewOnly, setPreviewOnly] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [editorWidth, setEditorWidth] = useState<number | null>(null);
+  const [isResizing, setIsResizing] = useState(false);
   const [editTarget, setEditTarget] = useState<EditorSection | null>(null);
   const [editTrigger, setEditTrigger] = useState(0);
   const [zoom, setZoom] = useState<number | "fit">("fit");
@@ -55,7 +60,37 @@ export default function EditorWorkspace({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
+  const editingColumnRef = useRef<HTMLElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  function startResize(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.button !== 0 || !editingColumnRef.current) return;
+    e.preventDefault();
+    const rect = editingColumnRef.current.getBoundingClientRect();
+    const startX = e.clientX;
+    const startWidth = rect.width;
+    setIsResizing(true);
+
+    function onPointerMove(moveEvent: PointerEvent) {
+      const deltaX = moveEvent.clientX - startX;
+      const maxWidth = Math.max(320, Math.min(760, window.innerWidth - 380));
+      const nextWidth = Math.round(
+        Math.min(maxWidth, Math.max(280, startWidth + deltaX)),
+      );
+      setEditorWidth(nextWidth);
+    }
+
+    function onPointerUp() {
+      setIsResizing(false);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+    }
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+  }
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -141,7 +176,7 @@ export default function EditorWorkspace({
   return (
     <div
       ref={workspaceRef}
-      className={`${ui["workspace"]} ${previewOnly ? "preview-only" : ""}`}
+      className={`${ui["workspace"]} ${previewOnly ? "preview-only" : ""} ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${isResizing ? "select-none cursor-ew-resize" : ""}`}
       onKeyDown={(event) => {
         if (
           (event.metaKey || event.ctrlKey) &&
@@ -318,7 +353,15 @@ export default function EditorWorkspace({
       <div className={ui["save-status"]} role="status">
         {store.loadError || store.saveStatus}
       </div>
-      <div className={ui["workspace-body"]} inert={!store.ready}>
+      <div
+        className={`${ui["workspace-body"]} ${isResizing ? "resizing" : ""}`}
+        style={
+          editorWidth
+            ? ({ "--editor-width": `${editorWidth}px` } as CSSProperties)
+            : undefined
+        }
+        inert={!store.ready}
+      >
         <nav className={ui["side-nav"]} aria-label="主导航">
           {[
             { id: "editor", label: "编辑简历", icon: PencilLine },
@@ -329,8 +372,11 @@ export default function EditorWorkspace({
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
+              type="button"
               aria-current={view === id ? "page" : undefined}
-              className={view === id ? "active" : ""}
+              aria-label={label}
+              title={sidebarCollapsed ? label : undefined}
+              className={`nav-item ${view === id ? "active" : ""}`}
               onClick={() => {
                 setView(id);
                 setPreviewOnly(false);
@@ -341,8 +387,22 @@ export default function EditorWorkspace({
               <span>{label}</span>
             </button>
           ))}
+          <button
+            type="button"
+            aria-expanded={!sidebarCollapsed}
+            aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"}
+            title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"}
+            className="absolute top-1/2 -right-3 z-20 grid size-6 -translate-y-1/2 place-items-center rounded-full border border-[#d6ecdf] bg-white text-[#386647] shadow-[0_2px_6px_#10391d14] transition-colors hover:border-[#85d7a6] hover:bg-[#eefbf3] hover:text-[#08a644] max-[900px]:hidden"
+            onClick={() => setSidebarCollapsed((prev) => !prev)}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight size={14} />
+            ) : (
+              <ChevronLeft size={14} />
+            )}
+          </button>
         </nav>
-        <aside className={ui["editing-column"]}>
+        <aside ref={editingColumnRef} className={ui["editing-column"]}>
           {view === "editor" ? (
             <EditorPanel
               key={`${store.active.id}-${editTarget}-${editTrigger}`}
@@ -374,6 +434,38 @@ export default function EditorWorkspace({
           ) : (
             <SettingsPanel data={data} onChange={setData} />
           )}
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="左右拖动调整编辑区宽度"
+            title="左右拖动调整宽度，双击恢复默认"
+            tabIndex={0}
+            onPointerDown={startResize}
+            onDoubleClick={() => setEditorWidth(null)}
+            onKeyDown={(e) => {
+              if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+              e.preventDefault();
+              const current =
+                editorWidth ??
+                editingColumnRef.current?.getBoundingClientRect().width ??
+                428;
+              const delta = e.key === "ArrowRight" ? 16 : -16;
+              const maxWidth = Math.max(
+                320,
+                Math.min(760, window.innerWidth - 380),
+              );
+              setEditorWidth(Math.min(maxWidth, Math.max(280, current + delta)));
+            }}
+            className="group absolute top-0 -right-1.5 bottom-0 z-20 w-3 cursor-ew-resize select-none touch-none max-[900px]:hidden"
+          >
+            <span
+              className={`pointer-events-none absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 transition-colors ${
+                isResizing
+                  ? "bg-[#0cb449]"
+                  : "bg-transparent group-hover:bg-[#37ba58]/70"
+              }`}
+            />
+          </div>
         </aside>
         <main className={ui["preview-column"]} aria-label="简历预览">
           <div className={ui["preview-toolbar"]}>
