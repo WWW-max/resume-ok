@@ -242,7 +242,14 @@ export default function EditorWorkspace({
           ) : view === "templates" ? (
             <TemplatePanel data={data} onChange={setData} />
           ) : view === "resumes" ? (
-            <LibraryPanel store={store} />
+            <LibraryPanel
+              store={store}
+              onEdit={() => {
+                setView("editor");
+                setPreviewOnly(false);
+                setEditTarget(null);
+              }}
+            />
           ) : (
             <SettingsPanel data={data} onChange={setData} />
           )}

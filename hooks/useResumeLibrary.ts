@@ -278,6 +278,24 @@ export function useResumeLibrary() {
     }));
   }
 
+  function remove(id: string) {
+    commit((library) => {
+      if (library.documents.length <= 1) return library;
+      const remaining = library.documents.filter(
+        (document) => document.id !== id,
+      );
+      const nextActive =
+        library.activeId === id
+          ? remaining.find((doc) => !doc.archived)?.id || remaining[0].id
+          : library.activeId;
+      return {
+        ...library,
+        activeId: nextActive,
+        documents: remaining,
+      };
+    });
+  }
+
   function importLibrary(imported: ResumeLibrary) {
     if (state.library.documents.length + imported.documents.length > 100)
       throw new Error("简历总数不能超过 100 份。");
@@ -307,6 +325,7 @@ export function useResumeLibrary() {
     rename,
     archive,
     restore,
+    remove,
     importLibrary,
     select: (id: string) => {
       if (id !== active.id) commit((library) => ({ ...library, activeId: id }));
