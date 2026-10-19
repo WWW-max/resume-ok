@@ -266,10 +266,12 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
           <img
             src={data.schoolLogo}
             alt="学校校徽"
+            data-section="personal"
             className={ui["resume-school-logo"]}
           />
         )}
         <header
+          data-section="personal"
           className={`${ui["resume-header"]} personal-layout-${appearance.personalInfoLayout}`}
         >
           <div>

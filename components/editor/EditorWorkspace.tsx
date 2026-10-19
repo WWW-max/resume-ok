@@ -46,6 +46,7 @@ export default function EditorWorkspace({
   const [view, setView] = useState(initialView);
   const [previewOnly, setPreviewOnly] = useState(false);
   const [editTarget, setEditTarget] = useState<EditorSection | null>(null);
+  const [editTrigger, setEditTrigger] = useState(0);
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [actualScale, setActualScale] = useState(0.85);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -225,7 +226,7 @@ export default function EditorWorkspace({
         <aside className={ui["editing-column"]}>
           {view === "editor" ? (
             <EditorPanel
-              key={`${store.active.id}-${editTarget}`}
+              key={`${store.active.id}-${editTarget}-${editTrigger}`}
               initialSection={editTarget}
               data={data}
               onChange={setData}
@@ -236,6 +237,7 @@ export default function EditorWorkspace({
               data={data}
               onEdit={(section) => {
                 setEditTarget(section);
+                setEditTrigger((n) => n + 1);
                 setView("editor");
               }}
             />
@@ -364,6 +366,12 @@ export default function EditorWorkspace({
             previewRef={previewRef}
             onZoomChange={setZoom}
             onScaleChange={setActualScale}
+            onSelectSection={(section) => {
+              setEditTarget(section);
+              setEditTrigger((n) => n + 1);
+              setView("editor");
+              setPreviewOnly(false);
+            }}
           />
         </main>
       </div>

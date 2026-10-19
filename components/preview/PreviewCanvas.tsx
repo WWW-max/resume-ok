@@ -6,6 +6,8 @@ import { defaultAppearance } from "@/lib/resume-appearance";
 import { observePreviewSize } from "@/lib/observe-preview";
 import { ResumePreview } from "./ResumePreview";
 
+import type { EditorSection } from "@/components/editor/EditorPanel";
+
 const A4_WIDTH = 794;
 const A4_HEIGHT = 1123;
 const PAGE_GAP = 28;
@@ -122,12 +124,14 @@ export function PreviewCanvas({
   zoom,
   onZoomChange,
   onScaleChange,
+  onSelectSection,
 }: {
   data: ResumeData;
   zoom: number | "fit";
   previewRef: RefObject<HTMLDivElement | null>;
   onZoomChange?: (nextZoom: number | "fit") => void;
   onScaleChange?: (scale: number) => void;
+  onSelectSection?: (section: EditorSection) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ scale: 0.85, height: A4_HEIGHT });
@@ -233,7 +237,21 @@ export function PreviewCanvas({
           </div>
 
           {/* Discrete A4 pages with vertical gap */}
-          <div className="flex flex-col gap-7 print:hidden">
+          <div
+            className="flex flex-col gap-7 print:hidden [&_[data-section]]:cursor-pointer [&_[data-section]]:rounded-[4px] [&_[data-section]]:transition-colors [&_[data-section]:hover]:bg-[#19af60]/[0.05] [&_[data-section]:hover]:ring-4 [&_[data-section]:hover]:ring-[#19af60]/[0.05]"
+            onClick={(e) => {
+              if (!onSelectSection) return;
+              const target = e.target as HTMLElement;
+              if (target.closest("a")) return;
+              const sectionEl = target.closest<HTMLElement>("[data-section]");
+              const sectionKey = sectionEl?.dataset.section as
+                | EditorSection
+                | undefined;
+              if (sectionKey) {
+                onSelectSection(sectionKey);
+              }
+            }}
+          >
             {pages.map((slice, index) => (
               <div
                 key={index}
