@@ -29,16 +29,41 @@ const icons = {
   summary: UserRound,
 };
 function renderInlineBold(text: string): ReactNode {
-  if (!text.includes("**")) return text;
-  return text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
-      <strong key={i} className="font-semibold text-inherit">
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      part
-    ),
+  if (!/(\*\*|\*|\[.+?\]\(https?:\/\/)/.test(text)) return text;
+  const tokens = text.split(
+    /(\*\*.*?\*\*|(?<!\*)\*[^*]+\*(?!\*)|\[[^\]]+\]\(https?:\/\/[^\s)]+\))/g,
   );
+  return tokens.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return (
+        <strong key={i} className="font-semibold text-inherit">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+      return (
+        <em key={i} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    const linkMatch = /^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/.exec(part);
+    if (linkMatch) {
+      return (
+        <a
+          key={i}
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+    return part;
+  });
 }
 function formatDate(value: string): string {
   const match = /^(\d{4})-(\d{2})$/.exec(value.trim());
@@ -113,7 +138,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
               <div className={ui["resume-description"]}>
                 {data.skills.map((s) => (
                   <p key={s.id}>
-                    {s.category && (
+                    {s.category && s.category !== "技能" && (
                       <strong className="font-semibold text-inherit">
                         {s.category}：
                       </strong>
