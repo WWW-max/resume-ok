@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "launch": "pnpm install && cp .env.example .env.local && docker compose up -d && pnpm run db:migrate && pnpm run dev",
+    "launch": "pnpm install && cp .env.example .env.local && docker compose up -d --wait && pnpm run db:migrate && pnpm run dev",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
