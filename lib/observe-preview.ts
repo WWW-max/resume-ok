@@ -39,8 +39,9 @@ export function observePreviewSize(
     if (zoom === "fit") {
       const scaleWidth = availableWidth / 794;
       if (hasHeight && availableHeight > 0 && paper.offsetHeight > 0) {
-        // 同时适配容器宽度与高度（预留 2px 安全边距），确保整页 A4 纸完整展现在屏幕中，无需垂直滚动
-        const scaleHeight = (availableHeight - 2) / paper.offsetHeight;
+        // 同时适配容器宽度与单页 A4 高度（预留 2px 安全边距），确保单页 A4 完整展现且多页简历不被缩成细长条
+        const pageHeight = Math.min(paper.offsetHeight, 1123);
+        const scaleHeight = (availableHeight - 2) / pageHeight;
         scale = Math.min(1, scaleWidth, scaleHeight);
       } else {
         scale = Math.min(1, scaleWidth);
