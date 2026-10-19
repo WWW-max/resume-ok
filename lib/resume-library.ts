@@ -4,7 +4,6 @@ import {
   type ResumeData,
 } from "./resume-data";
 import { defaultAppearance } from "./resume-appearance";
-export const STORAGE_KEY = "resumeok.library.v1";
 export interface ResumeDocument {
   id: string;
   name: string;
@@ -252,16 +251,64 @@ export function parseLibrary(raw: string): ResumeLibrary {
   for (const document of value.documents) {
     if (isRecord(document) && isRecord(document.data)) {
       if (document.data.schoolLogo === undefined) document.data.schoolLogo = "";
+      const hadLegacyOpenSource =
+        Array.isArray(document.data.openSourceProjects) ||
+        (Array.isArray(document.data.sectionOrder) &&
+          document.data.sectionOrder.includes("openSourceProjects"));
+      if (
+        document.data.openSource === undefined &&
+        Array.isArray(document.data.openSourceProjects)
+      ) {
+        document.data.openSource = document.data.openSourceProjects;
+      }
+      delete document.data.openSourceProjects;
       if (document.data.openSource === undefined) document.data.openSource = [];
       if (
-        Array.isArray(document.data.sectionOrder) &&
-        document.data.sectionOrder.length === DEFAULT_SECTION_ORDER.length - 1 &&
-        !document.data.sectionOrder.includes("openSource")
+        isRecord(document.data.sectionTitles) &&
+        "openSourceProjects" in document.data.sectionTitles
       ) {
-        document.data.sectionOrder = [
-          ...document.data.sectionOrder,
-          "openSource",
-        ];
+        if (
+          document.data.sectionTitles.openSource === undefined &&
+          typeof document.data.sectionTitles.openSourceProjects === "string"
+        ) {
+          document.data.sectionTitles.openSource =
+            document.data.sectionTitles.openSourceProjects;
+        }
+        delete document.data.sectionTitles.openSourceProjects;
+      }
+      if (Array.isArray(document.data.hiddenSections)) {
+        document.data.hiddenSections = document.data.hiddenSections.map((k) =>
+          k === "openSourceProjects" ? "openSource" : k,
+        );
+      }
+      if (Array.isArray(document.data.sectionOrder)) {
+        const order = document.data.sectionOrder.map((k) =>
+          k === "openSourceProjects" ? "openSource" : k,
+        );
+        if (hadLegacyOpenSource) {
+          for (const key of DEFAULT_SECTION_ORDER) {
+            if (!order.includes(key)) {
+              order.push(key);
+              if (
+                key === "summary" &&
+                !document.data.summary &&
+                Array.isArray(document.data.hiddenSections) &&
+                !document.data.hiddenSections.includes("summary")
+              ) {
+                document.data.hiddenSections = [
+                  ...document.data.hiddenSections,
+                  "summary",
+                ];
+              }
+            }
+          }
+        } else if (
+          order.length === DEFAULT_SECTION_ORDER.length - 1 &&
+          !order.includes("openSource")
+        ) {
+          order.push("openSource");
+        }
+        document.data.sectionOrder = order;
       }
     }
     if (

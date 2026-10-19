@@ -42,7 +42,7 @@ export default function EditorWorkspace({
   user: { id: string; email: string };
 }) {
   const router = useRouter();
-  const store = useResumeLibrary();
+  const store = useResumeLibrary(user.id);
   const data = store.active.data;
   const setData = store.updateData;
   const [view, setView] = useState(initialView);
@@ -147,6 +147,7 @@ export default function EditorWorkspace({
   }
 
   async function logout() {
+    await store.flushBeforeLogout();
     await fetch("/api/auth/logout", { method: "POST" });
     setConfirmLogout(false);
     setUserMenuOpen(false);

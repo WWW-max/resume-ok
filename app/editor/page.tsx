@@ -29,6 +29,10 @@ export default async function EditorPage({
       ? view
       : "editor";
   return (
-    <EditorWorkspace key={initialView} initialView={initialView} user={user} />
+    <EditorWorkspace
+      key={`${user.id}:${initialView}`}
+      initialView={initialView}
+      user={user}
+    />
   );
 }

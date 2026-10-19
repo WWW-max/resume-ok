@@ -11,7 +11,6 @@ import {
   blankResume,
   createLibrary,
   parseLibrary,
-  STORAGE_KEY,
   type ResumeLibrary,
   type ResumeDocument,
 } from "@/lib/resume-library";
@@ -27,7 +26,7 @@ async function responseMessage(response: Response): Promise<string> {
   }
 }
 
-export function useResumeLibrary() {
+export function useResumeLibrary(userId: string) {
   const [state, dispatch] = useReducer(libraryReducer, undefined, () => ({
     library: createLibrary(),
     past: [],
@@ -42,17 +41,18 @@ export function useResumeLibrary() {
   const pending = useRef<ResumeLibrary | null>(null);
   const queued = useRef<ResumeLibrary | null>(null);
   const saving = useRef(false);
-  const legacyPending = useRef(false);
+  const loggingOut = useRef(false);
 
   useLayoutEffect(() => {
-    pending.current = state.ready && !blocked ? state.library : null;
+    pending.current =
+      state.ready && !blocked && !loggingOut.current ? state.library : null;
   }, [state.library, state.ready, blocked]);
 
   const drainSaveQueue = useCallback(async () => {
-    if (saving.current) return;
+    if (saving.current || loggingOut.current) return;
     saving.current = true;
     try {
-      while (queued.current) {
+      while (queued.current && !loggingOut.current) {
         const library = queued.current;
         queued.current = null;
         setSaveStatus("正在保存到数据库…");
@@ -61,7 +61,7 @@ export function useResumeLibrary() {
           response = await fetch("/api/resumes", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ library }),
+            body: JSON.stringify({ userId, library }),
           });
         } catch {
           if (!queued.current) queued.current = library;
@@ -75,34 +75,54 @@ export function useResumeLibrary() {
             );
             return;
           }
+          if (response.status === 409) {
+            window.location.reload();
+            return;
+          }
           if (!queued.current) queued.current = library;
           setSaveStatus(await responseMessage(response));
           return;
         }
         persisted.current = library;
-        if (legacyPending.current) {
-          localStorage.removeItem(STORAGE_KEY);
-          legacyPending.current = false;
-          setSaveStatus("旧版本地简历已迁移到当前账号");
-        } else if (!queued.current) {
+        if (!queued.current) {
           setSaveStatus("已保存到账号");
         }
       }
     } finally {
       saving.current = false;
     }
-  }, []);
+  }, [userId]);
 
   const queueSave = useCallback(
     (library: ResumeLibrary) => {
+      if (loggingOut.current) return;
       queued.current = library;
       void drainSaveQueue();
     },
     [drainSaveQueue],
   );
 
+  const flushBeforeLogout = useCallback(async () => {
+    const latest = pending.current ?? queued.current;
+    loggingOut.current = true;
+    pending.current = null;
+    queued.current = null;
+    if (!latest || latest === persisted.current) return;
+    try {
+      const response = await fetch("/api/resumes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, library: latest }),
+      });
+      if (response.ok) persisted.current = latest;
+    } catch {
+      // Ignore network error during logout; local session is ending.
+    }
+  }, [userId]);
+
   useEffect(() => {
     let cancelled = false;
+    loggingOut.current = false;
     async function load() {
       try {
         const response = await fetch("/api/resumes", {
@@ -118,22 +138,25 @@ export function useResumeLibrary() {
         if (!response.ok) throw new Error(await responseMessage(response));
         const body = await response.json();
         if (cancelled) return;
+        if (typeof body.userId === "string" && body.userId !== userId) {
+          window.location.reload();
+          return;
+        }
         if (body.library) {
           const library = parseLibrary(JSON.stringify(body.library));
           persisted.current = library;
-          localStorage.removeItem(STORAGE_KEY);
+          setLoadError("");
+          setBlocked(false);
           dispatch({ type: "load", library });
           setSaveStatus("已读取账号数据");
           return;
         }
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const library = raw ? parseLibrary(raw) : createLibrary();
-        legacyPending.current = Boolean(raw);
+        const library = createLibrary();
         persisted.current = null;
+        setLoadError("");
+        setBlocked(false);
         dispatch({ type: "load", library });
-        setSaveStatus(
-          raw ? "正在迁移旧版本地简历…" : "数据库自动保存已开启",
-        );
+        setSaveStatus("数据库自动保存已开启");
         queueSave(library);
       } catch (cause) {
         if (cancelled) return;
@@ -151,18 +174,19 @@ export function useResumeLibrary() {
     return () => {
       cancelled = true;
     };
-  }, [queueSave]);
+  }, [queueSave, userId]);
 
   useEffect(() => {
     if (!state.ready || blocked || persisted.current === state.library) return;
     const timer = window.setTimeout(() => queueSave(state.library), 500);
     const keepalive = () => {
+      if (loggingOut.current) return;
       const latest = pending.current;
       if (!latest || latest === persisted.current) return;
       void fetch("/api/resumes", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ library: latest }),
+        body: JSON.stringify({ userId, library: latest }),
         keepalive: true,
       });
     };
@@ -176,20 +200,21 @@ export function useResumeLibrary() {
       window.removeEventListener("pagehide", keepalive);
       document.removeEventListener("visibilitychange", visibility);
     };
-  }, [state.library, state.ready, blocked, queueSave]);
+  }, [state.library, state.ready, blocked, queueSave, userId]);
 
   useEffect(
     () => () => {
+      if (loggingOut.current) return;
       const latest = pending.current;
       if (!latest || latest === persisted.current) return;
       void fetch("/api/resumes", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ library: latest }),
+        body: JSON.stringify({ userId, library: latest }),
         keepalive: true,
       });
     },
-    [],
+    [userId],
   );
 
   const active = state.library.documents.find(
@@ -320,6 +345,7 @@ export function useResumeLibrary() {
     active,
     saveStatus,
     loadError,
+    flushBeforeLogout,
     updateData,
     add,
     rename,
