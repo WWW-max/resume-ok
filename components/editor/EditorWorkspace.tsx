@@ -52,7 +52,10 @@ export default function EditorWorkspace({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -63,6 +66,20 @@ export default function EditorWorkspace({
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
 
   async function toggleFullscreen() {
     try {
@@ -96,6 +113,8 @@ export default function EditorWorkspace({
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    setConfirmLogout(false);
+    setUserMenuOpen(false);
     router.replace("/login");
     router.refresh();
   }
@@ -170,25 +189,125 @@ export default function EditorWorkspace({
             </span>
             <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
           </button>
-          <button
-            className={`${ui["soft-button"]} hidden max-w-52 lg:inline-flex`}
-            aria-label={`当前账号 ${user.email}，打开设置`}
-            onClick={() => openPanel("settings")}
-          >
-            <span className="truncate">{user.email}</span>
-            <ChevronDown size={14} className="shrink-0" />
-          </button>
-          <button
-            className={ui["profile-button"]}
-            aria-label={`退出账号 ${user.email}`}
-            title={`退出 ${user.email}`}
-            onClick={() => void logout()}
-          >
-            <span>{user.email.slice(0, 1).toUpperCase()}</span>
-            <LogOut size={14} />
-          </button>
+          <div className="relative" ref={userMenuRef}>
+            <button
+              type="button"
+              aria-expanded={userMenuOpen}
+              aria-haspopup="menu"
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d8efe1] bg-[#f4fbf6] pl-1.5 pr-3 py-1 text-xs sm:text-sm font-medium text-[#1a4026] transition-colors hover:border-[#65d995] hover:bg-[#e7faed]"
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#d7f5e3] text-xs font-bold text-[#168347]">
+                {user.email.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="hidden max-w-40 truncate sm:inline">
+                {user.email}
+              </span>
+              <ChevronDown
+                size={14}
+                className={`shrink-0 text-[#4a805c] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {userMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-[calc(100%+8px)] z-50 w-60 rounded-xl border border-[#d8efe1] bg-white p-2 shadow-[0_10px_30px_#10391d1f]"
+              >
+                <div className="flex items-center gap-2.5 border-b border-[#ebf6ee] px-2.5 py-2.5">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#e0f5e8] text-sm font-bold text-[#168347]">
+                    {user.email.slice(0, 1).toUpperCase()}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] text-muted-ink">当前登录账号</p>
+                    <p className="truncate text-xs font-semibold text-ink">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-1 grid gap-0.5">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      openPanel("resumes");
+                      setUserMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <Files size={14} className="text-[#388855]" />
+                    我的简历
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      openPanel("settings");
+                      setUserMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <Settings size={14} className="text-[#388855]" />
+                    排版设置
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setConfirmLogout(true);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#bd554d] transition-colors hover:bg-red-50"
+                  >
+                    <LogOut size={14} />
+                    退出登录
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
+      {confirmLogout && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="editor-logout-dialog-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/25 p-4 backdrop-blur-[1px] print:hidden"
+          onClick={() => setConfirmLogout(false)}
+        >
+          <div
+            className="w-full max-w-xs rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              id="editor-logout-dialog-title"
+              className="text-base font-semibold text-ink"
+            >
+              确认退出登录？
+            </h2>
+            <p className="mt-2 text-xs leading-relaxed text-muted-ink">
+              当前账号为 <span className="font-medium text-ink">{user.email}</span>
+              ，退出后需重新登录才能继续编辑您的简历。
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmLogout(false)}
+                className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6]"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => void logout()}
+                className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[#bd554d] px-3.5 text-xs font-medium text-white transition-colors hover:bg-[#a6443d]"
+              >
+                确认退出
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {exportError && (
         <div className={ui["export-error"]} role="alert">
           {exportError}

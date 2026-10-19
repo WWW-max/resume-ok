@@ -18,6 +18,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
 import { StepIllustration } from "@/components/landing/StepIllustration";
 import { Brand } from "@/components/Brand";
+import { currentUser } from "@/lib/server/auth";
 const features = [
   {
     icon: LayoutTemplate,
@@ -73,7 +74,8 @@ const steps = [
     href: "/editor",
   },
 ];
-export default function LandingPage() {
+export default async function LandingPage() {
+  const user = await currentUser().catch(() => null);
   return (
     <div
       id="top"
@@ -85,7 +87,7 @@ export default function LandingPage() {
       >
         跳到主要内容
       </a>
-      <LandingHeader />
+      <LandingHeader user={user} />
       <main id="main-content">
         <section className="relative isolate overflow-hidden bg-[linear-gradient(115deg,#f1fbf5_0%,#fbfdfd_45%,#eaf9f0_100%)]">
           <div
@@ -114,7 +116,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4 lg:justify-start">
                 <Link
-                  href="/login?next=%2Feditor"
+                  href={user ? "/editor" : "/login?next=%2Feditor"}
                   className="inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-brand px-7 text-sm font-semibold text-white shadow-[0_8px_20px_#13ad5025] transition-colors hover:bg-brand-dark"
                 >
                   <Clover size={19} className="fill-white/30" />
