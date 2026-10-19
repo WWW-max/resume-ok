@@ -1,7 +1,12 @@
 "use client";
 import { ui } from "@/lib/ui-styles";
 import { useRef, useState } from "react";
-import { ResumeData, SectionKey, SECTION_LABELS } from "@/lib/resume-data";
+import {
+  ResumeData,
+  SectionKey,
+  SECTION_LABELS,
+  getSectionLabel,
+} from "@/lib/resume-data";
 import { BasicInfoForm } from "./BasicInfoForm";
 import { WorkExperienceForm } from "./WorkExperienceForm";
 import { EducationForm } from "./EducationForm";
@@ -24,6 +29,7 @@ import {
   ArrowUp,
   ArrowDown,
   EyeOff,
+  Pencil,
 } from "lucide-react";
 import { ExperienceForm } from "./ExperienceForm";
 function OpenSourceForm(props: {
@@ -72,6 +78,7 @@ export function EditorPanel({
   initialSection?: EditorSection | null;
 }) {
   const [active, setActive] = useState<EditorSection | null>(initialSection);
+  const [editingTitle, setEditingTitle] = useState(false);
   const dragKey = useRef<SectionKey | null>(null);
   const [adding, setAdding] = useState(false);
   function move(key: SectionKey, target: number) {
@@ -95,14 +102,69 @@ export function EditorPanel({
           <>
             <button
               className={ui["back-button"]}
-              onClick={() => setActive(null)}
+              onClick={() => {
+                setEditingTitle(false);
+                setActive(null);
+              }}
             >
               <ChevronLeft size={16} />
               返回简历模块
             </button>
-            <h2 className={ui["form-heading"]}>
-              {active === "basic" ? "个人信息" : SECTION_LABELS[active]}
-            </h2>
+            {active === "basic" ? (
+              <h2 className={ui["form-heading"]}>个人信息</h2>
+            ) : (
+              <div className="px-[17px] pb-[18px]">
+                {editingTitle ? (
+                  <input
+                    type="text"
+                    aria-label="模块名称"
+                    autoFocus
+                    maxLength={50}
+                    value={
+                      data.sectionTitles?.[active] ?? SECTION_LABELS[active]
+                    }
+                    placeholder={SECTION_LABELS[active]}
+                    onChange={(e) =>
+                      onChange({
+                        ...data,
+                        sectionTitles: {
+                          ...data.sectionTitles,
+                          [active]: e.target.value,
+                        },
+                      })
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === "Escape") {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!e.target.value.trim()) {
+                        const nextTitles = { ...data.sectionTitles };
+                        delete nextTitles[active];
+                        onChange({ ...data, sectionTitles: nextTitles });
+                      }
+                      setEditingTitle(false);
+                    }}
+                    className="w-48 rounded-[7px] border border-[#19af60] bg-white px-2.5 py-1 -ml-2.5 text-[18px] font-[650] text-ink ring-2 ring-[#19af60]/20 focus:outline-none"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    title="点击修改模块名称"
+                    onClick={() => setEditingTitle(true)}
+                    className="group inline-flex items-center gap-1.5 rounded-[7px] px-2 py-1 -ml-2 text-[18px] font-[650] text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <span>{getSectionLabel(data, active)}</span>
+                    <Pencil
+                      size={15}
+                      aria-hidden="true"
+                      className="shrink-0 text-[#599b6f] transition-colors group-hover:text-[#08a644]"
+                    />
+                  </button>
+                )}
+              </div>
+            )}
             <Form data={data} onChange={onChange} />
           </>
         ) : (
@@ -138,7 +200,7 @@ export function EditorPanel({
                     }}
                   >
                     <Plus size={14} />
-                    {SECTION_LABELS[key]}
+                    {getSectionLabel(data, key)}
                   </button>
                 ))}
               </div>
@@ -150,6 +212,8 @@ export function EditorPanel({
               ] as EditorSection[]
             ).map((key, index) => {
               const Icon = sectionIcons[key];
+              const label =
+                key === "basic" ? "个人信息" : getSectionLabel(data, key);
               return (
                 <div
                   key={key}
@@ -182,9 +246,7 @@ export function EditorPanel({
                     <GripVertical size={16} className={ui["grip"]} />
                     <Icon size={20} />
                     <span>
-                      <strong>
-                        {key === "basic" ? "个人信息" : SECTION_LABELS[key]}
-                      </strong>
+                      <strong>{label}</strong>
                       <small>{hints[key]}</small>
                     </span>
                   </button>
@@ -192,7 +254,7 @@ export function EditorPanel({
                     <ChevronRight size={17} className={ui["grip"]} />
                   ) : (
                     <details className={ui["module-menu"]}>
-                      <summary aria-label={`${SECTION_LABELS[key]}操作`}>
+                      <summary aria-label={`${label}操作`}>
                         <MoreVertical size={18} />
                       </summary>
                       <div>

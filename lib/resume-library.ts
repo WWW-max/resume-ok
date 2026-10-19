@@ -153,6 +153,17 @@ export function isResumeData(value: unknown): value is ResumeData {
       !value.hiddenSections.every((k) => DEFAULT_SECTION_ORDER.includes(k)))
   )
     return false;
+  if (
+    value.sectionTitles !== undefined &&
+    (!isRecord(value.sectionTitles) ||
+      !Object.entries(value.sectionTitles).every(
+        ([k, v]) =>
+          DEFAULT_SECTION_ORDER.includes(k as (typeof DEFAULT_SECTION_ORDER)[number]) &&
+          typeof v === "string" &&
+          v.length <= 50,
+      ))
+  )
+    return false;
   if (value.appearance !== undefined) {
     const a = value.appearance;
     if (

@@ -62,6 +62,14 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   skills: "专业技能",
 };
 
+export function getSectionLabel(
+  data: Pick<ResumeData, "sectionTitles">,
+  key: SectionKey,
+): string {
+  const custom = data.sectionTitles?.[key]?.trim();
+  return custom || SECTION_LABELS[key];
+}
+
 export interface ResumeData {
   name: string;
   title: string;
@@ -80,6 +88,7 @@ export interface ResumeData {
   skills: Skill[];
   sectionOrder: SectionKey[];
   hiddenSections?: SectionKey[];
+  sectionTitles?: Partial<Record<SectionKey, string>>;
   appearance?: ResumeAppearance;
 }
 

@@ -5,7 +5,7 @@ import {
   Project,
   ResumeData,
   SectionKey,
-  SECTION_LABELS,
+  getSectionLabel,
 } from "@/lib/resume-data";
 import { defaultAppearance, accentColors } from "@/lib/resume-appearance";
 import {
@@ -312,7 +312,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
                 >
                   <h2>
                     {appearance.showIcons && <Icon size={18} />}
-                    {SECTION_LABELS[key]}
+                    {getSectionLabel(data, key)}
                   </h2>
                   {body}
                 </section>

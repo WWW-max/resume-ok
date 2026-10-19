@@ -1,7 +1,7 @@
 "use client";
 import { useId } from "react";
 import { ui } from "@/lib/ui-styles";
-import { ResumeData } from "@/lib/resume-data";
+import { ResumeData, getSectionLabel } from "@/lib/resume-data";
 import { ClearableTextarea } from "./ClearableField";
 
 export function SkillsForm({
@@ -12,6 +12,7 @@ export function SkillsForm({
   onChange: (data: ResumeData) => void;
 }) {
   const id = useId();
+  const title = getSectionLabel(data, "skills");
   const value = data.skills
     .map((s) =>
       s.category && s.category !== "技能"
@@ -44,12 +45,12 @@ export function SkillsForm({
   return (
     <div className={ui["resume-form"]}>
       <div className={`${ui["field"]} wide`}>
-        <label htmlFor={id}>专业技能（选中文字点击 B 即可加粗，每行一条）</label>
+        <label htmlFor={id}>{title}（选中文字点击 B 即可加粗，每行一条）</label>
         <ClearableTextarea
           id={id}
           rows={14}
           value={value}
-          clearLabel="清空专业技能"
+          clearLabel={`清空${title}`}
           onClear={() => onChange({ ...data, skills: [] })}
           placeholder="例如：Web 前端：掌握 HTML5、CSS3、JavaScript、TypeScript..."
           onChange={(e) => handleChange(e.target.value)}
