@@ -14,7 +14,7 @@ export function checkResume(data: ResumeData): ResumeCheck[] {
       title: "姓名与求职意向",
       advice: "填写真实姓名和明确的目标职位，让招聘方快速了解你的方向。",
       section: "basic",
-      passed: !!data.name.trim() && !!data.title.trim(),
+      passed: !!data.name.trim(),
     },
     {
       id: "contact",
@@ -32,14 +32,13 @@ export function checkResume(data: ResumeData): ResumeCheck[] {
         id: "work",
         title: "工作经历完整度",
         advice:
-          "补齐公司、职位、起止日期与职责描述。没有工作经历时，可隐藏此模块。",
+          "补齐公司、起止日期与职责描述。没有工作经历时，可隐藏此模块。",
         section: "workExperiences",
         passed:
           data.workExperiences.length > 0 &&
           data.workExperiences.every(
             (w) =>
               !!w.company.trim() &&
-              !!w.position.trim() &&
               !!w.startDate &&
               (w.current || !!w.endDate) &&
               !!w.description.trim(),
@@ -51,25 +50,37 @@ export function checkResume(data: ResumeData): ResumeCheck[] {
         advice:
           "用可核实的数据描述成果，如效率、规模、数量或比例。不要虚构数字。",
         section: "workExperiences",
-        passed: data.workExperiences.some((w) => /\d/.test(w.description)),
+        passed:
+          data.workExperiences.some((w) => /\d/.test(w.description)) ||
+          data.projects.some((p) => /\d/.test(p.description)),
       },
     );
   if (visible("projects"))
     checks.push({
       id: "projects",
       title: "项目经验",
-      advice: "补齐项目名、角色和描述，突出你的实际贡献。",
+      advice: "补齐项目名和描述，突出你的实际贡献。",
       section: "projects",
       passed:
         data.projects.length > 0 &&
-        data.projects.every(
-          (p) => !!p.name.trim() && !!p.role.trim() && !!p.description.trim(),
+        data.projects.every((p) => !!p.name.trim() && !!p.description.trim()),
+    });
+  if (visible("openSource"))
+    checks.push({
+      id: "openSource",
+      title: "开源项目",
+      advice: "补齐开源项目名称和描述，或隐藏此模块。",
+      section: "openSource",
+      passed:
+        (data.openSource?.length ?? 0) > 0 &&
+        (data.openSource ?? []).every(
+          (p) => !!p.name.trim() && !!p.description.trim(),
         ),
     });
   if (visible("educations"))
     checks.push({
       id: "education",
-      title: "教育背景",
+      title: "教育经历",
       advice: "补齐学校、专业、学历和起止日期。",
       section: "educations",
       passed:
@@ -86,8 +97,8 @@ export function checkResume(data: ResumeData): ResumeCheck[] {
   if (visible("skills"))
     checks.push({
       id: "skills",
-      title: "技能信息",
-      advice: "填写与目标岗位相关的技能，使用 / 分隔。",
+      title: "专业技能",
+      advice: "填写与目标岗位相关的技能分类与内容。",
       section: "skills",
       passed:
         data.skills.length > 0 &&
@@ -117,7 +128,7 @@ export function checkResume(data: ResumeData): ResumeCheck[] {
         advice: "检查起止日期，结束时间不应早于开始时间。",
         section,
         passed: data[section].every((item) =>
-          !("current" in item && item.current)
+          !("current" in item && item.current) && item.endDate !== "至今"
             ? !item.startDate || !item.endDate || item.endDate >= item.startDate
             : true,
         ),

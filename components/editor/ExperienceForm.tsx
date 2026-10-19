@@ -10,7 +10,12 @@ import {
 } from "@/lib/resume-data";
 import { Plus, Trash2 } from "lucide-react";
 import { ClearableInput, ClearableTextarea } from "./ClearableField";
-type ListKey = "workExperiences" | "educations" | "projects" | "skills";
+type ListKey =
+  | "workExperiences"
+  | "educations"
+  | "projects"
+  | "openSource"
+  | "skills";
 type Item = WorkExperience | Education | Project | Skill;
 type Field = { key: string; label: string; type?: string; wide?: boolean };
 const configs: Record<
@@ -57,7 +62,7 @@ const configs: Record<
       { key: "gpa", label: "GPA / 成绩" },
       { key: "startDate", label: "入学时间", type: "month" },
       { key: "endDate", label: "毕业时间", type: "month" },
-      { key: "description", label: "荣誉与活动", type: "textarea", wide: true },
+      { key: "description", label: "学院 / 荣誉与活动", type: "textarea", wide: true },
     ],
   },
   projects: {
@@ -81,13 +86,39 @@ const configs: Record<
       { key: "description", label: "项目描述", type: "textarea", wide: true },
     ],
   },
+  openSource: {
+    label: "开源项目",
+    titleKey: "name",
+    empty: {
+      id: "",
+      name: "",
+      role: "",
+      startDate: "",
+      endDate: "",
+      link: "",
+      description: "",
+    },
+    fields: [
+      { key: "name", label: "项目名称" },
+      { key: "role", label: "担任角色" },
+      { key: "startDate", label: "开始时间", type: "month" },
+      { key: "endDate", label: "结束时间", type: "month" },
+      { key: "link", label: "项目链接", type: "url", wide: true },
+      { key: "description", label: "项目描述", type: "textarea", wide: true },
+    ],
+  },
   skills: {
-    label: "技能",
+    label: "专业技能",
     titleKey: "category",
     empty: { id: "", category: "", items: "" },
     fields: [
       { key: "category", label: "技能分类", wide: true },
-      { key: "items", label: "技能内容（用 / 分隔）", wide: true },
+      {
+        key: "items",
+        label: "技能内容（支持 **加粗** 语法，或用 / 分隔标签）",
+        type: "textarea",
+        wide: true,
+      },
     ],
   },
 };
@@ -102,7 +133,7 @@ export function ExperienceForm({
 }) {
   const id = useId();
   const config = configs[section];
-  const items: Item[] = data[section];
+  const items: Item[] = (data[section] ?? []) as Item[];
   function update(itemId: string, key: string, value: string | boolean) {
     onChange({
       ...data,
@@ -146,6 +177,7 @@ export function ExperienceForm({
           !!values.startDate &&
           !!values.endDate &&
           !values.current &&
+          values.endDate !== "至今" &&
           values.endDate < values.startDate;
         return (
           <details key={item.id} className={ui["entry-card"]} open>
@@ -159,7 +191,8 @@ export function ExperienceForm({
                 {config.fields.map((field) => {
                   const fieldId = `${id}-${item.id}-${field.key}`;
                   const disabled =
-                    field.key === "endDate" && values.current === true;
+                    field.key === "endDate" &&
+                    (values.current === true || values.endDate === "至今");
                   return (
                     <div
                       key={field.key}
@@ -195,7 +228,11 @@ export function ExperienceForm({
                       ) : (
                         <ClearableInput
                           id={fieldId}
-                          type={field.type || "text"}
+                          type={
+                            field.key === "endDate" && values.endDate === "至今"
+                              ? "text"
+                              : field.type || "text"
+                          }
                           disabled={disabled}
                           value={String(values[field.key])}
                           clearLabel={`清空${field.label}`}
@@ -225,6 +262,18 @@ export function ExperienceForm({
                     }
                   />
                   至今在职
+                </label>
+              )}
+              {(section === "projects" || section === "openSource") && (
+                <label className={ui["check-field"]}>
+                  <input
+                    type="checkbox"
+                    checked={values.endDate === "至今"}
+                    onChange={(e) =>
+                      update(item.id, "endDate", e.target.checked ? "至今" : "")
+                    }
+                  />
+                  至今进行中
                 </label>
               )}
               {invalidDates && (

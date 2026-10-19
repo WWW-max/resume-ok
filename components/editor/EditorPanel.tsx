@@ -13,6 +13,7 @@ import {
   BriefcaseBusiness,
   GraduationCap,
   Folders,
+  CodeXml,
   Star,
   GripVertical,
   ChevronLeft,
@@ -24,12 +25,20 @@ import {
   ArrowDown,
   EyeOff,
 } from "lucide-react";
+import { ExperienceForm } from "./ExperienceForm";
+function OpenSourceForm(props: {
+  data: ResumeData;
+  onChange: (data: ResumeData) => void;
+}) {
+  return <ExperienceForm {...props} section="openSource" />;
+}
 export type EditorSection = "basic" | SectionKey;
 export const sectionIcons = {
   basic: UserRound,
   workExperiences: BriefcaseBusiness,
   educations: GraduationCap,
   projects: Folders,
+  openSource: CodeXml,
   skills: Star,
   summary: UserRound,
 };
@@ -37,6 +46,7 @@ const hints = {
   basic: "姓名、电话、邮箱、地址、求职意向等",
   workExperiences: "工作经历、职责与成就",
   projects: "项目经验、角色与成果",
+  openSource: "开源项目、个人作品与技术贡献",
   educations: "学历、学校、专业等",
   skills: "专业技能、工具、语言等",
   summary: "个人优势、职业倾向等",
@@ -46,6 +56,7 @@ export const sectionForms = {
   workExperiences: WorkExperienceForm,
   educations: EducationForm,
   projects: ProjectForm,
+  openSource: OpenSourceForm,
   skills: SkillsForm,
   summary: SummaryForm,
 };

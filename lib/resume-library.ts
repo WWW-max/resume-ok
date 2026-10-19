@@ -24,7 +24,7 @@ export function createLibrary(): ResumeLibrary {
     documents: [
       {
         id: "first-resume",
-        name: "我的第一份简历",
+        name: "吴志鹏(2026-07-05)",
         data: structuredClone(defaultResumeData),
         updatedAt: "",
       },
@@ -46,6 +46,7 @@ export function blankResume(): ResumeData {
     workExperiences: [],
     educations: [],
     projects: [],
+    openSource: [],
     skills: [],
     sectionOrder: [...DEFAULT_SECTION_ORDER],
   };
@@ -108,10 +109,20 @@ export function isResumeData(value: unknown): value is ResumeData {
       "link",
       "description",
     ],
+    openSource: [
+      "id",
+      "name",
+      "role",
+      "startDate",
+      "endDate",
+      "link",
+      "description",
+    ],
     skills: ["id", "category", "items"],
   };
   for (const [key, fields] of Object.entries(lists)) {
     const list = value[key];
+    if (key === "openSource" && list === undefined) continue;
     if (
       !Array.isArray(list) ||
       list.length > 100 ||
@@ -180,6 +191,17 @@ export function parseLibrary(raw: string): ResumeLibrary {
   for (const document of value.documents) {
     if (isRecord(document) && isRecord(document.data)) {
       if (document.data.schoolLogo === undefined) document.data.schoolLogo = "";
+      if (document.data.openSource === undefined) document.data.openSource = [];
+      if (
+        Array.isArray(document.data.sectionOrder) &&
+        document.data.sectionOrder.length === DEFAULT_SECTION_ORDER.length - 1 &&
+        !document.data.sectionOrder.includes("openSource")
+      ) {
+        document.data.sectionOrder = [
+          ...document.data.sectionOrder,
+          "openSource",
+        ];
+      }
     }
     if (
       !isRecord(document) ||

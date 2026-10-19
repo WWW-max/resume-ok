@@ -18,6 +18,7 @@ const SECTION_ICONS: Record<SectionKey, string> = {
   summary: "📝",
   workExperiences: "💼",
   projects: "🚀",
+  openSource: "💻",
   educations: "🎓",
   skills: "⚡",
 };
