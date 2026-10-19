@@ -2,10 +2,12 @@
 import { ui } from "@/lib/ui-styles";
 import { forwardRef, type CSSProperties, type ReactNode } from "react";
 import {
+  BuiltinSectionKey,
   Project,
   ResumeData,
   SectionKey,
   getSectionLabel,
+  isCustomSectionKey,
 } from "@/lib/resume-data";
 import { defaultAppearance, accentColors } from "@/lib/resume-appearance";
 import {
@@ -19,8 +21,9 @@ import {
   Folders,
   CodeXml,
   Star,
+  LayoutList,
 } from "lucide-react";
-const icons = {
+const icons: Record<BuiltinSectionKey, typeof UserRound> = {
   workExperiences: BriefcaseBusiness,
   educations: GraduationCap,
   projects: Folders,
@@ -128,6 +131,19 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
       /[。；：，]|\*\*/.test(s.items),
     );
     function content(key: SectionKey) {
+      if (isCustomSectionKey(key)) {
+        const custom = data.customSections?.find((s) => s.id === key);
+        if (!custom) return null;
+        const hasText = Boolean(custom.content.trim());
+        const hasItems = Boolean(custom.items?.length);
+        if (!hasText && !hasItems) return null;
+        return (
+          <>
+            {hasText && <Description text={custom.content} />}
+            {hasItems && renderProjects(custom.items ?? [])}
+          </>
+        );
+      }
       switch (key) {
         case "summary":
           return data.summary ? <Description text={data.summary} /> : null;
@@ -301,7 +317,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
             .map((key) => {
               const body = content(key);
               if (!body) return null;
-              const Icon = icons[key];
+              const Icon = isCustomSectionKey(key) ? LayoutList : icons[key];
               const isHalf =
                 (key === "skills" && !descriptiveSkills) || key === "summary";
               return (

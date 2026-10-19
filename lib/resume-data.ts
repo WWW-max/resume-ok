@@ -36,7 +36,7 @@ export interface Skill {
   items: string;
 }
 
-export type SectionKey =
+export type BuiltinSectionKey =
   | "summary"
   | "workExperiences"
   | "projects"
@@ -44,7 +44,18 @@ export type SectionKey =
   | "educations"
   | "skills";
 
-export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+export type CustomSectionKey = `custom:${string}`;
+
+export type SectionKey = BuiltinSectionKey | CustomSectionKey;
+
+export interface CustomSection {
+  id: CustomSectionKey;
+  title: string;
+  content: string;
+  items?: Project[];
+}
+
+export const DEFAULT_SECTION_ORDER: BuiltinSectionKey[] = [
   "skills",
   "workExperiences",
   "projects",
@@ -53,7 +64,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   "summary",
 ];
 
-export const SECTION_LABELS: Record<SectionKey, string> = {
+export const SECTION_LABELS: Record<BuiltinSectionKey, string> = {
   summary: "自我评价",
   workExperiences: "工作经历",
   projects: "项目经历",
@@ -62,12 +73,23 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   skills: "专业技能",
 };
 
+export function isCustomSectionKey(key: string): key is CustomSectionKey {
+  return key.startsWith("custom:");
+}
+
 export function getSectionLabel(
-  data: Pick<ResumeData, "sectionTitles">,
+  data: Pick<ResumeData, "sectionTitles" | "customSections">,
   key: SectionKey,
 ): string {
-  const custom = data.sectionTitles?.[key]?.trim();
-  return custom || SECTION_LABELS[key];
+  const customTitle = data.sectionTitles?.[key]?.trim();
+  if (customTitle) return customTitle;
+  if (isCustomSectionKey(key)) {
+    return (
+      data.customSections?.find((s) => s.id === key)?.title.trim() ||
+      "自定义模块"
+    );
+  }
+  return SECTION_LABELS[key];
 }
 
 export interface ResumeData {
@@ -86,6 +108,7 @@ export interface ResumeData {
   projects: Project[];
   openSource?: Project[];
   skills: Skill[];
+  customSections?: CustomSection[];
   sectionOrder: SectionKey[];
   hiddenSections?: SectionKey[];
   sectionTitles?: Partial<Record<SectionKey, string>>;

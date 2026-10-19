@@ -140,17 +140,69 @@ export function isResumeData(value: unknown): value is ResumeData {
     )
       return false;
   }
+  const customIds = new Set<string>();
+  if (value.customSections !== undefined) {
+    if (!Array.isArray(value.customSections) || value.customSections.length > 50)
+      return false;
+    const projectFields = [
+      "id",
+      "name",
+      "role",
+      "startDate",
+      "endDate",
+      "link",
+      "description",
+    ];
+    for (const section of value.customSections) {
+      if (
+        !isRecord(section) ||
+        typeof section.id !== "string" ||
+        !section.id.startsWith("custom:") ||
+        section.id.length <= 7 ||
+        customIds.has(section.id) ||
+        typeof section.title !== "string" ||
+        !section.title.trim() ||
+        section.title.length > 50 ||
+        typeof section.content !== "string"
+      )
+        return false;
+      if (section.items !== undefined) {
+        const list = section.items;
+        if (
+          !Array.isArray(list) ||
+          list.length > 100 ||
+          new Set(list.map((item) => (isRecord(item) ? item.id : null))).size !==
+            list.length ||
+          !list.every(
+            (item) =>
+              isRecord(item) &&
+              projectFields.every((k) => typeof item[k] === "string"),
+          )
+        )
+          return false;
+      }
+      customIds.add(section.id);
+    }
+  }
+  const isValidSectionKey = (k: unknown): boolean =>
+    typeof k === "string" &&
+    (DEFAULT_SECTION_ORDER.includes(
+      k as (typeof DEFAULT_SECTION_ORDER)[number],
+    ) ||
+      customIds.has(k));
+  const expectedLength = DEFAULT_SECTION_ORDER.length + customIds.size;
   if (
     !Array.isArray(value.sectionOrder) ||
-    value.sectionOrder.length !== DEFAULT_SECTION_ORDER.length ||
-    new Set(value.sectionOrder).size !== DEFAULT_SECTION_ORDER.length ||
-    !value.sectionOrder.every((k) => DEFAULT_SECTION_ORDER.includes(k))
+    value.sectionOrder.length !== expectedLength ||
+    new Set(value.sectionOrder).size !== expectedLength ||
+    !value.sectionOrder.every(isValidSectionKey) ||
+    !DEFAULT_SECTION_ORDER.every((k) => value.sectionOrder.includes(k))
   )
     return false;
   if (
     value.hiddenSections !== undefined &&
     (!Array.isArray(value.hiddenSections) ||
-      !value.hiddenSections.every((k) => DEFAULT_SECTION_ORDER.includes(k)))
+      !value.hiddenSections.every(isValidSectionKey))
   )
     return false;
   if (
@@ -158,9 +210,7 @@ export function isResumeData(value: unknown): value is ResumeData {
     (!isRecord(value.sectionTitles) ||
       !Object.entries(value.sectionTitles).every(
         ([k, v]) =>
-          DEFAULT_SECTION_ORDER.includes(k as (typeof DEFAULT_SECTION_ORDER)[number]) &&
-          typeof v === "string" &&
-          v.length <= 50,
+          isValidSectionKey(k) && typeof v === "string" && v.length <= 50,
       ))
   )
     return false;

@@ -2,10 +2,12 @@
 
 import { useRef, useState } from "react";
 import {
+  BuiltinSectionKey,
   ResumeData,
   SectionKey,
-  SECTION_LABELS,
   DEFAULT_SECTION_ORDER,
+  getSectionLabel,
+  isCustomSectionKey,
 } from "@/lib/resume-data";
 import { GripVertical, ChevronUp, ChevronDown, RotateCcw } from "lucide-react";
 
@@ -14,7 +16,7 @@ interface SectionOrderFormProps {
   onChange: (data: ResumeData) => void;
 }
 
-const SECTION_ICONS: Record<SectionKey, string> = {
+const SECTION_ICONS: Record<BuiltinSectionKey, string> = {
   summary: "📝",
   workExperiences: "💼",
   projects: "🚀",
@@ -48,7 +50,8 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
   }
 
   function handleReset() {
-    reorder([...DEFAULT_SECTION_ORDER]);
+    const customIds = (data.customSections ?? []).map((s) => s.id);
+    reorder([...DEFAULT_SECTION_ORDER, ...customIds]);
   }
 
   // --- Drag handlers ---
@@ -149,10 +152,10 @@ export function SectionOrderForm({ data, onChange }: SectionOrderFormProps) {
 
               {/* Icon + Label */}
               <span className="text-base flex-shrink-0">
-                {SECTION_ICONS[key]}
+                {isCustomSectionKey(key) ? "📌" : SECTION_ICONS[key]}
               </span>
               <span className="flex-1 text-neutral-500 text-sm font-medium">
-                {SECTION_LABELS[key]}
+                {getSectionLabel(data, key)}
               </span>
 
               {/* Up / Down buttons */}
