@@ -62,6 +62,7 @@ interface OnlineResumeClientInfo {
   documentId: string;
   slug: string;
   enabled: boolean;
+  resumeData?: ResumeData | null;
   totalViews: number;
   totalDownloads: number;
   recentViews: OnlineResumeViewLog[];
@@ -391,6 +392,11 @@ export default function EditorWorkspace({
   }
   const activeOnlineInfo = onlineRecords[store.active.id];
   const activePublishedSlug = activeOnlineInfo?.slug ?? "";
+  const hasUnpublishedChanges = Boolean(
+    activeOnlineInfo &&
+      activeOnlineInfo.resumeData &&
+      JSON.stringify(activeOnlineInfo.resumeData) !== JSON.stringify(data),
+  );
   const siteOrigin =
     typeof window !== "undefined" ? window.location.origin : "https://resumeOK.cn";
 
@@ -448,7 +454,7 @@ export default function EditorWorkspace({
         const msg =
           typeof payload.error === "string"
             ? payload.error
-            : payload.error?.message || "生成在线简历失败，请稍后重试。";
+            : payload.error?.message || "发布在线简历失败，请稍后重试。";
         throw new Error(msg);
       }
       const savedItem = payload.item;
@@ -465,7 +471,7 @@ export default function EditorWorkspace({
       }
     } catch (error) {
       setOnlineError(
-        error instanceof Error ? error.message : "生成在线简历失败，请稍后重试。",
+        error instanceof Error ? error.message : "发布在线简历失败，请稍后重试。",
       );
     } finally {
       setOnlineSaving(false);
@@ -583,14 +589,20 @@ export default function EditorWorkspace({
             className={ui["soft-button"]}
             disabled={!store.ready}
             onClick={openOnlineResumeModal}
-            title="生成在线简历专属链接，方便 HR 随时在电脑或手机上预览与下载 PDF"
+            title="生成或同步发布在线简历专属链接，方便 HR 随时在电脑或手机上预览与下载 PDF"
           >
             <Globe size={17} className={activePublishedSlug ? "text-[#0cb449]" : ""} />
             <span>在线简历</span>
             {activePublishedSlug && (
               <span
-                className="size-2 rounded-full bg-[#0cb449]"
-                title="已开启在线简历访问"
+                className={`size-2 rounded-full ${
+                  hasUnpublishedChanges ? "bg-amber-500" : "bg-[#0cb449]"
+                }`}
+                title={
+                  hasUnpublishedChanges
+                    ? "编辑器有未同步到线上的修改，点击同步发布"
+                    : "已开启在线简历访问（线上已是最新）"
+                }
               />
             )}
           </button>
@@ -922,9 +934,19 @@ export default function EditorWorkspace({
                 </div>
               </div>
               {activePublishedSlug && (
-                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#e8f8ee] px-2.5 py-1 text-[11px] font-medium text-[#118a43]">
-                  <span className="size-1.5 shrink-0 rounded-full bg-[#0cb449]" />
-                  已发布
+                <span
+                  className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                    hasUnpublishedChanges
+                      ? "border border-amber-200 bg-amber-50 text-amber-700"
+                      : "bg-[#e8f8ee] text-[#118a43]"
+                  }`}
+                >
+                  <span
+                    className={`size-1.5 shrink-0 rounded-full ${
+                      hasUnpublishedChanges ? "bg-amber-500" : "bg-[#0cb449]"
+                    }`}
+                  />
+                  {hasUnpublishedChanges ? "有未发布修改" : "线上已同步"}
                 </span>
               )}
             </div>
@@ -1027,8 +1049,16 @@ export default function EditorWorkspace({
                     </a>
                   </div>
                 </div>
-                <p className="mt-1.5 text-[11px] text-muted-ink">
-                  您在编辑器中修改简历后，该在线链接会自动同步最新内容。
+                <p
+                  className={`mt-1.5 text-[11px] ${
+                    hasUnpublishedChanges
+                      ? "font-medium text-amber-700"
+                      : "text-muted-ink"
+                  }`}
+                >
+                  {hasUnpublishedChanges
+                    ? "当前编辑器内容有修改，未自动改动线上简历；点击下方「同步发布到线上」后才会更新线上内容。"
+                    : "您在编辑器中的草稿修改不会自动改动线上简历，仅在点击下方「同步发布到线上」时才会更新。"}
                 </p>
               </div>
             )}
@@ -1202,10 +1232,10 @@ export default function EditorWorkspace({
                 >
                   <Globe size={14} />
                   {onlineSaving
-                    ? "保存中…"
+                    ? "发布中…"
                     : activePublishedSlug
-                      ? "更新并复制链接"
-                      : "生成并复制链接"}
+                      ? "同步发布到线上"
+                      : "发布到线上并复制链接"}
                 </button>
               </div>
             </div>

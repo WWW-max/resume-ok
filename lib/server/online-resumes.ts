@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/lib/server/db";
 import { ApiError } from "@/lib/server/http";
-import { isResumeData, parseLibrary } from "@/lib/resume-library";
+import { isResumeData } from "@/lib/resume-library";
 import type { ResumeData } from "@/lib/resume-data";
 
 let schemaEnsured = false;
@@ -88,6 +88,7 @@ export interface OnlineResumeRecord {
   title: string;
   enabled: boolean;
   updatedAt: Date;
+  resumeData: ResumeData | null;
   totalViews: number;
   totalDownloads: number;
   recentViews: OnlineResumeViewItem[];
@@ -101,18 +102,19 @@ export async function listUserOnlineResumes(
     slug: string;
     document_id: string;
     title: string;
+    resume_data: unknown;
     enabled: boolean;
     updated_at: Date;
     total_views: string;
     total_downloads: string;
   }>(
-    `SELECT o.slug, o.document_id, o.title, o.enabled, o.updated_at,
+    `SELECT o.slug, o.document_id, o.title, o.resume_data, o.enabled, o.updated_at,
             COUNT(v.id)::text AS total_views,
             COUNT(v.id) FILTER (WHERE v.downloaded_pdf = true)::text AS total_downloads
      FROM online_resumes o
      LEFT JOIN online_resume_views v ON v.slug = o.slug
      WHERE o.user_id = $1
-     GROUP BY o.slug, o.document_id, o.title, o.enabled, o.updated_at`,
+     GROUP BY o.slug, o.document_id, o.title, o.resume_data, o.enabled, o.updated_at`,
     [userId],
   );
 
@@ -161,6 +163,7 @@ export async function listUserOnlineResumes(
     title: r.title,
     enabled: r.enabled,
     updatedAt: r.updated_at,
+    resumeData: isResumeData(r.resume_data) ? r.resume_data : null,
     totalViews: Number(r.total_views) || 0,
     totalDownloads: Number(r.total_downloads) || 0,
     recentViews: viewsBySlug.get(r.slug) ?? [],
@@ -477,42 +480,18 @@ export async function getPublicOnlineResumeBySlug(rawSlug: string): Promise<{
 
   const result = await db().query<{
     slug: string;
-    user_id: string;
-    document_id: string;
     title: string;
     resume_data: unknown;
     updated_at: Date;
-    library: unknown;
   }>(
-    `SELECT o.slug, o.user_id, o.document_id, o.title, o.resume_data, o.updated_at,
-            l.library
-     FROM online_resumes o
-     LEFT JOIN resume_libraries l ON l.user_id = o.user_id
-     WHERE o.slug = $1 AND o.enabled = true`,
+    `SELECT slug, title, resume_data, updated_at
+     FROM online_resumes
+     WHERE slug = $1 AND enabled = true`,
     [slug],
   );
 
   const row = result.rows[0];
   if (!row) return null;
-
-  if (row.library) {
-    try {
-      const lib = parseLibrary(JSON.stringify(row.library));
-      const liveDoc = lib.documents.find(
-        (d) => d.id === row.document_id && !d.archived,
-      );
-      if (liveDoc && isResumeData(liveDoc.data)) {
-        return {
-          slug: row.slug,
-          title: liveDoc.name || row.title,
-          data: liveDoc.data,
-          updatedAt: row.updated_at,
-        };
-      }
-    } catch {
-      // Fallback to snapshot stored in online_resumes
-    }
-  }
 
   if (isResumeData(row.resume_data)) {
     return {
