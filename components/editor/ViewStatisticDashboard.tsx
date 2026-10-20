@@ -71,6 +71,7 @@ export function ViewStatisticDashboard({
   initialSlug?: string;
 }) {
   const [selectedSlug, setSelectedSlug] = useState(initialSlug);
+  const [period, setPeriod] = useState<"all" | "day" | "week" | "month">("all");
   const [searchText, setSearchText] = useState("");
   const [downloadedOnly, setDownloadedOnly] = useState(false);
 
@@ -96,6 +97,7 @@ export function ViewStatisticDashboard({
       try {
         const params = new URLSearchParams();
         if (selectedSlug) params.set("slug", selectedSlug);
+        if (period !== "all") params.set("period", period);
         if (searchText.trim()) params.set("q", searchText.trim());
         if (downloadedOnly) params.set("downloadedOnly", "1");
         params.set("offset", String(offset));
@@ -114,7 +116,7 @@ export function ViewStatisticDashboard({
         setLoadingMore(false);
       }
     },
-    [selectedSlug, searchText, downloadedOnly],
+    [selectedSlug, period, searchText, downloadedOnly],
   );
 
   useEffect(() => {
@@ -122,6 +124,7 @@ export function ViewStatisticDashboard({
     const buildUrl = () => {
       const params = new URLSearchParams();
       if (selectedSlug) params.set("slug", selectedSlug);
+      if (period !== "all") params.set("period", period);
       if (searchText.trim()) params.set("q", searchText.trim());
       if (downloadedOnly) params.set("downloadedOnly", "1");
       params.set("offset", "0");
@@ -168,7 +171,7 @@ export function ViewStatisticDashboard({
       window.removeEventListener("focus", poll);
       document.removeEventListener("visibilitychange", poll);
     };
-  }, [selectedSlug, searchText, downloadedOnly]);
+  }, [selectedSlug, period, searchText, downloadedOnly]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -293,6 +296,34 @@ export function ViewStatisticDashboard({
                   </option>
                 ))}
               </select>
+
+              <div
+                role="group"
+                aria-label="按时间范围筛选"
+                className="inline-flex h-9 items-center rounded-lg border border-[#d2ebda] bg-[#f4fbf6] p-0.5"
+              >
+                {(
+                  [
+                    { id: "all", label: "全部" },
+                    { id: "day", label: "今日" },
+                    { id: "week", label: "本周" },
+                    { id: "month", label: "本月" },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setPeriod(item.id)}
+                    className={`h-full rounded-md px-2.5 text-xs font-medium transition-colors ${
+                      period === item.id
+                        ? "bg-[#0cb449] text-white shadow-2xs"
+                        : "text-[#386647] hover:text-[#08a644]"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
 
               <div className="relative flex items-center">
                 <Search

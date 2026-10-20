@@ -1,6 +1,9 @@
 import { requireUser } from "@/lib/server/auth";
 import { withApiErrors } from "@/lib/server/http";
-import { queryUserOnlineResumeViews } from "@/lib/server/online-resumes";
+import {
+  queryUserOnlineResumeViews,
+  type StatsTimePeriod,
+} from "@/lib/server/online-resumes";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +14,11 @@ export const GET = withApiErrors(async (request) => {
   const slug = url.searchParams.get("slug") || "";
   const query = url.searchParams.get("q") || "";
   const downloadedOnly = url.searchParams.get("downloadedOnly") === "1";
+  const rawPeriod = url.searchParams.get("period") || "all";
+  const period: StatsTimePeriod =
+    rawPeriod === "day" || rawPeriod === "week" || rawPeriod === "month"
+      ? rawPeriod
+      : "all";
   const offset = Number(url.searchParams.get("offset")) || 0;
   const limit = Number(url.searchParams.get("limit")) || 20;
 
@@ -19,6 +27,7 @@ export const GET = withApiErrors(async (request) => {
     slug,
     query,
     downloadedOnly,
+    period,
     offset,
     limit,
   });

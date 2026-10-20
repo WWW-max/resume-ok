@@ -167,11 +167,14 @@ export async function listUserOnlineResumes(
   }));
 }
 
+export type StatsTimePeriod = "all" | "day" | "week" | "month";
+
 export async function queryUserOnlineResumeViews(params: {
   userId: string;
   slug?: string;
   query?: string;
   downloadedOnly?: boolean;
+  period?: StatsTimePeriod;
   offset?: number;
   limit?: number;
 }): Promise<{
@@ -191,6 +194,12 @@ export async function queryUserOnlineResumeViews(params: {
   const slugFilter = params.slug?.trim() || "";
   const searchQuery = params.query?.trim() || "";
   const downloadedOnly = Boolean(params.downloadedOnly);
+  const period: StatsTimePeriod =
+    params.period === "day" ||
+    params.period === "week" ||
+    params.period === "month"
+      ? params.period
+      : "all";
 
   const resumesRes = await db().query<{ slug: string; title: string }>(
     `SELECT slug, title FROM online_resumes WHERE user_id = $1 ORDER BY updated_at DESC`,
@@ -218,8 +227,14 @@ export async function queryUserOnlineResumeViews(params: {
      FROM online_resume_views v
      INNER JOIN online_resumes o ON o.slug = v.slug
      WHERE o.user_id = $1
-       AND ($2 = '' OR o.slug = $2)`,
-    [params.userId, slugFilter],
+       AND ($2 = '' OR o.slug = $2)
+       AND (
+         $3 = 'all'
+         OR ($3 = 'day' AND v.viewed_at >= date_trunc('day', now()))
+         OR ($3 = 'week' AND v.viewed_at >= now() - interval '7 days')
+         OR ($3 = 'month' AND v.viewed_at >= now() - interval '30 days')
+       )`,
+    [params.userId, slugFilter, period],
   );
   const sRow = summaryRes.rows[0];
 
@@ -230,8 +245,14 @@ export async function queryUserOnlineResumeViews(params: {
      WHERE o.user_id = $1
        AND ($2 = '' OR o.slug = $2)
        AND ($3 = '' OR v.source_tag ILIKE '%' || $3 || '%' OR v.ip_address ILIKE '%' || $3 || '%' OR v.device_label ILIKE '%' || $3 || '%')
-       AND ($4 = false OR v.downloaded_pdf = true)`,
-    [params.userId, slugFilter, searchQuery, downloadedOnly],
+       AND ($4 = false OR v.downloaded_pdf = true)
+       AND (
+         $5 = 'all'
+         OR ($5 = 'day' AND v.viewed_at >= date_trunc('day', now()))
+         OR ($5 = 'week' AND v.viewed_at >= now() - interval '7 days')
+         OR ($5 = 'month' AND v.viewed_at >= now() - interval '30 days')
+       )`,
+    [params.userId, slugFilter, searchQuery, downloadedOnly, period],
   );
   const total = Number(countRes.rows[0]?.total) || 0;
 
@@ -252,9 +273,23 @@ export async function queryUserOnlineResumeViews(params: {
        AND ($2 = '' OR o.slug = $2)
        AND ($3 = '' OR v.source_tag ILIKE '%' || $3 || '%' OR v.ip_address ILIKE '%' || $3 || '%' OR v.device_label ILIKE '%' || $3 || '%')
        AND ($4 = false OR v.downloaded_pdf = true)
+       AND (
+         $5 = 'all'
+         OR ($5 = 'day' AND v.viewed_at >= date_trunc('day', now()))
+         OR ($5 = 'week' AND v.viewed_at >= now() - interval '7 days')
+         OR ($5 = 'month' AND v.viewed_at >= now() - interval '30 days')
+       )
      ORDER BY v.viewed_at DESC
-     LIMIT $5 OFFSET $6`,
-    [params.userId, slugFilter, searchQuery, downloadedOnly, limit, offset],
+     LIMIT $6 OFFSET $7`,
+    [
+      params.userId,
+      slugFilter,
+      searchQuery,
+      downloadedOnly,
+      period,
+      limit,
+      offset,
+    ],
   );
 
   const items: OnlineResumeViewItem[] = listRes.rows.map((r) => ({
