@@ -91,7 +91,11 @@ async function renderResumeCanvas(source: HTMLElement) {
   }
 }
 
-export async function exportResumePdf(source: HTMLElement, filename: string) {
+export async function exportResumePdf(
+  source: HTMLElement,
+  filename: string,
+  data?: ResumeData,
+) {
   const [{ jsPDF }, { canvas, lines }] = await Promise.all([
     import("jspdf"),
     renderResumeCanvas(source),
@@ -101,6 +105,12 @@ export async function exportResumePdf(source: HTMLElement, filename: string) {
     unit: "mm",
     format: "a4",
   });
+  if (data) {
+    pdf.setProperties({
+      title: filename,
+      keywords: `RESUMEOK_JSON:${JSON.stringify(data)}`,
+    });
+  }
   let page = 0;
   for (const { start: offset, end } of pdfPageSlices(
     canvas.height,

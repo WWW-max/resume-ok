@@ -443,3 +443,49 @@ test("session tokens are stored as deterministic SHA-256 hashes, never raw value
   assert.equal(hashSessionToken(token), hash);
   assert.notEqual(hashSessionToken(`${token}-other`), hash);
 });
+
+const { parseResumeText } = require("../lib/resume-parser.ts");
+test("parseResumeText extracts basic info, sections, timeline entries and custom modules into valid ResumeData", () => {
+  const sampleText = [
+    "# 陈明远",
+    "**高级全栈工程师**",
+    "13800138000 | mingyuan@example.com | 上海市 | https://github.com/mingyuan",
+    "",
+    "## 专业技能",
+    "- 精通 TypeScript、React、Next.js 与 Node.js",
+    "- 熟悉 PostgreSQL 数据库设计与性能优化",
+    "",
+    "## 工作经历",
+    "### 星云科技有限公司 · 资深前端工程师 | 2022.03 - 至今",
+    "- 负责核心 SaaS 平台架构升级，首屏加载提速 45%",
+    "- 主导组件库建设与工程化规范落地",
+    "",
+    "## 教育经历",
+    "### 上海交通大学 · 软件工程 · 本科 | 2016.09 - 2020.06",
+    "- GPA 3.8/4.0，获国家奖学金",
+    "",
+    "## 获奖证书",
+    "- 2023 年度优秀工程师",
+  ].join("\n");
+
+  const parsed = parseResumeText(sampleText, "陈明远_简历.pdf");
+  assert.equal(isResumeData(parsed), true);
+  assert.equal(parsed.name, "陈明远");
+  assert.equal(parsed.title, "高级全栈工程师");
+  assert.equal(parsed.phone, "13800138000");
+  assert.equal(parsed.email, "mingyuan@example.com");
+  assert.equal(parsed.location, "上海市");
+  assert.equal(parsed.github, "https://github.com/mingyuan");
+  assert.match(parsed.skills[0].items, /TypeScript/);
+  assert.equal(parsed.workExperiences.length, 1);
+  assert.equal(parsed.workExperiences[0].company, "星云科技有限公司");
+  assert.equal(parsed.workExperiences[0].position, "资深前端工程师");
+  assert.equal(parsed.workExperiences[0].startDate, "2022-03");
+  assert.equal(parsed.workExperiences[0].endDate, "至今");
+  assert.equal(parsed.educations.length, 1);
+  assert.equal(parsed.educations[0].school, "上海交通大学");
+  assert.equal(parsed.educations[0].major, "软件工程");
+  assert.equal(parsed.educations[0].degree, "本科");
+  assert.equal(parsed.customSections.length, 1);
+  assert.equal(parsed.customSections[0].title, "获奖证书");
+});

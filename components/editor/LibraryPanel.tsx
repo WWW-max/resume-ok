@@ -28,9 +28,13 @@ type ConfirmAction = {
 
 export function LibraryPanel({
   store,
+  importing = false,
+  onImportFile,
   onEdit,
 }: {
   store: ReturnType<typeof useResumeLibrary>;
+  importing?: boolean;
+  onImportFile?: (file: File) => void;
   onEdit?: () => void;
 }) {
   const [error, setError] = useState("");
@@ -84,6 +88,27 @@ export function LibraryPanel({
             复制当前简历
           </button>
         </div>
+        {onImportFile && (
+          <label
+            className={`${ui["outline-green"]} ${ui["upload-button"]} w-full ${importing || store.library.documents.length >= 100 ? "pointer-events-none opacity-60" : ""}`}
+          >
+            <Upload size={15} />
+            {importing ? "正在解析文件…" : "导入 PDF / Markdown 简历"}
+            <input
+              aria-label="导入 PDF 或 Markdown 简历"
+              type="file"
+              disabled={importing || store.library.documents.length >= 100}
+              accept=".pdf,.md,.txt,application/pdf,text/markdown,text/plain"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) {
+                  onImportFile(file);
+                }
+              }}
+            />
+          </label>
+        )}
         {store.library.documents
           .filter((d) => !d.archived)
           .map((doc) => (

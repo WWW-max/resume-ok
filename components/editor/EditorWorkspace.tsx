@@ -38,8 +38,10 @@ import {
   FileCode,
   Image as ImageIcon,
   Languages,
+  Upload,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
+import type { ResumeData } from "@/lib/resume-data";
 export default function EditorWorkspace({
   initialView = "editor",
   user,
@@ -63,6 +65,7 @@ export default function EditorWorkspace({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<ExportFormat | null>(
@@ -75,6 +78,7 @@ export default function EditorWorkspace({
   const editingColumnRef = useRef<HTMLElement>(null);
   const downloadMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   function startResize(e: React.PointerEvent<HTMLDivElement>) {
     if (e.button !== 0 || !editingColumnRef.current) return;
@@ -209,7 +213,7 @@ export default function EditorWorkspace({
       } else {
         if (!previewRef.current) return;
         if (format === "pdf") {
-          await exportResumePdf(previewRef.current, finalName);
+          await exportResumePdf(previewRef.current, finalName, data);
         } else {
           await exportResumeImage(previewRef.current, finalName);
         }
@@ -225,15 +229,16 @@ export default function EditorWorkspace({
   async function handleTranslateToEnglish() {
     if (translating || !store.ready) return;
     if (store.library.documents.length >= 100) {
-      setExportError("简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。");
+      setExportError(
+        "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
+      );
       return;
     }
     setTranslating(true);
     setExportError("");
     try {
-      const { translateResumeToEnglish } = await import(
-        "@/lib/translate-resume"
-      );
+      const { translateResumeToEnglish } =
+        await import("@/lib/translate-resume");
       const translated = await translateResumeToEnglish(data);
       const baseName = (
         store.active.name.trim() ||
@@ -247,6 +252,47 @@ export default function EditorWorkspace({
       );
     } finally {
       setTranslating(false);
+    }
+  }
+  async function handleImportResumeFile(file: File) {
+    if (importing || !store.ready) return;
+    if (store.library.documents.length >= 100) {
+      setExportError(
+        "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
+      );
+      return;
+    }
+    setImporting(true);
+    setExportError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await res.json()) as {
+        error?: string | { code?: string; message?: string };
+        name?: string;
+        data?: ResumeData;
+      };
+      if (!res.ok || !payload.data) {
+        const errMsg =
+          typeof payload.error === "string"
+            ? payload.error
+            : payload.error?.message || "简历解析失败，请稍后重试。";
+        throw new Error(errMsg);
+      }
+      store.addDocument(payload.name || "导入的简历", payload.data);
+      setView("editor");
+      setPreviewOnly(false);
+      setEditTarget(null);
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "简历导入失败，请稍后重试。",
+      );
+    } finally {
+      setImporting(false);
     }
   }
   function openPanel(panel: string) {
@@ -293,6 +339,30 @@ export default function EditorWorkspace({
           >
             <Lightbulb size={17} />
             助手
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".pdf,.md,.txt,application/pdf,text/markdown,text/plain"
+            className="hidden"
+            aria-label="导入 PDF 或 Markdown 简历文件"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) {
+                void handleImportResumeFile(file);
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={ui["soft-button"]}
+            disabled={importing || !store.ready}
+            onClick={() => importInputRef.current?.click()}
+            title="支持上传 PDF (.pdf)、Markdown (.md) 或文本 (.txt) 简历自动解析生成新简历"
+          >
+            <Upload size={17} />
+            <span>{importing ? "解析中…" : "导入简历"}</span>
           </button>
           <button
             type="button"
@@ -391,7 +461,7 @@ export default function EditorWorkspace({
                       下载 Markdown (.md)
                     </p>
                     <p className="text-[11px] text-muted-ink">
-                      纯文本格式，便于归档与编辑
+                      纯文本，便于归档与编辑
                     </p>
                   </div>
                 </button>
@@ -495,7 +565,8 @@ export default function EditorWorkspace({
               确认退出登录？
             </h2>
             <p className="mt-2 text-xs leading-relaxed text-muted-ink">
-              当前账号为 <span className="font-medium text-ink">{user.email}</span>
+              当前账号为{" "}
+              <span className="font-medium text-ink">{user.email}</span>
               ，退出后需重新登录才能继续编辑您的简历。
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -683,6 +754,8 @@ export default function EditorWorkspace({
           ) : view === "resumes" ? (
             <LibraryPanel
               store={store}
+              importing={importing}
+              onImportFile={(file) => void handleImportResumeFile(file)}
               onEdit={() => {
                 setView("editor");
                 setPreviewOnly(false);
@@ -712,7 +785,9 @@ export default function EditorWorkspace({
                 320,
                 Math.min(760, window.innerWidth - 380),
               );
-              setEditorWidth(Math.min(maxWidth, Math.max(280, current + delta)));
+              setEditorWidth(
+                Math.min(maxWidth, Math.max(280, current + delta)),
+              );
             }}
             className="group absolute top-0 -right-1.5 bottom-0 z-20 w-3 cursor-ew-resize select-none touch-none max-[900px]:hidden"
           >
