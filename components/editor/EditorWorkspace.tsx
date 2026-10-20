@@ -33,7 +33,12 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  FileSpreadsheet,
+  FileCode,
+  Image as ImageIcon,
 } from "lucide-react";
+import type { ExportFormat } from "@/lib/export-pdf";
 export default function EditorWorkspace({
   initialView = "editor",
   user,
@@ -57,10 +62,16 @@ export default function EditorWorkspace({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<ExportFormat | null>(
+    null,
+  );
+  const [downloadFilename, setDownloadFilename] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const editingColumnRef = useRef<HTMLElement>(null);
+  const downloadMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   function startResize(e: React.PointerEvent<HTMLDivElement>) {
@@ -103,7 +114,7 @@ export default function EditorWorkspace({
   }, []);
 
   useEffect(() => {
-    if (!userMenuOpen) return;
+    if (!userMenuOpen && !downloadMenuOpen) return;
     function handleClickOutside(e: MouseEvent) {
       if (
         userMenuRef.current &&
@@ -111,10 +122,16 @@ export default function EditorWorkspace({
       ) {
         setUserMenuOpen(false);
       }
+      if (
+        downloadMenuRef.current &&
+        !downloadMenuRef.current.contains(e.target as Node)
+      ) {
+        setDownloadMenuOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [userMenuOpen]);
+  }, [userMenuOpen, downloadMenuOpen]);
 
   async function toggleFullscreen() {
     try {
@@ -154,13 +171,47 @@ export default function EditorWorkspace({
     router.replace("/login");
     router.refresh();
   }
-  async function download() {
-    if (!previewRef.current || exporting) return;
+  function openDownloadDialog(format: ExportFormat) {
+    setDownloadMenuOpen(false);
+    const defaultName =
+      store.active.name.trim() ||
+      (data.name.trim() ? `${data.name.trim()}_简历` : "我的简历");
+    setDownloadFilename(defaultName);
+    setDownloadFormat(format);
+  }
+
+  async function confirmDownload() {
+    if (!downloadFormat || exporting) return;
+    const format = downloadFormat;
+    const finalName =
+      downloadFilename.trim() ||
+      store.active.name.trim() ||
+      (data.name.trim() ? `${data.name.trim()}_简历` : "我的简历");
+    if (finalName !== store.active.name) {
+      store.rename(finalName);
+    }
+    setDownloadFormat(null);
     setExporting(true);
     setExportError("");
     try {
-      const { exportResumePdf } = await import("@/lib/export-pdf");
-      await exportResumePdf(previewRef.current, `${data.name || "我的"}_简历`);
+      const {
+        exportResumePdf,
+        exportResumeWord,
+        exportResumeImage,
+        exportResumeMarkdown,
+      } = await import("@/lib/export-pdf");
+      if (format === "word") {
+        exportResumeWord(data, finalName);
+      } else if (format === "markdown") {
+        exportResumeMarkdown(data, finalName);
+      } else {
+        if (!previewRef.current) return;
+        if (format === "pdf") {
+          await exportResumePdf(previewRef.current, finalName);
+        } else {
+          await exportResumeImage(previewRef.current, finalName);
+        }
+      }
     } catch (error) {
       setExportError(
         error instanceof Error ? error.message : "导出失败，请重试或使用打印。",
@@ -214,17 +265,100 @@ export default function EditorWorkspace({
             <Lightbulb size={17} />
             助手
           </button>
-          <button
-            className={ui["primary-button"]}
-            disabled={exporting || !store.ready}
-            onClick={download}
-          >
-            <Download size={17} />
-            <span className="hidden sm:inline">
-              {exporting ? "导出中…" : "下载简历"}
-            </span>
-            <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
-          </button>
+          <div className="relative" ref={downloadMenuRef}>
+            <button
+              type="button"
+              className={ui["primary-button"]}
+              aria-expanded={downloadMenuOpen}
+              aria-haspopup="menu"
+              disabled={exporting || !store.ready}
+              onClick={() => setDownloadMenuOpen((prev) => !prev)}
+            >
+              <Download size={17} />
+              <span className="hidden sm:inline">
+                {exporting ? "导出中…" : "下载简历"}
+              </span>
+              <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
+              <ChevronDown
+                size={14}
+                className={`shrink-0 transition-transform ${downloadMenuOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {downloadMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-[calc(100%+8px)] z-50 w-52 rounded-xl border border-[#d8efe1] bg-white p-1.5 shadow-[0_10px_30px_#10391d1f]"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => openDownloadDialog("pdf")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[#eef9f3]"
+                >
+                  <FileText size={16} className="shrink-0 text-[#0cb449]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink">
+                      下载 PDF (.pdf)
+                    </p>
+                    <p className="text-[11px] text-muted-ink">
+                      标准 A4 排版，推荐投递
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => openDownloadDialog("word")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[#eef9f3]"
+                >
+                  <FileSpreadsheet
+                    size={16}
+                    className="shrink-0 text-[#0cb449]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink">
+                      下载 Word (.doc)
+                    </p>
+                    <p className="text-[11px] text-muted-ink">
+                      支持 Word / WPS 编辑
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => openDownloadDialog("image")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[#eef9f3]"
+                >
+                  <ImageIcon size={16} className="shrink-0 text-[#0cb449]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink">
+                      下载图片 (.png)
+                    </p>
+                    <p className="text-[11px] text-muted-ink">
+                      高清长图，方便手机查看
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => openDownloadDialog("markdown")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[#eef9f3]"
+                >
+                  <FileCode size={16} className="shrink-0 text-[#0cb449]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink">
+                      下载 Markdown (.md)
+                    </p>
+                    <p className="text-[11px] text-muted-ink">
+                      纯文本格式，便于归档与编辑
+                    </p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
           <div className="relative" ref={userMenuRef}>
             <button
               type="button"
@@ -339,6 +473,90 @@ export default function EditorWorkspace({
                 className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[#bd554d] px-3.5 text-xs font-medium text-white transition-colors hover:bg-[#a6443d]"
               >
                 确认退出
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {downloadFormat && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="download-dialog-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/25 p-4 backdrop-blur-[1px] print:hidden"
+          onClick={() => setDownloadFormat(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              id="download-dialog-title"
+              className="text-base font-semibold text-ink"
+            >
+              {downloadFormat === "pdf"
+                ? "下载 PDF 简历"
+                : downloadFormat === "word"
+                  ? "下载 Word 简历"
+                  : downloadFormat === "markdown"
+                    ? "下载 Markdown 简历"
+                    : "下载简历图片"}
+            </h2>
+            <p className="mt-1.5 text-xs text-muted-ink">
+              可修改导出文件名称，同时自动同步至当前简历名称
+            </p>
+            <div className="mt-3.5">
+              <label
+                htmlFor="download-filename-input"
+                className="mb-1.5 block text-xs font-medium text-[#466e53]"
+              >
+                简历名称
+              </label>
+              <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
+                <input
+                  id="download-filename-input"
+                  type="text"
+                  autoFocus
+                  maxLength={80}
+                  value={downloadFilename}
+                  placeholder="请输入简历名称"
+                  onChange={(e) => setDownloadFilename(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void confirmDownload();
+                    } else if (e.key === "Escape") {
+                      setDownloadFormat(null);
+                    }
+                  }}
+                  className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                />
+                <span className="shrink-0 border-l border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs font-medium text-[#4a805c]">
+                  {downloadFormat === "pdf"
+                    ? ".pdf"
+                    : downloadFormat === "word"
+                      ? ".doc"
+                      : downloadFormat === "markdown"
+                        ? ".md"
+                        : ".png"}
+                </span>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDownloadFormat(null)}
+                className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6]"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmDownload()}
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-medium text-white transition-colors hover:bg-brand-dark"
+              >
+                <Download size={14} />
+                确认下载
               </button>
             </div>
           </div>
