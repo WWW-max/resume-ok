@@ -238,7 +238,11 @@ export function PreviewCanvas({
 
           {/* Discrete A4 pages with vertical gap */}
           <div
-            className="flex flex-col gap-7 print:hidden [&_[data-section]]:cursor-pointer [&_[data-section]]:rounded-[4px] [&_[data-section]]:transition-colors [&_[data-section]:hover]:bg-[#19af60]/[0.05] [&_[data-section]:hover]:ring-4 [&_[data-section]:hover]:ring-[#19af60]/[0.05]"
+            className={`flex flex-col gap-7 print:hidden ${
+              onSelectSection
+                ? "[&_[data-section]]:cursor-pointer [&_[data-section]]:rounded-[4px] [&_[data-section]]:transition-colors [&_[data-section]:hover]:bg-[#19af60]/[0.05] [&_[data-section]:hover]:ring-4 [&_[data-section]:hover]:ring-[#19af60]/[0.05]"
+                : ""
+            }`}
             onClick={(e) => {
               if (!onSelectSection) return;
               const target = e.target as HTMLElement;
