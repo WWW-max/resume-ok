@@ -78,3 +78,28 @@ CREATE TABLE IF NOT EXISTS google_email_links (
   expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS google_email_links_expiry_idx ON google_email_links(expires_at);
+
+CREATE TABLE IF NOT EXISTS online_resumes (
+  slug text PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  document_id text NOT NULL,
+  title text NOT NULL,
+  resume_data jsonb NOT NULL,
+  enabled boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT online_resumes_user_doc_unique UNIQUE (user_id, document_id)
+);
+CREATE INDEX IF NOT EXISTS online_resumes_user_id_idx ON online_resumes(user_id);
+
+CREATE TABLE IF NOT EXISTS online_resume_views (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug text NOT NULL REFERENCES online_resumes(slug) ON DELETE CASCADE,
+  source_tag text NOT NULL DEFAULT '',
+  device_label text NOT NULL DEFAULT '',
+  ip_address text NOT NULL DEFAULT '',
+  downloaded_pdf boolean NOT NULL DEFAULT false,
+  viewed_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS online_resume_views_slug_viewed_idx
+  ON online_resume_views(slug, viewed_at DESC);

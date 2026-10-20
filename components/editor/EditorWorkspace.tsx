@@ -37,8 +37,35 @@ import {
   FileSpreadsheet,
   FileCode,
   Image as ImageIcon,
+  Languages,
+  Upload,
+  Globe,
+  Copy,
+  Check,
+  ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
+import type { ResumeData } from "@/lib/resume-data";
+import { encodeSourceTag } from "@/lib/online-resume-token";
+
+interface OnlineResumeViewLog {
+  id: string;
+  sourceTag: string;
+  deviceLabel: string;
+  ipAddress: string;
+  downloadedPdf: boolean;
+  viewedAt: string;
+}
+
+interface OnlineResumeClientInfo {
+  documentId: string;
+  slug: string;
+  enabled: boolean;
+  totalViews: number;
+  totalDownloads: number;
+  recentViews: OnlineResumeViewLog[];
+}
 export default function EditorWorkspace({
   initialView = "editor",
   user,
@@ -61,6 +88,8 @@ export default function EditorWorkspace({
   const [actualScale, setActualScale] = useState(0.85);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<ExportFormat | null>(
@@ -69,10 +98,21 @@ export default function EditorWorkspace({
   const [downloadFilename, setDownloadFilename] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [onlineRecords, setOnlineRecords] = useState<
+    Record<string, OnlineResumeClientInfo>
+  >({});
+  const [onlineModalOpen, setOnlineModalOpen] = useState(false);
+  const [onlineSlugInput, setOnlineSlugInput] = useState("");
+  const [onlineSourceTagInput, setOnlineSourceTagInput] = useState("");
+  const [onlineSaving, setOnlineSaving] = useState(false);
+  const [onlineRefreshing, setOnlineRefreshing] = useState(false);
+  const [onlineError, setOnlineError] = useState("");
+  const [copiedOnlineUrl, setCopiedOnlineUrl] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const editingColumnRef = useRef<HTMLElement>(null);
   const downloadMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   function startResize(e: React.PointerEvent<HTMLDivElement>) {
     if (e.button !== 0 || !editingColumnRef.current) return;
@@ -112,6 +152,66 @@ export default function EditorWorkspace({
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  async function refreshOnlineResumes() {
+    setOnlineRefreshing(true);
+    try {
+      const res = await fetch("/api/online-resume");
+      if (!res.ok) return;
+      const payload = (await res.json()) as {
+        items?: OnlineResumeClientInfo[];
+      } | null;
+      if (!payload?.items) return;
+      const map: Record<string, OnlineResumeClientInfo> = {};
+      for (const item of payload.items) {
+        if (item.enabled && item.documentId && item.slug) {
+          map[item.documentId] = item;
+        }
+      }
+      setOnlineRecords(map);
+    } catch {
+      // ignore network error
+    } finally {
+      setOnlineRefreshing(false);
+    }
+  }
+
+  useEffect(() => {
+    let active = true;
+    const poll = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetch("/api/online-resume")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((payload: { items?: OnlineResumeClientInfo[] } | null) => {
+          if (!active || !payload?.items) return;
+          const map: Record<string, OnlineResumeClientInfo> = {};
+          for (const item of payload.items) {
+            if (item.enabled && item.documentId && item.slug) {
+              map[item.documentId] = item;
+            }
+          }
+          setOnlineRecords(map);
+        })
+        .catch(() => {});
+    };
+
+    poll();
+    if (!onlineModalOpen) {
+      return () => {
+        active = false;
+      };
+    }
+
+    const timer = window.setInterval(poll, 4000);
+    window.addEventListener("focus", poll);
+    document.addEventListener("visibilitychange", poll);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", poll);
+      document.removeEventListener("visibilitychange", poll);
+    };
+  }, [onlineModalOpen]);
 
   useEffect(() => {
     if (!userMenuOpen && !downloadMenuOpen) return;
@@ -207,7 +307,7 @@ export default function EditorWorkspace({
       } else {
         if (!previewRef.current) return;
         if (format === "pdf") {
-          await exportResumePdf(previewRef.current, finalName);
+          await exportResumePdf(previewRef.current, finalName, data);
         } else {
           await exportResumeImage(previewRef.current, finalName);
         }
@@ -218,6 +318,185 @@ export default function EditorWorkspace({
       );
     } finally {
       setExporting(false);
+    }
+  }
+  async function handleTranslateToEnglish() {
+    if (translating || !store.ready) return;
+    if (store.library.documents.length >= 100) {
+      setExportError(
+        "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
+      );
+      return;
+    }
+    setTranslating(true);
+    setExportError("");
+    try {
+      const { translateResumeToEnglish } =
+        await import("@/lib/translate-resume");
+      const translated = await translateResumeToEnglish(data);
+      const baseName = (
+        store.active.name.trim() ||
+        data.name.trim() ||
+        "我的简历"
+      ).replace(/\s*\(英文版\)$/, "");
+      store.addDocument(`${baseName} (英文版)`, translated);
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "简历翻译失败，请稍后重试。",
+      );
+    } finally {
+      setTranslating(false);
+    }
+  }
+  async function handleImportResumeFile(file: File) {
+    if (importing || !store.ready) return;
+    if (store.library.documents.length >= 100) {
+      setExportError(
+        "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
+      );
+      return;
+    }
+    setImporting(true);
+    setExportError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await res.json()) as {
+        error?: string | { code?: string; message?: string };
+        name?: string;
+        data?: ResumeData;
+      };
+      if (!res.ok || !payload.data) {
+        const errMsg =
+          typeof payload.error === "string"
+            ? payload.error
+            : payload.error?.message || "简历解析失败，请稍后重试。";
+        throw new Error(errMsg);
+      }
+      store.addDocument(payload.name || "导入的简历", payload.data);
+      setView("editor");
+      setPreviewOnly(false);
+      setEditTarget(null);
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "简历导入失败，请稍后重试。",
+      );
+    } finally {
+      setImporting(false);
+    }
+  }
+  const activeOnlineInfo = onlineRecords[store.active.id];
+  const activePublishedSlug = activeOnlineInfo?.slug ?? "";
+  const siteOrigin =
+    typeof window !== "undefined" ? window.location.origin : "https://resumeOK.cn";
+
+  function buildOnlineShareUrl(slug: string, sourceTag: string) {
+    const base = `${siteOrigin}/online-resume/${slug}`;
+    const token = encodeSourceTag(sourceTag);
+    return token ? `${base}?t=${token}` : base;
+  }
+
+  function openOnlineResumeModal() {
+    const defaultSlug = (
+      activePublishedSlug ||
+      store.active.name.trim() ||
+      data.name.trim() ||
+      "我的简历"
+    )
+      .replace(/[\r\n\t/\\?#%&]+/g, "-")
+      .replace(/\s+/g, "-");
+    setOnlineSlugInput(defaultSlug);
+    setOnlineError("");
+    setCopiedOnlineUrl(false);
+    setOnlineModalOpen(true);
+    void refreshOnlineResumes();
+  }
+
+  async function handlePublishOnlineResume() {
+    if (onlineSaving || !store.ready) return;
+    const cleanSlug = onlineSlugInput
+      .trim()
+      .replace(/[\r\n\t/\\?#%&]+/g, "-")
+      .replace(/\s+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    if (!cleanSlug) {
+      setOnlineError("请输入在线简历链接后缀名称（例如：张三）。");
+      return;
+    }
+    setOnlineSaving(true);
+    setOnlineError("");
+    try {
+      const res = await fetch("/api/online-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          documentId: store.active.id,
+          slug: cleanSlug,
+          title: store.active.name.trim() || data.name.trim() || cleanSlug,
+          data,
+        }),
+      });
+      const payload = (await res.json()) as {
+        error?: string | { code?: string; message?: string };
+        item?: OnlineResumeClientInfo;
+      };
+      if (!res.ok || !payload.item) {
+        const msg =
+          typeof payload.error === "string"
+            ? payload.error
+            : payload.error?.message || "生成在线简历失败，请稍后重试。";
+        throw new Error(msg);
+      }
+      const savedItem = payload.item;
+      setOnlineRecords((prev) => ({
+        ...prev,
+        [store.active.id]: savedItem,
+      }));
+      setOnlineSlugInput(savedItem.slug);
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard
+          .writeText(buildOnlineShareUrl(savedItem.slug, onlineSourceTagInput))
+          .catch(() => {});
+        setCopiedOnlineUrl(true);
+      }
+    } catch (error) {
+      setOnlineError(
+        error instanceof Error ? error.message : "生成在线简历失败，请稍后重试。",
+      );
+    } finally {
+      setOnlineSaving(false);
+    }
+  }
+
+  async function handleUnpublishOnlineResume() {
+    if (onlineSaving || !activePublishedSlug) return;
+    setOnlineSaving(true);
+    setOnlineError("");
+    try {
+      const res = await fetch("/api/online-resume", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId: store.active.id }),
+      });
+      if (!res.ok) {
+        throw new Error("关闭在线简历失败，请稍后重试。");
+      }
+      setOnlineRecords((prev) => {
+        const next = { ...prev };
+        delete next[store.active.id];
+        return next;
+      });
+      setCopiedOnlineUrl(false);
+    } catch (error) {
+      setOnlineError(
+        error instanceof Error ? error.message : "关闭在线简历失败。",
+      );
+    } finally {
+      setOnlineSaving(false);
     }
   }
   function openPanel(panel: string) {
@@ -264,6 +543,56 @@ export default function EditorWorkspace({
           >
             <Lightbulb size={17} />
             助手
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".pdf,.md,.txt,application/pdf,text/markdown,text/plain"
+            className="hidden"
+            aria-label="导入 PDF 或 Markdown 简历文件"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) {
+                void handleImportResumeFile(file);
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={ui["soft-button"]}
+            disabled={importing || !store.ready}
+            onClick={() => importInputRef.current?.click()}
+            title="支持上传 PDF (.pdf)、Markdown (.md) 或文本 (.txt) 简历自动解析生成新简历"
+          >
+            <Upload size={17} />
+            <span>{importing ? "解析中…" : "导入简历"}</span>
+          </button>
+          <button
+            type="button"
+            className={ui["soft-button"]}
+            disabled={translating || !store.ready}
+            onClick={() => void handleTranslateToEnglish()}
+            title="基于当前简历自动新建一份英文版副本（保留原中文简历）"
+          >
+            <Languages size={17} />
+            <span>{translating ? "翻译中…" : "译为英文"}</span>
+          </button>
+          <button
+            type="button"
+            className={ui["soft-button"]}
+            disabled={!store.ready}
+            onClick={openOnlineResumeModal}
+            title="生成在线简历专属链接，方便 HR 随时在电脑或手机上预览与下载 PDF"
+          >
+            <Globe size={17} className={activePublishedSlug ? "text-[#0cb449]" : ""} />
+            <span>在线简历</span>
+            {activePublishedSlug && (
+              <span
+                className="size-2 rounded-full bg-[#0cb449]"
+                title="已开启在线简历访问"
+              />
+            )}
           </button>
           <div className="relative" ref={downloadMenuRef}>
             <button
@@ -352,7 +681,7 @@ export default function EditorWorkspace({
                       下载 Markdown (.md)
                     </p>
                     <p className="text-[11px] text-muted-ink">
-                      纯文本格式，便于归档与编辑
+                      纯文本，便于归档与编辑
                     </p>
                   </div>
                 </button>
@@ -456,7 +785,8 @@ export default function EditorWorkspace({
               确认退出登录？
             </h2>
             <p className="mt-2 text-xs leading-relaxed text-muted-ink">
-              当前账号为 <span className="font-medium text-ink">{user.email}</span>
+              当前账号为{" "}
+              <span className="font-medium text-ink">{user.email}</span>
               ，退出后需重新登录才能继续编辑您的简历。
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -562,6 +892,326 @@ export default function EditorWorkspace({
           </div>
         </div>
       )}
+      {onlineModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="online-resume-dialog-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/25 p-4 backdrop-blur-[1px] print:hidden"
+          onClick={() => setOnlineModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-[660px] rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#e8f8ee] text-[#0cb449]">
+                  <Globe size={18} />
+                </span>
+                <div className="min-w-0">
+                  <h2
+                    id="online-resume-dialog-title"
+                    className="text-base font-semibold text-ink"
+                  >
+                    在线简历分享链接
+                  </h2>
+                  <p className="text-[11px] text-muted-ink">
+                    HR 打开链接即可在电脑或手机端直接浏览 A4 简历并下载 PDF
+                  </p>
+                </div>
+              </div>
+              {activePublishedSlug && (
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#e8f8ee] px-2.5 py-1 text-[11px] font-medium text-[#118a43]">
+                  <span className="size-1.5 shrink-0 rounded-full bg-[#0cb449]" />
+                  已发布
+                </span>
+              )}
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              <div>
+                <label
+                  htmlFor="online-resume-slug-input"
+                  className="mb-1.5 block text-xs font-medium text-[#466e53]"
+                >
+                  专属链接地址（支持中文姓名或自定义后缀）
+                </label>
+                <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
+                  <span className="shrink-0 select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c]">
+                    {siteOrigin}/online-resume/
+                  </span>
+                  <input
+                    id="online-resume-slug-input"
+                    type="text"
+                    autoFocus
+                    maxLength={80}
+                    value={onlineSlugInput}
+                    placeholder="例如：张三"
+                    onChange={(e) => {
+                      setOnlineSlugInput(e.target.value);
+                      setCopiedOnlineUrl(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handlePublishOnlineResume();
+                      } else if (e.key === "Escape") {
+                        setOnlineModalOpen(false);
+                      }
+                    }}
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm font-medium text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="online-resume-source-input"
+                  className="mb-1.5 block text-xs font-medium text-[#466e53]"
+                >
+                  投递公司 / HR 追踪标记（选填，自动加密不会显示明文）
+                </label>
+                <input
+                  id="online-resume-source-input"
+                  type="text"
+                  maxLength={40}
+                  value={onlineSourceTagInput}
+                  placeholder="例如：字节跳动 / 阿里张HR（链接中将加密为 ?t=...）"
+                  onChange={(e) => {
+                    setOnlineSourceTagInput(e.target.value);
+                    setCopiedOnlineUrl(false);
+                  }}
+                  className="w-full rounded-lg border border-[#d2ebda] bg-white px-3 py-2 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none focus:ring-2 focus-within:ring-[#19af60]/20"
+                />
+              </div>
+            </div>
+
+            {activePublishedSlug && (
+              <div className="mt-3.5 rounded-xl border border-[#d8efe1] bg-[#f6fcf8] p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-xs font-medium text-[#153a22]">
+                    {buildOnlineShareUrl(
+                      activePublishedSlug,
+                      onlineSourceTagInput,
+                    )}
+                  </p>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const url = buildOnlineShareUrl(
+                          activePublishedSlug,
+                          onlineSourceTagInput,
+                        );
+                        await navigator.clipboard.writeText(url).catch(() => {});
+                        setCopiedOnlineUrl(true);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md border border-[#cde9d7] bg-white px-2 py-1 text-[11px] font-medium text-[#168347] transition-colors hover:bg-[#e8f8ee]"
+                    >
+                      {copiedOnlineUrl ? <Check size={12} /> : <Copy size={12} />}
+                      {copiedOnlineUrl ? "已复制" : "复制链接"}
+                    </button>
+                    <a
+                      href={`/online-resume/${encodeURIComponent(activePublishedSlug)}${
+                        encodeSourceTag(onlineSourceTagInput)
+                          ? `?t=${encodeSourceTag(onlineSourceTagInput)}`
+                          : ""
+                      }`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-md border border-[#cde9d7] bg-white px-2 py-1 text-[11px] font-medium text-[#168347] transition-colors hover:bg-[#e8f8ee]"
+                    >
+                      <ExternalLink size={12} />
+                      打开预览
+                    </a>
+                  </div>
+                </div>
+                <p className="mt-1.5 text-[11px] text-muted-ink">
+                  您在编辑器中修改简历后，该在线链接会自动同步最新内容。
+                </p>
+              </div>
+            )}
+
+            {activeOnlineInfo && (
+              <div className="mt-3.5 rounded-xl border border-[#d8efe1] bg-white p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="font-semibold text-[#153a22]">
+                      访问记录
+                    </span>
+                    <span className="text-muted-ink">
+                      已查看{" "}
+                      <strong className="font-semibold text-[#0cb449]">
+                        {activeOnlineInfo.totalViews}
+                      </strong>{" "}
+                      次
+                    </span>
+                    <span className="text-muted-ink">
+                      下载 PDF{" "}
+                      <strong className="font-semibold text-[#0cb449]">
+                        {activeOnlineInfo.totalDownloads}
+                      </strong>{" "}
+                      次
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={onlineRefreshing}
+                      onClick={() => void refreshOnlineResumes()}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-[#388855] transition-colors hover:bg-[#eef9f3]"
+                    >
+                      <RefreshCw
+                        size={12}
+                        className={onlineRefreshing ? "animate-spin" : ""}
+                      />
+                      刷新
+                    </button>
+                    <Link
+                      href={`/view-statistic?slug=${encodeURIComponent(activePublishedSlug)}`}
+                      className="inline-flex items-center gap-1 rounded-md border border-[#cde9d7] bg-[#f4fbf6] px-2.5 py-1 text-[11px] font-medium text-[#168347] transition-colors hover:bg-[#e8f8ee]"
+                    >
+                      查看全部统计
+                      <ExternalLink size={11} />
+                    </Link>
+                  </div>
+                </div>
+
+                {activeOnlineInfo.recentViews.length === 0 ? (
+                  <p className="mt-2.5 py-2 text-center text-[11px] text-muted-ink">
+                    暂无访问记录，分享链接后对方打开即可在此看到访问详情
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-1.5">
+                    {activeOnlineInfo.recentViews.slice(0, 5).map((v) => {
+                      const d = new Date(v.viewedAt);
+                      const now = new Date();
+                      const isToday =
+                        d.getFullYear() === now.getFullYear() &&
+                        d.getMonth() === now.getMonth() &&
+                        d.getDate() === now.getDate();
+                      const yesterday = new Date(now);
+                      yesterday.setDate(now.getDate() - 1);
+                      const isYesterday =
+                        d.getFullYear() === yesterday.getFullYear() &&
+                        d.getMonth() === yesterday.getMonth() &&
+                        d.getDate() === yesterday.getDate();
+                      const hm = d.toLocaleTimeString("zh-CN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      });
+                      const timeStr = isToday
+                        ? `今天 ${hm}`
+                        : isYesterday
+                          ? `昨天 ${hm}`
+                          : `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")} ${hm}`;
+                      const normalizedDevice = v.deviceLabel.includes(" · ")
+                        ? v.deviceLabel.replace(
+                            /^(.+?)\s*·\s*(.+)$/,
+                            "$1 ($2)",
+                          )
+                        : v.deviceLabel || "浏览器";
+                      return (
+                        <div
+                          key={v.id}
+                          className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap rounded-lg bg-[#f6fcf8] px-2.5 py-2 text-[11px] leading-relaxed text-[#2d5339]"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="size-2 shrink-0 rounded-full bg-[#0cb449]"
+                          />
+                          <p className="whitespace-nowrap">
+                            <strong className="font-semibold text-[#117a3f]">
+                              【{v.sourceTag || "直接访问"}】
+                            </strong>
+                            <span> · {timeStr}</span>
+                            {v.ipAddress && (
+                              <>
+                                <span> · </span>
+                                <span className="font-medium text-[#1e4b2c]">
+                                  {v.ipAddress.replace("浙江杭 (", "浙江杭州 (")}
+                                </span>
+                              </>
+                            )}
+                            <span> · 通过 </span>
+                            <strong className="font-semibold text-[#153a22]">
+                              {normalizedDevice}
+                            </strong>
+                            <span> 打开查看</span>
+                            {v.downloadedPdf && (
+                              <>
+                                <span> · </span>
+                                <strong className="font-semibold text-[#0cb449]">
+                                  已下载 PDF
+                                </strong>
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      );
+                    })}
+                    {activeOnlineInfo.totalViews > 5 && (
+                      <div className="pt-1 text-center">
+                        <Link
+                          href={`/view-statistic?slug=${encodeURIComponent(activePublishedSlug)}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#168347] hover:underline"
+                        >
+                          查看全部 {activeOnlineInfo.totalViews} 条访客记录与统计详情 →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {onlineError && (
+              <p className="mt-2.5 text-xs text-red-600" role="alert">
+                {onlineError}
+              </p>
+            )}
+
+            <div className="mt-5 flex items-center justify-between gap-2">
+              {activePublishedSlug ? (
+                <button
+                  type="button"
+                  disabled={onlineSaving}
+                  onClick={() => void handleUnpublishOnlineResume()}
+                  className="inline-flex min-h-9 items-center justify-center rounded-lg px-2.5 text-xs font-medium text-[#bd554d] transition-colors hover:bg-red-50"
+                >
+                  关闭在线访问
+                </button>
+              ) : (
+                <span />
+              )}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOnlineModalOpen(false)}
+                  className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6]"
+                >
+                  关闭
+                </button>
+                <button
+                  type="button"
+                  disabled={onlineSaving}
+                  onClick={() => void handlePublishOnlineResume()}
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                >
+                  <Globe size={14} />
+                  {onlineSaving
+                    ? "保存中…"
+                    : activePublishedSlug
+                      ? "更新并复制链接"
+                      : "生成并复制链接"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {exportError && (
         <div className={ui["export-error"]} role="alert">
           {exportError}
@@ -644,6 +1294,8 @@ export default function EditorWorkspace({
           ) : view === "resumes" ? (
             <LibraryPanel
               store={store}
+              importing={importing}
+              onImportFile={(file) => void handleImportResumeFile(file)}
               onEdit={() => {
                 setView("editor");
                 setPreviewOnly(false);
@@ -673,7 +1325,9 @@ export default function EditorWorkspace({
                 320,
                 Math.min(760, window.innerWidth - 380),
               );
-              setEditorWidth(Math.min(maxWidth, Math.max(280, current + delta)));
+              setEditorWidth(
+                Math.min(maxWidth, Math.max(280, current + delta)),
+              );
             }}
             className="group absolute top-0 -right-1.5 bottom-0 z-20 w-3 cursor-ew-resize select-none touch-none max-[900px]:hidden"
           >

@@ -263,6 +263,25 @@ export function useResumeLibrary(userId: string) {
     );
   }
 
+  function addDocument(name: string, docData: ResumeData) {
+    if (state.library.documents.length >= 100) return;
+    const document: ResumeDocument = {
+      id: crypto.randomUUID(),
+      name: name.trim().slice(0, 80) || "英文简历",
+      data: structuredClone(docData),
+      updatedAt: new Date().toISOString(),
+    };
+    commit((library) =>
+      library.documents.length >= 100
+        ? library
+        : {
+            ...library,
+            activeId: document.id,
+            documents: [...library.documents, document],
+          },
+    );
+  }
+
   function rename(name: string) {
     const id = active.id;
     const updatedAt = new Date().toISOString();
@@ -348,6 +367,7 @@ export function useResumeLibrary(userId: string) {
     flushBeforeLogout,
     updateData,
     add,
+    addDocument,
     rename,
     archive,
     restore,
