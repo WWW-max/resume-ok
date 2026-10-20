@@ -68,17 +68,44 @@ function renderInlineBold(text: string): ReactNode {
     return part;
   });
 }
-function formatDate(value: string): string {
+const EN_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function formatDate(value: string, isEnglish = false): string {
   const match = /^(\d{4})-(\d{2})$/.exec(value.trim());
-  return match ? `${match[1]}年${match[2]}月` : value.trim();
+  if (!match) return value.trim();
+  if (isEnglish) {
+    const monthIndex = Number(match[2]) - 1;
+    const monthName = EN_MONTHS[monthIndex] ?? match[2];
+    return `${monthName} ${match[1]}`;
+  }
+  return `${match[1]}年${match[2]}月`;
 }
 function formatDateRange(
   startDate: string,
   endDate: string,
   current?: boolean,
+  isEnglish = false,
 ): string {
-  const start = formatDate(startDate);
-  const end = current || endDate === "至今" ? "至今" : formatDate(endDate);
+  const start = formatDate(startDate, isEnglish);
+  const end =
+    current || endDate === "至今" || /^present$/i.test(endDate.trim())
+      ? isEnglish
+        ? "Present"
+        : "至今"
+      : formatDate(endDate, isEnglish);
   if (!start && !end) return "";
   return [start, end].filter(Boolean).join(" - ");
 }
@@ -104,10 +131,15 @@ function Description({ text }: { text: string }) {
     </div>
   );
 }
-function renderProjects(items: Project[]) {
+function renderProjects(items: Project[], isEnglish = false) {
   return items.length
     ? items.map((item) => {
-        const dateRange = formatDateRange(item.startDate, item.endDate);
+        const dateRange = formatDateRange(
+          item.startDate,
+          item.endDate,
+          false,
+          isEnglish,
+        );
         const titleWithLink = item.link
           ? `${item.name}${item.name.endsWith(".") ? " " : ". "}${item.link}`
           : item.name;
@@ -127,8 +159,14 @@ function renderProjects(items: Project[]) {
 export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
   ({ data }, ref) => {
     const appearance = { ...defaultAppearance, ...data.appearance };
-    const descriptiveSkills = data.skills.some((s) =>
-      /[。；：，]|\*\*/.test(s.items),
+    const isEnglish =
+      data.sectionTitles?.workExperiences === "Work Experience" ||
+      (Boolean(data.name.trim()) &&
+        !/[\u4e00-\u9fff]/.test(
+          `${data.name}${data.title}${data.summary}${data.workExperiences[0]?.company ?? ""}`,
+        ));
+    const descriptiveSkills = data.skills.some(
+      (s) => /[。；：，.;:]|\*\*/.test(s.items) || s.items.length > 35,
     );
     function content(key: SectionKey) {
       if (isCustomSectionKey(key)) {
@@ -140,7 +178,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
         return (
           <>
             {hasText && <Description text={custom.content} />}
-            {hasItems && renderProjects(custom.items ?? [])}
+            {hasItems && renderProjects(custom.items ?? [], isEnglish)}
           </>
         );
       }
@@ -154,11 +192,14 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
               <div className={ui["resume-description"]}>
                 {data.skills.map((s) => (
                   <p key={s.id}>
-                    {s.category && s.category !== "技能" && (
-                      <strong className="font-semibold text-inherit">
-                        {s.category}：
-                      </strong>
-                    )}
+                    {s.category &&
+                      s.category !== "技能" &&
+                      !/^skills?$/i.test(s.category.trim()) && (
+                        <strong className="font-semibold text-inherit">
+                          {s.category}
+                          {isEnglish ? ": " : "："}
+                        </strong>
+                      )}
                     {renderInlineBold(s.items)}
                   </p>
                 ))}
@@ -181,6 +222,7 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
                   item.startDate,
                   item.endDate,
                   item.current,
+                  isEnglish,
                 );
                 return (
                   <article key={item.id}>
@@ -197,13 +239,18 @@ export const ResumePreview = forwardRef<HTMLDivElement, { data: ResumeData }>(
               })
             : null;
         case "projects":
-          return renderProjects(data.projects);
+          return renderProjects(data.projects, isEnglish);
         case "openSource":
-          return renderProjects(data.openSource ?? []);
+          return renderProjects(data.openSource ?? [], isEnglish);
         case "educations":
           return data.educations.length
             ? data.educations.map((item) => {
-                const dateRange = formatDateRange(item.startDate, item.endDate);
+                const dateRange = formatDateRange(
+                  item.startDate,
+                  item.endDate,
+                  false,
+                  isEnglish,
+                );
                 const shortSingleLineDesc =
                   !!item.description.trim() &&
                   !item.description.includes("\n") &&

@@ -37,6 +37,7 @@ import {
   FileSpreadsheet,
   FileCode,
   Image as ImageIcon,
+  Languages,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 export default function EditorWorkspace({
@@ -61,6 +62,7 @@ export default function EditorWorkspace({
   const [actualScale, setActualScale] = useState(0.85);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [exportError, setExportError] = useState("");
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<ExportFormat | null>(
@@ -220,6 +222,33 @@ export default function EditorWorkspace({
       setExporting(false);
     }
   }
+  async function handleTranslateToEnglish() {
+    if (translating || !store.ready) return;
+    if (store.library.documents.length >= 100) {
+      setExportError("简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。");
+      return;
+    }
+    setTranslating(true);
+    setExportError("");
+    try {
+      const { translateResumeToEnglish } = await import(
+        "@/lib/translate-resume"
+      );
+      const translated = await translateResumeToEnglish(data);
+      const baseName = (
+        store.active.name.trim() ||
+        data.name.trim() ||
+        "我的简历"
+      ).replace(/\s*\(英文版\)$/, "");
+      store.addDocument(`${baseName} (英文版)`, translated);
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "简历翻译失败，请稍后重试。",
+      );
+    } finally {
+      setTranslating(false);
+    }
+  }
   function openPanel(panel: string) {
     setView(panel);
     setPreviewOnly(false);
@@ -264,6 +293,16 @@ export default function EditorWorkspace({
           >
             <Lightbulb size={17} />
             助手
+          </button>
+          <button
+            type="button"
+            className={ui["soft-button"]}
+            disabled={translating || !store.ready}
+            onClick={() => void handleTranslateToEnglish()}
+            title="基于当前简历自动新建一份英文版副本（保留原中文简历）"
+          >
+            <Languages size={17} />
+            <span>{translating ? "翻译中…" : "译为英文"}</span>
           </button>
           <div className="relative" ref={downloadMenuRef}>
             <button
