@@ -43,9 +43,29 @@ import {
   Copy,
   Check,
   ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 import type { ResumeData } from "@/lib/resume-data";
+import { encodeSourceTag } from "@/lib/online-resume-token";
+
+interface OnlineResumeViewLog {
+  id: string;
+  sourceTag: string;
+  deviceLabel: string;
+  ipAddress: string;
+  downloadedPdf: boolean;
+  viewedAt: string;
+}
+
+interface OnlineResumeClientInfo {
+  documentId: string;
+  slug: string;
+  enabled: boolean;
+  totalViews: number;
+  totalDownloads: number;
+  recentViews: OnlineResumeViewLog[];
+}
 export default function EditorWorkspace({
   initialView = "editor",
   user,
@@ -78,10 +98,14 @@ export default function EditorWorkspace({
   const [downloadFilename, setDownloadFilename] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
-  const [onlineSlugs, setOnlineSlugs] = useState<Record<string, string>>({});
+  const [onlineRecords, setOnlineRecords] = useState<
+    Record<string, OnlineResumeClientInfo>
+  >({});
   const [onlineModalOpen, setOnlineModalOpen] = useState(false);
   const [onlineSlugInput, setOnlineSlugInput] = useState("");
+  const [onlineSourceTagInput, setOnlineSourceTagInput] = useState("");
   const [onlineSaving, setOnlineSaving] = useState(false);
+  const [onlineRefreshing, setOnlineRefreshing] = useState(false);
   const [onlineError, setOnlineError] = useState("");
   const [copiedOnlineUrl, setCopiedOnlineUrl] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -129,26 +153,43 @@ export default function EditorWorkspace({
     };
   }, []);
 
+  async function refreshOnlineResumes() {
+    setOnlineRefreshing(true);
+    try {
+      const res = await fetch("/api/online-resume");
+      if (!res.ok) return;
+      const payload = (await res.json()) as {
+        items?: OnlineResumeClientInfo[];
+      } | null;
+      if (!payload?.items) return;
+      const map: Record<string, OnlineResumeClientInfo> = {};
+      for (const item of payload.items) {
+        if (item.enabled && item.documentId && item.slug) {
+          map[item.documentId] = item;
+        }
+      }
+      setOnlineRecords(map);
+    } catch {
+      // ignore network error
+    } finally {
+      setOnlineRefreshing(false);
+    }
+  }
+
   useEffect(() => {
     let active = true;
     fetch("/api/online-resume")
       .then((res) => (res.ok ? res.json() : null))
-      .then(
-        (
-          payload: {
-            items?: Array<{ documentId: string; slug: string; enabled: boolean }>;
-          } | null,
-        ) => {
-          if (!active || !payload?.items) return;
-          const map: Record<string, string> = {};
-          for (const item of payload.items) {
-            if (item.enabled && item.documentId && item.slug) {
-              map[item.documentId] = item.slug;
-            }
+      .then((payload: { items?: OnlineResumeClientInfo[] } | null) => {
+        if (!active || !payload?.items) return;
+        const map: Record<string, OnlineResumeClientInfo> = {};
+        for (const item of payload.items) {
+          if (item.enabled && item.documentId && item.slug) {
+            map[item.documentId] = item;
           }
-          setOnlineSlugs(map);
-        },
-      )
+        }
+        setOnlineRecords(map);
+      })
       .catch(() => {});
     return () => {
       active = false;
@@ -331,9 +372,16 @@ export default function EditorWorkspace({
       setImporting(false);
     }
   }
-  const activePublishedSlug = onlineSlugs[store.active.id] ?? "";
+  const activeOnlineInfo = onlineRecords[store.active.id];
+  const activePublishedSlug = activeOnlineInfo?.slug ?? "";
   const siteOrigin =
     typeof window !== "undefined" ? window.location.origin : "https://resumeOK.cn";
+
+  function buildOnlineShareUrl(slug: string, sourceTag: string) {
+    const base = `${siteOrigin}/online-resume/${slug}`;
+    const token = encodeSourceTag(sourceTag);
+    return token ? `${base}?t=${token}` : base;
+  }
 
   function openOnlineResumeModal() {
     const defaultSlug = (
@@ -348,6 +396,7 @@ export default function EditorWorkspace({
     setOnlineError("");
     setCopiedOnlineUrl(false);
     setOnlineModalOpen(true);
+    void refreshOnlineResumes();
   }
 
   async function handlePublishOnlineResume() {
@@ -376,7 +425,7 @@ export default function EditorWorkspace({
       });
       const payload = (await res.json()) as {
         error?: string | { code?: string; message?: string };
-        item?: { slug: string; documentId: string };
+        item?: OnlineResumeClientInfo;
       };
       if (!res.ok || !payload.item) {
         const msg =
@@ -385,15 +434,15 @@ export default function EditorWorkspace({
             : payload.error?.message || "生成在线简历失败，请稍后重试。";
         throw new Error(msg);
       }
-      const savedSlug = payload.item.slug;
-      setOnlineSlugs((prev) => ({
+      const savedItem = payload.item;
+      setOnlineRecords((prev) => ({
         ...prev,
-        [store.active.id]: savedSlug,
+        [store.active.id]: savedItem,
       }));
-      setOnlineSlugInput(savedSlug);
+      setOnlineSlugInput(savedItem.slug);
       if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard
-          .writeText(`${window.location.origin}/online-resume/${savedSlug}`)
+          .writeText(buildOnlineShareUrl(savedItem.slug, onlineSourceTagInput))
           .catch(() => {});
         setCopiedOnlineUrl(true);
       }
@@ -419,7 +468,7 @@ export default function EditorWorkspace({
       if (!res.ok) {
         throw new Error("关闭在线简历失败，请稍后重试。");
       }
-      setOnlineSlugs((prev) => {
+      setOnlineRecords((prev) => {
         const next = { ...prev };
         delete next[store.active.id];
         return next;
@@ -835,15 +884,15 @@ export default function EditorWorkspace({
           onClick={() => setOnlineModalOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            className="w-full max-w-[660px] rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="grid size-8 place-items-center rounded-lg bg-[#e8f8ee] text-[#0cb449]">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#e8f8ee] text-[#0cb449]">
                   <Globe size={18} />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <h2
                     id="online-resume-dialog-title"
                     className="text-base font-semibold text-ink"
@@ -856,44 +905,67 @@ export default function EditorWorkspace({
                 </div>
               </div>
               {activePublishedSlug && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f8ee] px-2.5 py-0.5 text-[11px] font-medium text-[#118a43]">
-                  <span className="size-1.5 rounded-full bg-[#0cb449]" />
+                <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#e8f8ee] px-2.5 py-1 text-[11px] font-medium text-[#118a43]">
+                  <span className="size-1.5 shrink-0 rounded-full bg-[#0cb449]" />
                   已发布
                 </span>
               )}
             </div>
 
-            <div className="mt-4">
-              <label
-                htmlFor="online-resume-slug-input"
-                className="mb-1.5 block text-xs font-medium text-[#466e53]"
-              >
-                专属链接地址（支持中文姓名或自定义后缀）
-              </label>
-              <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
-                <span className="shrink-0 select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c]">
-                  {siteOrigin}/online-resume/
-                </span>
+            <div className="mt-4 grid gap-3">
+              <div>
+                <label
+                  htmlFor="online-resume-slug-input"
+                  className="mb-1.5 block text-xs font-medium text-[#466e53]"
+                >
+                  专属链接地址（支持中文姓名或自定义后缀）
+                </label>
+                <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
+                  <span className="shrink-0 select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c]">
+                    {siteOrigin}/online-resume/
+                  </span>
+                  <input
+                    id="online-resume-slug-input"
+                    type="text"
+                    autoFocus
+                    maxLength={80}
+                    value={onlineSlugInput}
+                    placeholder="例如：张三"
+                    onChange={(e) => {
+                      setOnlineSlugInput(e.target.value);
+                      setCopiedOnlineUrl(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        void handlePublishOnlineResume();
+                      } else if (e.key === "Escape") {
+                        setOnlineModalOpen(false);
+                      }
+                    }}
+                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm font-medium text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="online-resume-source-input"
+                  className="mb-1.5 block text-xs font-medium text-[#466e53]"
+                >
+                  投递公司 / HR 追踪标记（选填，自动加密不会显示明文）
+                </label>
                 <input
-                  id="online-resume-slug-input"
+                  id="online-resume-source-input"
                   type="text"
-                  autoFocus
-                  maxLength={80}
-                  value={onlineSlugInput}
-                  placeholder="例如：张三"
+                  maxLength={40}
+                  value={onlineSourceTagInput}
+                  placeholder="例如：字节跳动 / 阿里张HR（链接中将加密为 ?t=...）"
                   onChange={(e) => {
-                    setOnlineSlugInput(e.target.value);
+                    setOnlineSourceTagInput(e.target.value);
                     setCopiedOnlineUrl(false);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      void handlePublishOnlineResume();
-                    } else if (e.key === "Escape") {
-                      setOnlineModalOpen(false);
-                    }
-                  }}
-                  className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm font-medium text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                  className="w-full rounded-lg border border-[#d2ebda] bg-white px-3 py-2 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none focus:ring-2 focus-within:ring-[#19af60]/20"
                 />
               </div>
             </div>
@@ -902,13 +974,19 @@ export default function EditorWorkspace({
               <div className="mt-3.5 rounded-xl border border-[#d8efe1] bg-[#f6fcf8] p-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-xs font-medium text-[#153a22]">
-                    {siteOrigin}/online-resume/{activePublishedSlug}
+                    {buildOnlineShareUrl(
+                      activePublishedSlug,
+                      onlineSourceTagInput,
+                    )}
                   </p>
                   <div className="flex shrink-0 items-center gap-1.5">
                     <button
                       type="button"
                       onClick={async () => {
-                        const url = `${siteOrigin}/online-resume/${activePublishedSlug}`;
+                        const url = buildOnlineShareUrl(
+                          activePublishedSlug,
+                          onlineSourceTagInput,
+                        );
                         await navigator.clipboard.writeText(url).catch(() => {});
                         setCopiedOnlineUrl(true);
                       }}
@@ -918,7 +996,11 @@ export default function EditorWorkspace({
                       {copiedOnlineUrl ? "已复制" : "复制链接"}
                     </button>
                     <a
-                      href={`/online-resume/${encodeURIComponent(activePublishedSlug)}`}
+                      href={`/online-resume/${encodeURIComponent(activePublishedSlug)}${
+                        encodeSourceTag(onlineSourceTagInput)
+                          ? `?t=${encodeSourceTag(onlineSourceTagInput)}`
+                          : ""
+                      }`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-md border border-[#cde9d7] bg-white px-2 py-1 text-[11px] font-medium text-[#168347] transition-colors hover:bg-[#e8f8ee]"
@@ -931,6 +1013,121 @@ export default function EditorWorkspace({
                 <p className="mt-1.5 text-[11px] text-muted-ink">
                   您在编辑器中修改简历后，该在线链接会自动同步最新内容。
                 </p>
+              </div>
+            )}
+
+            {activeOnlineInfo && (
+              <div className="mt-3.5 rounded-xl border border-[#d8efe1] bg-white p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="font-semibold text-[#153a22]">
+                      访问记录
+                    </span>
+                    <span className="text-muted-ink">
+                      已查看{" "}
+                      <strong className="font-semibold text-[#0cb449]">
+                        {activeOnlineInfo.totalViews}
+                      </strong>{" "}
+                      次
+                    </span>
+                    <span className="text-muted-ink">
+                      下载 PDF{" "}
+                      <strong className="font-semibold text-[#0cb449]">
+                        {activeOnlineInfo.totalDownloads}
+                      </strong>{" "}
+                      次
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={onlineRefreshing}
+                    onClick={() => void refreshOnlineResumes()}
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-[#388855] transition-colors hover:bg-[#eef9f3]"
+                  >
+                    <RefreshCw
+                      size={12}
+                      className={onlineRefreshing ? "animate-spin" : ""}
+                    />
+                    刷新
+                  </button>
+                </div>
+
+                {activeOnlineInfo.recentViews.length === 0 ? (
+                  <p className="mt-2.5 py-2 text-center text-[11px] text-muted-ink">
+                    暂无访问记录，分享链接后对方打开即可在此看到访问详情
+                  </p>
+                ) : (
+                  <div className="mt-2 max-h-44 space-y-1.5 overflow-y-auto pr-1">
+                    {activeOnlineInfo.recentViews.map((v) => {
+                      const d = new Date(v.viewedAt);
+                      const now = new Date();
+                      const isToday =
+                        d.getFullYear() === now.getFullYear() &&
+                        d.getMonth() === now.getMonth() &&
+                        d.getDate() === now.getDate();
+                      const yesterday = new Date(now);
+                      yesterday.setDate(now.getDate() - 1);
+                      const isYesterday =
+                        d.getFullYear() === yesterday.getFullYear() &&
+                        d.getMonth() === yesterday.getMonth() &&
+                        d.getDate() === yesterday.getDate();
+                      const hm = d.toLocaleTimeString("zh-CN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      });
+                      const timeStr = isToday
+                        ? `今天 ${hm}`
+                        : isYesterday
+                          ? `昨天 ${hm}`
+                          : `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")} ${hm}`;
+                      const normalizedDevice = v.deviceLabel.includes(" · ")
+                        ? v.deviceLabel.replace(
+                            /^(.+?)\s*·\s*(.+)$/,
+                            "$1 ($2)",
+                          )
+                        : v.deviceLabel || "浏览器";
+                      return (
+                        <div
+                          key={v.id}
+                          className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap rounded-lg bg-[#f6fcf8] px-2.5 py-2 text-[11px] leading-relaxed text-[#2d5339]"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="size-2 shrink-0 rounded-full bg-[#0cb449]"
+                          />
+                          <p className="whitespace-nowrap">
+                            <strong className="font-semibold text-[#117a3f]">
+                              【{v.sourceTag || "直接访问"}】
+                            </strong>
+                            <span> · {timeStr}</span>
+                            {v.ipAddress && (
+                              <>
+                                <span> · </span>
+                                <span className="font-medium text-[#1e4b2c]">
+                                  {v.ipAddress.replace("浙江杭 (", "浙江杭州 (")}
+                                </span>
+                              </>
+                            )}
+                            <span> · 通过 </span>
+                            <strong className="font-semibold text-[#153a22]">
+                              {normalizedDevice}
+                            </strong>
+                            <span> 打开查看</span>
+                            {v.downloadedPdf && (
+                              <>
+                                <span> · </span>
+                                <strong className="font-semibold text-[#0cb449]">
+                                  已下载 PDF
+                                </strong>
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

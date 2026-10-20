@@ -21,6 +21,18 @@ async function ensureOnlineResumesTable() {
       CONSTRAINT online_resumes_user_doc_unique UNIQUE (user_id, document_id)
     );
     CREATE INDEX IF NOT EXISTS online_resumes_user_id_idx ON online_resumes(user_id);
+
+    CREATE TABLE IF NOT EXISTS online_resume_views (
+      id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      slug text NOT NULL REFERENCES online_resumes(slug) ON DELETE CASCADE,
+      source_tag text NOT NULL DEFAULT '',
+      device_label text NOT NULL DEFAULT '',
+      ip_address text NOT NULL DEFAULT '',
+      downloaded_pdf boolean NOT NULL DEFAULT false,
+      viewed_at timestamptz NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS online_resume_views_slug_viewed_idx
+      ON online_resume_views(slug, viewed_at DESC);
   `);
   schemaEnsured = true;
 }
@@ -35,12 +47,48 @@ export function normalizeOnlineSlug(raw: unknown): string {
     .slice(0, 80);
 }
 
+export function parseVisitorDevice(userAgent: string): string {
+  const ua = userAgent || "";
+  let os = "";
+  if (/iPhone/i.test(ua)) os = "iPhone";
+  else if (/iPad/i.test(ua)) os = "iPad";
+  else if (/Android/i.test(ua)) os = "Android";
+  else if (/Macintosh|Mac OS X/i.test(ua)) os = "Mac";
+  else if (/Windows/i.test(ua)) os = "Windows";
+  else if (/Linux/i.test(ua)) os = "Linux";
+
+  const isDesktop = os === "Mac" || os === "Windows" || os === "Linux";
+  let app = "浏览器";
+  if (/Feishu|Lark/i.test(ua)) app = isDesktop ? "飞书桌面端" : "飞书";
+  else if (/DingTalk/i.test(ua)) app = isDesktop ? "钉钉桌面端" : "钉钉";
+  else if (/wxwork/i.test(ua)) app = isDesktop ? "企业微信桌面端" : "企业微信";
+  else if (/MicroMessenger/i.test(ua)) app = isDesktop ? "微信桌面端" : "微信";
+  else if (/Edg\//i.test(ua)) app = "Edge";
+  else if (/Chrome\//i.test(ua) && !/Chromium/i.test(ua)) app = "Chrome";
+  else if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) app = "Safari";
+  else if (/Firefox/i.test(ua)) app = "Firefox";
+
+  return os ? `${app} (${os})` : app;
+}
+
+export interface OnlineResumeViewItem {
+  id: string;
+  sourceTag: string;
+  deviceLabel: string;
+  ipAddress: string;
+  downloadedPdf: boolean;
+  viewedAt: string;
+}
+
 export interface OnlineResumeRecord {
   slug: string;
   documentId: string;
   title: string;
   enabled: boolean;
   updatedAt: Date;
+  totalViews: number;
+  totalDownloads: number;
+  recentViews: OnlineResumeViewItem[];
 }
 
 export async function listUserOnlineResumes(
@@ -53,18 +101,64 @@ export async function listUserOnlineResumes(
     title: string;
     enabled: boolean;
     updated_at: Date;
+    total_views: string;
+    total_downloads: string;
   }>(
-    `SELECT slug, document_id, title, enabled, updated_at
-     FROM online_resumes
-     WHERE user_id = $1`,
+    `SELECT o.slug, o.document_id, o.title, o.enabled, o.updated_at,
+            COUNT(v.id)::text AS total_views,
+            COUNT(v.id) FILTER (WHERE v.downloaded_pdf = true)::text AS total_downloads
+     FROM online_resumes o
+     LEFT JOIN online_resume_views v ON v.slug = o.slug
+     WHERE o.user_id = $1
+     GROUP BY o.slug, o.document_id, o.title, o.enabled, o.updated_at`,
     [userId],
   );
+
+  if (res.rows.length === 0) return [];
+
+  const slugs = res.rows.map((r) => r.slug);
+  const viewsRes = await db().query<{
+    id: string;
+    slug: string;
+    source_tag: string;
+    device_label: string;
+    ip_address: string;
+    downloaded_pdf: boolean;
+    viewed_at: Date;
+  }>(
+    `SELECT id, slug, source_tag, device_label, ip_address, downloaded_pdf, viewed_at
+     FROM online_resume_views
+     WHERE slug = ANY($1::text[])
+     ORDER BY viewed_at DESC
+     LIMIT 100`,
+    [slugs],
+  );
+
+  const viewsBySlug = new Map<string, OnlineResumeViewItem[]>();
+  for (const v of viewsRes.rows) {
+    const list = viewsBySlug.get(v.slug) ?? [];
+    if (list.length < 25) {
+      list.push({
+        id: v.id,
+        sourceTag: v.source_tag,
+        deviceLabel: v.device_label,
+        ipAddress: v.ip_address,
+        downloadedPdf: v.downloaded_pdf,
+        viewedAt: v.viewed_at.toISOString(),
+      });
+      viewsBySlug.set(v.slug, list);
+    }
+  }
+
   return res.rows.map((r) => ({
     slug: r.slug,
     documentId: r.document_id,
     title: r.title,
     enabled: r.enabled,
     updatedAt: r.updated_at,
+    totalViews: Number(r.total_views) || 0,
+    totalDownloads: Number(r.total_downloads) || 0,
+    recentViews: viewsBySlug.get(r.slug) ?? [],
   }));
 }
 
@@ -84,7 +178,6 @@ export async function publishOnlineResume(params: {
     throw new ApiError(400, "invalid_resume_data", "简历数据格式无效。");
   }
 
-  // Check if another user or another document of the same user already owns this slug
   const existing = await db().query<{
     user_id: string;
     document_id: string;
@@ -105,14 +198,7 @@ export async function publishOnlineResume(params: {
     );
   }
 
-  // Upsert by (user_id, document_id) so renaming the slug updates the existing record
-  const result = await db().query<{
-    slug: string;
-    document_id: string;
-    title: string;
-    enabled: boolean;
-    updated_at: Date;
-  }>(
+  await db().query(
     `INSERT INTO online_resumes (slug, user_id, document_id, title, resume_data, enabled, updated_at)
      VALUES ($1, $2, $3, $4, $5::jsonb, true, now())
      ON CONFLICT (user_id, document_id) DO UPDATE
@@ -120,8 +206,7 @@ export async function publishOnlineResume(params: {
            title = EXCLUDED.title,
            resume_data = EXCLUDED.resume_data,
            enabled = true,
-           updated_at = now()
-     RETURNING slug, document_id, title, enabled, updated_at`,
+           updated_at = now()`,
     [
       slug,
       params.userId,
@@ -131,14 +216,12 @@ export async function publishOnlineResume(params: {
     ],
   );
 
-  const row = result.rows[0];
-  return {
-    slug: row.slug,
-    documentId: row.document_id,
-    title: row.title,
-    enabled: row.enabled,
-    updatedAt: row.updated_at,
-  };
+  const all = await listUserOnlineResumes(params.userId);
+  const matched = all.find((item) => item.documentId === params.documentId);
+  if (!matched) {
+    throw new ApiError(500, "publish_failed", "保存失败，请重试。");
+  }
+  return matched;
 }
 
 export async function unpublishOnlineResume(params: {
@@ -149,6 +232,82 @@ export async function unpublishOnlineResume(params: {
   await db().query(
     `DELETE FROM online_resumes WHERE user_id = $1 AND document_id = $2`,
     [params.userId, params.documentId],
+  );
+}
+
+export async function recordOnlineResumeVisit(params: {
+  slug: string;
+  sourceTag: string;
+  userAgent: string;
+  ipAddress: string;
+}): Promise<string | null> {
+  await ensureOnlineResumesTable();
+  const slug = params.slug.trim();
+  if (!slug) return null;
+
+  const exists = await db().query<{ slug: string }>(
+    `SELECT slug FROM online_resumes WHERE slug = $1 AND enabled = true`,
+    [slug],
+  );
+  if (!exists.rows[0]) return null;
+
+  const cleanTag = params.sourceTag.trim().slice(0, 48);
+  const deviceLabel = parseVisitorDevice(params.userAgent);
+  const cleanIp = params.ipAddress.trim().slice(0, 80);
+
+  // Deduplicate rapid double-renders within 5 seconds from same IP + device + tag
+  const recent = await db().query<{ id: string }>(
+    `SELECT id FROM online_resume_views
+     WHERE slug = $1
+       AND source_tag = $2
+       AND device_label = $3
+       AND ip_address = $4
+       AND viewed_at > now() - interval '5 seconds'
+     ORDER BY viewed_at DESC
+     LIMIT 1`,
+    [slug, cleanTag, deviceLabel, cleanIp],
+  );
+  if (recent.rows[0]) {
+    return recent.rows[0].id;
+  }
+
+  const inserted = await db().query<{ id: string }>(
+    `INSERT INTO online_resume_views (slug, source_tag, device_label, ip_address)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id`,
+    [slug, cleanTag, deviceLabel, cleanIp],
+  );
+  return inserted.rows[0]?.id ?? null;
+}
+
+export async function markOnlineResumeDownloaded(params: {
+  slug: string;
+  viewId?: string;
+}): Promise<void> {
+  await ensureOnlineResumesTable();
+  const slug = params.slug.trim();
+  if (!slug) return;
+
+  if (params.viewId) {
+    await db().query(
+      `UPDATE online_resume_views
+       SET downloaded_pdf = true
+       WHERE id = $1::uuid AND slug = $2`,
+      [params.viewId, slug],
+    );
+    return;
+  }
+
+  await db().query(
+    `UPDATE online_resume_views
+     SET downloaded_pdf = true
+     WHERE id = (
+       SELECT id FROM online_resume_views
+       WHERE slug = $1
+       ORDER BY viewed_at DESC
+       LIMIT 1
+     )`,
+    [slug],
   );
 }
 
@@ -182,7 +341,6 @@ export async function getPublicOnlineResumeBySlug(rawSlug: string): Promise<{
   const row = result.rows[0];
   if (!row) return null;
 
-  // Prefer the live document from the user's resume_libraries if still present and not archived
   if (row.library) {
     try {
       const lib = parseLibrary(JSON.stringify(row.library));

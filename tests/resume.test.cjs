@@ -489,3 +489,18 @@ test("parseResumeText extracts basic info, sections, timeline entries and custom
   assert.equal(parsed.customSections.length, 1);
   assert.equal(parsed.customSections[0].title, "获奖证书");
 });
+
+const {
+  encodeSourceTag,
+  decodeSourceTag,
+} = require("../lib/online-resume-token.ts");
+test("online resume source tag token obfuscates plain text and roundtrips cleanly", () => {
+  for (const label of ["字节跳动", "阿里张HR", "Tencent-WXG", "美团 核心本地商业"]) {
+    const token = encodeSourceTag(label);
+    assert.equal(token.includes(label), false);
+    assert.match(token, /^[A-Za-z0-9_-]+$/);
+    assert.equal(decodeSourceTag(token), label);
+  }
+  assert.equal(encodeSourceTag("   "), "");
+  assert.equal(decodeSourceTag(""), "");
+});

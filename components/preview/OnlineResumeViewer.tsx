@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
@@ -18,10 +18,39 @@ export function OnlineResumeViewer({
   data: ResumeData;
 }) {
   const previewRef = useRef<HTMLDivElement>(null);
+  const viewIdRef = useRef<string>("");
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [actualScale, setActualScale] = useState(1);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("t") || "";
+    const sourceTag =
+      params.get("from") ||
+      params.get("source") ||
+      params.get("company") ||
+      params.get("hr") ||
+      "";
+    fetch("/api/online-resume/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug,
+        token,
+        sourceTag,
+        action: "view",
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload: { viewId?: string } | null) => {
+        if (payload?.viewId) {
+          viewIdRef.current = payload.viewId;
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   function handleZoomIn() {
     const currentPercent = Math.round(actualScale * 100);
@@ -39,6 +68,15 @@ export function OnlineResumeViewer({
     if (exporting || !previewRef.current) return;
     setExporting(true);
     setExportError("");
+    void fetch("/api/online-resume/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug,
+        viewId: viewIdRef.current,
+        action: "download",
+      }),
+    }).catch(() => {});
     try {
       const { exportResumePdf } = await import("@/lib/export-pdf");
       const filename =
