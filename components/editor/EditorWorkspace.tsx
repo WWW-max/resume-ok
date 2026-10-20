@@ -178,23 +178,40 @@ export default function EditorWorkspace({
 
   useEffect(() => {
     let active = true;
-    fetch("/api/online-resume")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((payload: { items?: OnlineResumeClientInfo[] } | null) => {
-        if (!active || !payload?.items) return;
-        const map: Record<string, OnlineResumeClientInfo> = {};
-        for (const item of payload.items) {
-          if (item.enabled && item.documentId && item.slug) {
-            map[item.documentId] = item;
+    const poll = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetch("/api/online-resume")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((payload: { items?: OnlineResumeClientInfo[] } | null) => {
+          if (!active || !payload?.items) return;
+          const map: Record<string, OnlineResumeClientInfo> = {};
+          for (const item of payload.items) {
+            if (item.enabled && item.documentId && item.slug) {
+              map[item.documentId] = item;
+            }
           }
-        }
-        setOnlineRecords(map);
-      })
-      .catch(() => {});
+          setOnlineRecords(map);
+        })
+        .catch(() => {});
+    };
+
+    poll();
+    if (!onlineModalOpen) {
+      return () => {
+        active = false;
+      };
+    }
+
+    const timer = window.setInterval(poll, 4000);
+    window.addEventListener("focus", poll);
+    document.addEventListener("visibilitychange", poll);
     return () => {
       active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", poll);
+      document.removeEventListener("visibilitychange", poll);
     };
-  }, []);
+  }, [onlineModalOpen]);
 
   useEffect(() => {
     if (!userMenuOpen && !downloadMenuOpen) return;
@@ -1038,18 +1055,27 @@ export default function EditorWorkspace({
                       次
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    disabled={onlineRefreshing}
-                    onClick={() => void refreshOnlineResumes()}
-                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-[#388855] transition-colors hover:bg-[#eef9f3]"
-                  >
-                    <RefreshCw
-                      size={12}
-                      className={onlineRefreshing ? "animate-spin" : ""}
-                    />
-                    刷新
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={onlineRefreshing}
+                      onClick={() => void refreshOnlineResumes()}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-[#388855] transition-colors hover:bg-[#eef9f3]"
+                    >
+                      <RefreshCw
+                        size={12}
+                        className={onlineRefreshing ? "animate-spin" : ""}
+                      />
+                      刷新
+                    </button>
+                    <Link
+                      href={`/view-statistic?slug=${encodeURIComponent(activePublishedSlug)}`}
+                      className="inline-flex items-center gap-1 rounded-md border border-[#cde9d7] bg-[#f4fbf6] px-2.5 py-1 text-[11px] font-medium text-[#168347] transition-colors hover:bg-[#e8f8ee]"
+                    >
+                      查看全部统计
+                      <ExternalLink size={11} />
+                    </Link>
+                  </div>
                 </div>
 
                 {activeOnlineInfo.recentViews.length === 0 ? (
@@ -1057,8 +1083,8 @@ export default function EditorWorkspace({
                     暂无访问记录，分享链接后对方打开即可在此看到访问详情
                   </p>
                 ) : (
-                  <div className="mt-2 max-h-44 space-y-1.5 overflow-y-auto pr-1">
-                    {activeOnlineInfo.recentViews.map((v) => {
+                  <div className="mt-2 space-y-1.5">
+                    {activeOnlineInfo.recentViews.slice(0, 5).map((v) => {
                       const d = new Date(v.viewedAt);
                       const now = new Date();
                       const isToday =
@@ -1126,6 +1152,16 @@ export default function EditorWorkspace({
                         </div>
                       );
                     })}
+                    {activeOnlineInfo.totalViews > 5 && (
+                      <div className="pt-1 text-center">
+                        <Link
+                          href={`/view-statistic?slug=${encodeURIComponent(activePublishedSlug)}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#168347] hover:underline"
+                        >
+                          查看全部 {activeOnlineInfo.totalViews} 条访客记录与统计详情 →
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
