@@ -40,6 +40,7 @@ import {
   Languages,
   Upload,
   Globe,
+  EyeOff,
   Copy,
   Check,
   ExternalLink,
@@ -109,6 +110,9 @@ export default function EditorWorkspace({
   const [onlineRefreshing, setOnlineRefreshing] = useState(false);
   const [onlineError, setOnlineError] = useState("");
   const [copiedOnlineUrl, setCopiedOnlineUrl] = useState(false);
+  const [confirmOnlineAction, setConfirmOnlineAction] = useState<
+    "publish" | "unpublish" | null
+  >(null);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const editingColumnRef = useRef<HTMLElement>(null);
   const downloadMenuRef = useRef<HTMLDivElement>(null);
@@ -418,19 +422,36 @@ export default function EditorWorkspace({
     setOnlineSlugInput(defaultSlug);
     setOnlineError("");
     setCopiedOnlineUrl(false);
+    setConfirmOnlineAction(null);
     setOnlineModalOpen(true);
     void refreshOnlineResumes();
   }
 
-  async function handlePublishOnlineResume() {
-    if (onlineSaving || !store.ready) return;
-    const cleanSlug = onlineSlugInput
+  function getCleanOnlineSlug() {
+    return onlineSlugInput
       .trim()
       .replace(/[\r\n\t/\\?#%&]+/g, "-")
       .replace(/\s+/g, "-")
       .replace(/^-+|-+$/g, "");
+  }
+
+  function requestPublishOnlineResume() {
+    if (onlineSaving || !store.ready) return;
+    const cleanSlug = getCleanOnlineSlug();
     if (!cleanSlug) {
       setOnlineError("请输入在线简历链接后缀名称（例如：张三）。");
+      return;
+    }
+    setOnlineError("");
+    setConfirmOnlineAction("publish");
+  }
+
+  async function handlePublishOnlineResume() {
+    if (onlineSaving || !store.ready) return;
+    const cleanSlug = getCleanOnlineSlug();
+    if (!cleanSlug) {
+      setOnlineError("请输入在线简历链接后缀名称（例如：张三）。");
+      setConfirmOnlineAction(null);
       return;
     }
     setOnlineSaving(true);
@@ -463,6 +484,7 @@ export default function EditorWorkspace({
         [store.active.id]: savedItem,
       }));
       setOnlineSlugInput(savedItem.slug);
+      setConfirmOnlineAction(null);
       if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard
           .writeText(buildOnlineShareUrl(savedItem.slug, onlineSourceTagInput))
@@ -473,6 +495,7 @@ export default function EditorWorkspace({
       setOnlineError(
         error instanceof Error ? error.message : "发布在线简历失败，请稍后重试。",
       );
+      setConfirmOnlineAction(null);
     } finally {
       setOnlineSaving(false);
     }
@@ -497,10 +520,12 @@ export default function EditorWorkspace({
         return next;
       });
       setCopiedOnlineUrl(false);
+      setConfirmOnlineAction(null);
     } catch (error) {
       setOnlineError(
         error instanceof Error ? error.message : "关闭在线简历失败。",
       );
+      setConfirmOnlineAction(null);
     } finally {
       setOnlineSaving(false);
     }
@@ -977,7 +1002,7 @@ export default function EditorWorkspace({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        void handlePublishOnlineResume();
+                        requestPublishOnlineResume();
                       } else if (e.key === "Escape") {
                         setOnlineModalOpen(false);
                       }
@@ -1208,9 +1233,10 @@ export default function EditorWorkspace({
                 <button
                   type="button"
                   disabled={onlineSaving}
-                  onClick={() => void handleUnpublishOnlineResume()}
-                  className="inline-flex min-h-9 items-center justify-center rounded-lg px-2.5 text-xs font-medium text-[#bd554d] transition-colors hover:bg-red-50"
+                  onClick={() => setConfirmOnlineAction("unpublish")}
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-[#f2c8c3] bg-[#fff7f6] px-3.5 text-xs font-medium text-[#bd554d] shadow-[0_1px_2px_rgba(189,85,77,0.06)] transition-colors hover:border-[#e6aca5] hover:bg-[#ffecea] disabled:opacity-60"
                 >
+                  <EyeOff size={13.5} />
                   关闭在线访问
                 </button>
               ) : (
@@ -1227,7 +1253,7 @@ export default function EditorWorkspace({
                 <button
                   type="button"
                   disabled={onlineSaving}
-                  onClick={() => void handlePublishOnlineResume()}
+                  onClick={requestPublishOnlineResume}
                   className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
                 >
                   <Globe size={14} />
@@ -1239,6 +1265,122 @@ export default function EditorWorkspace({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {onlineModalOpen && confirmOnlineAction && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="online-confirm-dialog-title"
+          className="fixed inset-0 z-[60] grid place-items-center bg-black/30 p-4 backdrop-blur-[1px] print:hidden"
+          onClick={() => {
+            if (!onlineSaving) setConfirmOnlineAction(null);
+          }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d33]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {confirmOnlineAction === "publish" ? (
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#e8f8ee] text-[#0cb449]">
+                    <Globe size={17} />
+                  </span>
+                  <h2
+                    id="online-confirm-dialog-title"
+                    className="text-base font-semibold text-ink"
+                  >
+                    {activePublishedSlug
+                      ? "确认同步发布到线上？"
+                      : "确认发布在线简历？"}
+                  </h2>
+                </div>
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-ink">
+                  {activePublishedSlug ? (
+                    <>
+                      确认后将把当前编辑器中的最新简历内容同步覆盖至线上链接{" "}
+                      <span className="break-all font-medium text-ink">
+                        {siteOrigin}/online-resume/{getCleanOnlineSlug()}
+                      </span>
+                      ，持有该链接的 HR 刷新即可看到更新后的简历并下载最新 PDF。
+                    </>
+                  ) : (
+                    <>
+                      确认后将生成专属在线简历链接{" "}
+                      <span className="break-all font-medium text-ink">
+                        {siteOrigin}/online-resume/{getCleanOnlineSlug()}
+                      </span>{" "}
+                      并自动复制到剪贴板，持有该链接的 HR 可在线浏览与下载 PDF 简历。
+                    </>
+                  )}
+                </p>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={onlineSaving}
+                    onClick={() => setConfirmOnlineAction(null)}
+                    className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6] disabled:opacity-60"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="button"
+                    disabled={onlineSaving}
+                    onClick={() => void handlePublishOnlineResume()}
+                    className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                  >
+                    <Globe size={13.5} />
+                    {onlineSaving
+                      ? "发布中…"
+                      : activePublishedSlug
+                        ? "确认同步发布"
+                        : "确认发布"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#fff2f0] text-[#bd554d]">
+                    <EyeOff size={17} />
+                  </span>
+                  <h2
+                    id="online-confirm-dialog-title"
+                    className="text-base font-semibold text-ink"
+                  >
+                    确认关闭在线访问？
+                  </h2>
+                </div>
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-ink">
+                  关闭后，线上链接{" "}
+                  <span className="break-all font-medium text-ink">
+                    {siteOrigin}/online-resume/{activePublishedSlug}
+                  </span>{" "}
+                  将立即失效，HR 将无法再通过该链接查看或下载您的在线简历。编辑器内的本地简历内容不会受到影响，您随时可以重新发布。
+                </p>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={onlineSaving}
+                    onClick={() => setConfirmOnlineAction(null)}
+                    className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6] disabled:opacity-60"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="button"
+                    disabled={onlineSaving}
+                    onClick={() => void handleUnpublishOnlineResume()}
+                    className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-[#bd554d] px-4 text-xs font-medium text-white transition-colors hover:bg-[#a6443d] disabled:opacity-60"
+                  >
+                    <EyeOff size={13.5} />
+                    {onlineSaving ? "关闭中…" : "确认关闭访问"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
