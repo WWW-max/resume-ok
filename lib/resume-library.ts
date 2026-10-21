@@ -222,7 +222,7 @@ export function isResumeData(value: unknown): value is ResumeData {
       typeof a.fontSize !== "number" ||
       a.fontSize < 10 ||
       a.fontSize > 15 ||
-      !["comfortable", "compact"].includes(String(a.spacing)) ||
+      !["comfortable", "compact", "tight"].includes(String(a.spacing)) ||
       typeof a.showBrand !== "boolean" ||
       ![a.paddingTop, a.paddingRight, a.paddingBottom, a.paddingLeft].every(
         (padding) =>

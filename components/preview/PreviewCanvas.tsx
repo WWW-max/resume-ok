@@ -18,7 +18,40 @@ interface PageSlice {
   padTop: number;
 }
 
-function computePreviewPages(
+export function measureResumeContentBottom(
+  paper: HTMLElement,
+  paddingBottom: number,
+): number {
+  const rootRect = paper.getBoundingClientRect();
+  const currentScale = rootRect.width / A4_WIDTH || 1;
+  const doc = paper.ownerDocument;
+  let maxBottom = 0;
+
+  paper
+    .querySelectorAll("p,h1,h2,h3,time,.skill-tags span,img")
+    .forEach((el) => {
+      if (el.tagName === "IMG" || el.tagName === "H2") {
+        const r = el.getBoundingClientRect();
+        if (r.height > 0) {
+          const bottom = Math.ceil((r.bottom - rootRect.top) / currentScale);
+          if (bottom > maxBottom) maxBottom = bottom;
+        }
+        return;
+      }
+      const range = doc.createRange();
+      range.selectNodeContents(el);
+      for (const r of Array.from(range.getClientRects())) {
+        if (r.height > 0) {
+          const bottom = Math.ceil((r.bottom - rootRect.top) / currentScale);
+          if (bottom > maxBottom) maxBottom = bottom;
+        }
+      }
+    });
+
+  return maxBottom > 0 ? maxBottom : Math.ceil(paper.scrollHeight) - paddingBottom;
+}
+
+export function computePreviewPages(
   paper: HTMLElement,
   paddingTop: number,
   paddingBottom: number,
@@ -124,6 +157,7 @@ export function PreviewCanvas({
   zoom,
   onZoomChange,
   onScaleChange,
+  onPageCountChange,
   onSelectSection,
 }: {
   data: ResumeData;
@@ -131,6 +165,7 @@ export function PreviewCanvas({
   previewRef: RefObject<HTMLDivElement | null>;
   onZoomChange?: (nextZoom: number | "fit") => void;
   onScaleChange?: (scale: number) => void;
+  onPageCountChange?: (count: number) => void;
   onSelectSection?: (section: EditorSection) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
@@ -179,6 +214,7 @@ export function PreviewCanvas({
         }
         return nextPages;
       });
+      onPageCountChange?.(nextPages.length);
     });
     return () => cancelAnimationFrame(frame);
   }, [
@@ -187,6 +223,7 @@ export function PreviewCanvas({
     previewRef,
     appearance.paddingTop,
     appearance.paddingBottom,
+    onPageCountChange,
   ]);
 
   useEffect(() => {

@@ -9,17 +9,26 @@ import {
   EditorPanel,
   type EditorSection,
 } from "@/components/editor/EditorPanel";
-import { PreviewCanvas } from "@/components/preview/PreviewCanvas";
+import {
+  PreviewCanvas,
+  computePreviewPages,
+  measureResumeContentBottom,
+} from "@/components/preview/PreviewCanvas";
 import { SettingsPanel } from "@/components/editor/SettingsPanel";
 import { AssistantPanel } from "@/components/editor/AssistantPanel";
 import { TemplatePanel } from "@/components/editor/TemplatePanel";
 import { Brand } from "@/components/Brand";
+import {
+  defaultAppearance,
+  type ResumeAppearance,
+} from "@/lib/resume-appearance";
 import {
   Download,
   Eye,
   PencilLine,
   LayoutGrid,
   Sparkles,
+  WandSparkles,
   Files,
   Settings,
   Maximize2,
@@ -119,6 +128,12 @@ export default function EditorWorkspace({
   const [editTrigger, setEditTrigger] = useState(0);
   const [zoom, setZoom] = useState<number | "fit">("fit");
   const [actualScale, setActualScale] = useState(0.85);
+  const [pageCount, setPageCount] = useState(1);
+  const [smartFitNotice, setSmartFitNotice] = useState<{
+    type: "success" | "warning" | "info";
+    message: string;
+  } | null>(null);
+  const smartFitTimerRef = useRef<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [translating, setTranslating] = useState(false);
@@ -629,6 +644,178 @@ export default function EditorWorkspace({
     setPreviewOnly(false);
   }
   const previewRef = useRef<HTMLDivElement>(null);
+
+  function showSmartFitFeedback(
+    type: "success" | "warning" | "info",
+    message: string,
+  ) {
+    if (smartFitTimerRef.current) {
+      window.clearTimeout(smartFitTimerRef.current);
+    }
+    setSmartFitNotice({ type, message });
+    smartFitTimerRef.current = window.setTimeout(
+      () => {
+        setSmartFitNotice(null);
+      },
+      type === "warning" ? 6500 : 4500,
+    );
+  }
+
+  function handleSmartOnePage() {
+    const paper = previewRef.current;
+    if (!paper) return;
+    const A4_HEIGHT = 1123;
+    const MIN_BALANCED_MARGIN = 28;
+    const cur: ResumeAppearance = { ...defaultAppearance, ...data.appearance };
+    const initialSlices = computePreviewPages(
+      paper,
+      cur.paddingTop,
+      cur.paddingBottom,
+    );
+    const initialBottom = measureResumeContentBottom(paper, cur.paddingBottom);
+    const initialBottomWhitespace = A4_HEIGHT - initialBottom;
+
+    if (
+      initialSlices.length <= 1 &&
+      initialBottomWhitespace >= MIN_BALANCED_MARGIN &&
+      cur.paddingTop >= MIN_BALANCED_MARGIN &&
+      Math.abs(cur.paddingTop - initialBottomWhitespace) <= 10
+    ) {
+      showSmartFitFeedback(
+        "info",
+        "当前简历已在 1 页 A4 范围内且上下留白协调，无需调整间距。",
+      );
+      return;
+    }
+
+    const spacingOrder: Array<ResumeAppearance["spacing"]> =
+      cur.spacing === "comfortable"
+        ? ["comfortable", "compact", "tight"]
+        : cur.spacing === "compact"
+          ? ["compact", "tight"]
+          : ["tight"];
+
+    const baseHPad = Math.max(24, Math.min(cur.paddingLeft, cur.paddingRight));
+    const hPadSteps = Array.from(
+      new Set([baseHPad, 34, 30, 26].filter((h) => h <= baseHPad && h >= 24)),
+    ).sort((a, b) => b - a);
+
+    // 候选配置：优先调整内部模块/行间距（spacing）与左右边距，上下边距通过实际内容高度自动居中配平
+    const rawCandidates: Array<{
+      spacing: ResumeAppearance["spacing"];
+      fontSize: number;
+      hPad: number;
+    }> = [];
+
+    for (const sp of spacingOrder) {
+      for (const hPad of hPadSteps) {
+        rawCandidates.push({ spacing: sp, fontSize: cur.fontSize, hPad });
+      }
+    }
+
+    const fontSteps = [cur.fontSize - 0.5, cur.fontSize - 1, cur.fontSize - 1.5]
+      .map((f) => Math.round(f * 2) / 2)
+      .filter((f) => f >= 10.5);
+
+    for (const fs of fontSteps) {
+      for (const sp of ["compact", "tight"] as const) {
+        for (const hPad of [Math.min(baseHPad, 32), 28, 24]) {
+          rawCandidates.push({ spacing: sp, fontSize: fs, hPad });
+        }
+      }
+    }
+
+    const origClasses = [
+      "spacing-comfortable",
+      "spacing-compact",
+      "spacing-tight",
+    ].filter((cls) => paper.classList.contains(cls));
+    const origFontSize = paper.style.getPropertyValue("--resume-font-size");
+    const origPadTop = paper.style.paddingTop;
+    const origPadRight = paper.style.paddingRight;
+    const origPadBottom = paper.style.paddingBottom;
+    const origPadLeft = paper.style.paddingLeft;
+
+    let matched: ResumeAppearance | null = null;
+    const TEST_PAD_TOP = 30;
+    try {
+      for (const item of rawCandidates) {
+        paper.classList.remove(
+          "spacing-comfortable",
+          "spacing-compact",
+          "spacing-tight",
+        );
+        paper.classList.add(`spacing-${item.spacing}`);
+        paper.style.setProperty("--resume-font-size", `${item.fontSize}px`);
+        paper.style.paddingTop = `${TEST_PAD_TOP}px`;
+        paper.style.paddingBottom = `${TEST_PAD_TOP}px`;
+        paper.style.paddingLeft = `${item.hPad}px`;
+        paper.style.paddingRight = `${item.hPad}px`;
+
+        const contentBottom = measureResumeContentBottom(paper, TEST_PAD_TOP);
+        const pureContentHeight = Math.max(0, contentBottom - TEST_PAD_TOP);
+        const totalVerticalMargin = A4_HEIGHT - pureContentHeight;
+
+        // 必须保证上下留白合计至少 2 * MIN_BALANCED_MARGIN (56px)，避免底部贴边局促
+        if (totalVerticalMargin >= MIN_BALANCED_MARGIN * 2) {
+          const balancedVPad = Math.min(
+            44,
+            Math.max(
+              MIN_BALANCED_MARGIN,
+              Math.floor((totalVerticalMargin - 2) / 2),
+            ),
+          );
+          paper.style.paddingTop = `${balancedVPad}px`;
+          paper.style.paddingBottom = `${balancedVPad}px`;
+
+          const slices = computePreviewPages(
+            paper,
+            balancedVPad,
+            balancedVPad,
+          );
+          if (slices.length <= 1) {
+            matched = {
+              ...cur,
+              spacing: item.spacing,
+              fontSize: item.fontSize,
+              paddingTop: balancedVPad,
+              paddingBottom: balancedVPad,
+              paddingLeft: item.hPad,
+              paddingRight: item.hPad,
+            };
+            break;
+          }
+        }
+      }
+    } finally {
+      paper.classList.remove(
+        "spacing-comfortable",
+        "spacing-compact",
+        "spacing-tight",
+      );
+      for (const cls of origClasses) {
+        paper.classList.add(cls);
+      }
+      paper.style.setProperty("--resume-font-size", origFontSize);
+      paper.style.paddingTop = origPadTop;
+      paper.style.paddingRight = origPadRight;
+      paper.style.paddingBottom = origPadBottom;
+      paper.style.paddingLeft = origPadLeft;
+    }
+
+    if (matched) {
+      setData({ ...data, appearance: matched });
+      showSmartFitFeedback(
+        "success",
+        "已自动协调模块间距并配平上下留白，将简历收敛为 1 页 A4（可按 Ctrl+Z 撤销）。",
+      );
+    } else {
+      showSmartFitFeedback(
+        "warning",
+        "简历内容较多，无法通过微调间距压缩为一页，建议优化删减部分内容后再试。",
+      );
+    }
+  }
   return (
     <div
       ref={workspaceRef}
@@ -1805,7 +1992,11 @@ export default function EditorWorkspace({
               }}
             />
           ) : (
-            <SettingsPanel data={data} onChange={setData} />
+            <SettingsPanel
+              data={data}
+              onChange={setData}
+              onSmartOnePage={handleSmartOnePage}
+            />
           )}
           <div
             role="separator"
@@ -1926,6 +2117,20 @@ export default function EditorWorkspace({
             </div>
             <div className={ui["toolbar-group"]}>
               <button
+                type="button"
+                className={ui["secondary-button"]}
+                title="自动微调间距与页边距，尽量将超出不多的简历收敛为一页 A4"
+                onClick={handleSmartOnePage}
+              >
+                <WandSparkles size={15} />
+                智能一页
+                {pageCount > 1 && (
+                  <span className="rounded-full bg-[#168347] px-1.5 py-0.2 text-[10px] font-semibold text-white">
+                    {pageCount}页
+                  </span>
+                )}
+              </button>
+              <button
                 className={ui["secondary-button"]}
                 onClick={() => openPanel("templates")}
               >
@@ -1946,12 +2151,34 @@ export default function EditorWorkspace({
               </span>
             </div>
           </div>
+          {smartFitNotice && (
+            <div
+              role="status"
+              className={`mx-5 mb-1 flex items-center justify-between gap-3 rounded-lg border px-3.5 py-2 text-xs font-medium shadow-2xs transition-all print:hidden ${
+                smartFitNotice.type === "warning"
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : smartFitNotice.type === "success"
+                    ? "border-[#8ce0b0] bg-[#ebfaf1] text-[#116e38]"
+                    : "border-[#cde9d7] bg-[#f4fbf6] text-[#28633d]"
+              }`}
+            >
+              <span>{smartFitNotice.message}</span>
+              <button
+                type="button"
+                onClick={() => setSmartFitNotice(null)}
+                className="shrink-0 rounded px-1.5 py-0.5 text-[11px] opacity-75 hover:opacity-100"
+              >
+                知道了
+              </button>
+            </div>
+          )}
           <PreviewCanvas
             zoom={zoom}
             data={data}
             previewRef={previewRef}
             onZoomChange={setZoom}
             onScaleChange={setActualScale}
+            onPageCountChange={setPageCount}
             onSelectSection={(section) => {
               setEditTarget(section);
               setEditTrigger((n) => n + 1);

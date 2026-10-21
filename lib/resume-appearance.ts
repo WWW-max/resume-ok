@@ -2,7 +2,7 @@ export interface ResumeAppearance {
   template: "classic" | "minimal" | "modern";
   accent: "none" | "green" | "fresh" | "forest";
   fontSize: number;
-  spacing: "comfortable" | "compact";
+  spacing: "comfortable" | "compact" | "tight";
   showBrand: boolean;
   paddingTop: number;
   paddingRight: number;

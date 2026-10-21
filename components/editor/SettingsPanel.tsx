@@ -6,13 +6,15 @@ import {
   accentColors,
   type ResumeAppearance,
 } from "@/lib/resume-appearance";
-import { Check, RotateCcw } from "lucide-react";
+import { Check, RotateCcw, WandSparkles } from "lucide-react";
 export function SettingsPanel({
   data,
   onChange,
+  onSmartOnePage,
 }: {
   data: ResumeData;
   onChange: (data: ResumeData) => void;
+  onSmartOnePage?: () => void;
 }) {
   const appearance = { ...defaultAppearance, ...data.appearance };
   function update(patch: Partial<ResumeAppearance>) {
@@ -25,6 +27,26 @@ export function SettingsPanel({
         <p>微调细节，找到最适合你的呈现方式。</p>
       </div>
       <div className={`${ui["panel-scroll"]} ${ui["settings-panel"]}`}>
+        {onSmartOnePage && (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-[#cde9d7] bg-[#f4fbf6] p-3.5">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-[#153a22]">
+                智能一页排版
+              </p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-ink">
+                当简历超出 A4 一页不多时，自动微调行距与页边距收敛至一页
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onSmartOnePage}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-brand-dark"
+            >
+              <WandSparkles size={14} />
+              智能一页
+            </button>
+          </div>
+        )}
         <fieldset>
           <legend>强调色</legend>
           <div className={ui["color-options"]}>
@@ -76,6 +98,7 @@ export function SettingsPanel({
           >
             <option value="comfortable">舒适 · 更多留白</option>
             <option value="compact">紧凑 · 更多内容</option>
+            <option value="tight">极简紧凑 · 一页优选</option>
           </select>
         </div>
         <fieldset>
