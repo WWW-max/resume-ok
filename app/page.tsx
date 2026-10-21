@@ -277,29 +277,59 @@ export default async function LandingPage() {
       </main>
       <footer
         id="about"
-        className="scroll-mt-24 border-t border-neutral-100 bg-white px-5 py-8 sm:px-8"
+        className="scroll-mt-24 border-t border-[#e6f3eb] bg-white px-5 py-9 sm:px-8"
       >
-        <div className="mx-auto flex max-w-[1100px] flex-col items-center justify-between gap-5 sm:flex-row">
-          <div className="text-center sm:text-left">
-            <Link href="/" aria-label="ResumeOK 首页">
-              <Brand small />
+        <div className="mx-auto max-w-[1100px]">
+          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+            <div className="text-center sm:text-left">
+              <Link
+                href="/"
+                aria-label="ResumeOK 首页"
+                className="inline-flex justify-center sm:justify-start"
+              >
+                <Brand small />
+              </Link>
+              <p className="mt-2 text-xs text-neutral-500">
+                让每一份简历，都更接近 Offer · 简历按账号隔离安全保存，支持随时导出备份。
+              </p>
+            </div>
+            <Link
+              href="/editor"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-green-200 bg-green-50/70 px-4 py-2 text-xs font-semibold text-green-700 transition-colors hover:border-green-300 hover:bg-green-100/80 sm:text-sm"
+            >
+              开始写下新的可能
+              <Heart size={14} className="fill-green-500 text-green-500" />
             </Link>
-            <p className="mt-2 text-xs text-neutral-500">
-              让每一份简历，都更接近 Offer。
-            </p>
           </div>
-          <p className="max-w-sm text-center text-xs leading-6 text-neutral-500 sm:text-right">
-            专注于简单、自由的简历制作。
-            <br />
-            简历按账号隔离保存在数据库，也可随时导出 JSON 备份。
-          </p>
-          <Link
-            href="/editor"
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-green-700 hover:text-brand"
-          >
-            开始写下新的可能
-            <Heart size={15} />
-          </Link>
+          <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-neutral-100 pt-5 text-xs text-neutral-400 sm:flex-row">
+            <p>© {new Date().getFullYear()} ResumeOK. All rights reserved.</p>
+            <div className="flex flex-wrap items-center justify-center gap-5">
+              <Link
+                href="#features"
+                className="transition-colors hover:text-green-700"
+              >
+                产品功能
+              </Link>
+              <Link
+                href="#templates"
+                className="transition-colors hover:text-green-700"
+              >
+                精选模板
+              </Link>
+              <Link
+                href="/terms"
+                className="transition-colors hover:text-green-700"
+              >
+                用户服务协议
+              </Link>
+              <Link
+                href="/privacy"
+                className="transition-colors hover:text-green-700"
+              >
+                隐私政策
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

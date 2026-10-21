@@ -23,7 +23,23 @@ export function AuthCard({
         <p className="mt-1.5 text-sm leading-5 text-neutral-500">{description}</p>
         <div className="mt-5">{children}</div>
         <div className="mt-5 border-t border-green-100 pt-4 text-center text-xs leading-5 text-neutral-500 sm:text-sm">
-          {footer}
+          <div>{footer}</div>
+          <p className="mt-2 text-xs text-neutral-400">
+            继续登录即表示您同意{" "}
+            <Link
+              href="/terms"
+              className="text-green-700 underline underline-offset-2 hover:text-brand"
+            >
+              《用户服务协议》
+            </Link>{" "}
+            与{" "}
+            <Link
+              href="/privacy"
+              className="text-green-700 underline underline-offset-2 hover:text-brand"
+            >
+              《隐私政策》
+            </Link>
+          </p>
         </div>
       </section>
     </main>
