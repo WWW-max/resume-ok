@@ -4,8 +4,10 @@ import type { PoolClient } from "pg";
 import "server-only";
 import type { AuthUser } from "./auth";
 
+export type BasicAuthUser = Pick<AuthUser, "id" | "email">;
+
 async function findGoogleUser(client: PoolClient, subject: string) {
-  const result = await client.query<AuthUser>(
+  const result = await client.query<BasicAuthUser>(
     `SELECT users.id, users.email FROM google_accounts
      JOIN users ON users.id = google_accounts.user_id WHERE google_subject = $1`,
     [subject]
@@ -28,7 +30,7 @@ export async function resolveGoogleUser(
     "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING",
     [identity.email]
   );
-  const result = await client.query<AuthUser>(
+  const result = await client.query<BasicAuthUser>(
     "SELECT id, email FROM users WHERE email = $1",
     [identity.email]
   );
@@ -63,7 +65,7 @@ export async function claimGoogleEmailLink(
 /** The subject lock must already be held by claimGoogleEmailLink in this transaction. */
 export async function completeGoogleEmailLink(
   client: PoolClient,
-  user: AuthUser,
+  user: BasicAuthUser,
   subject: string | null
 ) {
   if (!subject) return;

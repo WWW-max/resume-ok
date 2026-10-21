@@ -190,12 +190,13 @@ export function isResumeData(value: unknown): value is ResumeData {
     ) ||
       customIds.has(k));
   const expectedLength = DEFAULT_SECTION_ORDER.length + customIds.size;
+  const sectionOrder = value.sectionOrder;
   if (
-    !Array.isArray(value.sectionOrder) ||
-    value.sectionOrder.length !== expectedLength ||
-    new Set(value.sectionOrder).size !== expectedLength ||
-    !value.sectionOrder.every(isValidSectionKey) ||
-    !DEFAULT_SECTION_ORDER.every((k) => value.sectionOrder.includes(k))
+    !Array.isArray(sectionOrder) ||
+    sectionOrder.length !== expectedLength ||
+    new Set(sectionOrder).size !== expectedLength ||
+    !sectionOrder.every(isValidSectionKey) ||
+    !DEFAULT_SECTION_ORDER.every((k) => sectionOrder.includes(k))
   )
     return false;
   if (
