@@ -14,6 +14,31 @@
 /** 会员等级标识：免费版 | 月卡 | 季卡 | 年卡 */
 export type MembershipPlan = "free" | "monthly" | "quarterly" | "yearly";
 
+/** 支持的在线支付方式标识 */
+export type PaymentMethod = "wechat" | "alipay";
+
+/**
+ * ============================================================================
+ * 客服联系与激活码获取渠道配置（修改此处或配置环境变量即可全站生效）
+ * ============================================================================
+ * 当用户没有激活码、或希望通过添加个人微信/自动发卡平台购买激活码时展示此信息。
+ */
+export const CUSTOMER_SERVICE_CONFIG = {
+  /** 客服微信号（支持用户一键复制添加好友获取激活码） */
+  wechatId:
+    process.env.NEXT_PUBLIC_SUPPORT_WECHAT || "ResumeOK_VIP",
+  /** 客服联系邮箱或备用联系方式 */
+  supportEmail:
+    process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@resumeok.cn",
+  /** 客服微信二维码图片地址（可选：将二维码图片放到 public/brand/support-qr.png 后填入路径即可直接展示图片） */
+  qrCodeImageUrl: process.env.NEXT_PUBLIC_SUPPORT_QR || "",
+  /** 外部 24 小时自动发卡商品页链接（可选：如面包多、爱发电、闲鱼商品链接） */
+  externalShopUrl: process.env.NEXT_PUBLIC_CHECKOUT_URL || "",
+  /** 客服引导说明文案 */
+  guideText:
+    "添加客服微信并备注「ResumeOK 会员」，支持微信或支付宝红包/转账，付款后秒发对应激活码。",
+};
+
 /** 支持权限控制的导出文件格式 */
 export type ExportCapabilityFormat = "pdf" | "word" | "image" | "markdown";
 

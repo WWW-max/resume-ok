@@ -121,17 +121,31 @@ CREATE INDEX IF NOT EXISTS redemption_codes_redeemed_by_idx
 
 CREATE TABLE IF NOT EXISTS membership_orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_no text UNIQUE,
   user_id uuid REFERENCES users(id) ON DELETE SET NULL,
   user_email text NOT NULL,
   plan_type text NOT NULL CHECK (plan_type IN ('monthly', 'quarterly', 'yearly')),
   duration_days integer NOT NULL CHECK (duration_days > 0),
   amount_cents integer NOT NULL DEFAULT 0,
   channel text NOT NULL DEFAULT 'redemption_code',
+  pay_method text NOT NULL DEFAULT 'redemption_code',
+  status text NOT NULL DEFAULT 'paid',
+  qr_url text NOT NULL DEFAULT '',
   external_ref text NOT NULL DEFAULT '',
+  paid_at timestamptz,
+  expires_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS order_no text UNIQUE;
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS pay_method text NOT NULL DEFAULT 'redemption_code';
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'paid';
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS qr_url text NOT NULL DEFAULT '';
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS paid_at timestamptz;
+ALTER TABLE membership_orders ADD COLUMN IF NOT EXISTS expires_at timestamptz;
 CREATE INDEX IF NOT EXISTS membership_orders_user_id_idx
   ON membership_orders(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS membership_orders_order_no_idx
+  ON membership_orders(order_no);
 
 INSERT INTO redemption_codes (code, plan_type, duration_days, batch_note)
 VALUES
