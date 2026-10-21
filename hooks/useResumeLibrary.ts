@@ -102,6 +102,12 @@ export function useResumeLibrary(userId: string) {
     [drainSaveQueue],
   );
 
+  const cancelPendingSaves = useCallback(() => {
+    loggingOut.current = true;
+    pending.current = null;
+    queued.current = null;
+  }, []);
+
   const flushBeforeLogout = useCallback(async () => {
     const latest = pending.current ?? queued.current;
     loggingOut.current = true;
@@ -365,6 +371,7 @@ export function useResumeLibrary(userId: string) {
     saveStatus,
     loadError,
     flushBeforeLogout,
+    cancelPendingSaves,
     updateData,
     add,
     addDocument,

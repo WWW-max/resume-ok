@@ -31,6 +31,7 @@ import {
   Undo2,
   Redo2,
   LogOut,
+  Trash2,
   ChevronLeft,
   ChevronRight,
   FileText,
@@ -100,6 +101,10 @@ export default function EditorWorkspace({
   const [downloadFilename, setDownloadFilename] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState("");
   const [onlineRecords, setOnlineRecords] = useState<
     Record<string, OnlineResumeClientInfo>
   >({});
@@ -275,6 +280,36 @@ export default function EditorWorkspace({
     setUserMenuOpen(false);
     router.replace("/login");
     router.refresh();
+  }
+
+  async function handleDeleteAccount() {
+    if (deletingAccount || deleteConfirmText.trim() !== "确认注销") return;
+    setDeletingAccount(true);
+    setDeleteAccountError("");
+    store.cancelPendingSaves();
+    try {
+      const res = await fetch("/api/auth/account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: deleteConfirmText.trim() }),
+      });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => ({}))) as {
+          error?: { message?: string };
+        };
+        throw new Error(payload.error?.message || "注销账号失败，请稍后重试。");
+      }
+      setConfirmDeleteAccount(false);
+      setUserMenuOpen(false);
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      setDeleteAccountError(
+        error instanceof Error ? error.message : "注销账号失败，请稍后重试。",
+      );
+    } finally {
+      setDeletingAccount(false);
+    }
   }
   function openDownloadDialog(format: ExportFormat) {
     setDownloadMenuOpen(false);
@@ -792,10 +827,25 @@ export default function EditorWorkspace({
                       setUserMenuOpen(false);
                       setConfirmLogout(true);
                     }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <LogOut size={14} className="text-[#388855]" />
+                    退出登录
+                  </button>
+                  <div className="my-1 border-t border-[#ebf6ee]" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setDeleteConfirmText("");
+                      setDeleteAccountError("");
+                      setConfirmDeleteAccount(true);
+                    }}
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#bd554d] transition-colors hover:bg-red-50"
                   >
-                    <LogOut size={14} />
-                    退出登录
+                    <Trash2 size={14} />
+                    注销账号并清空数据
                   </button>
                 </div>
               </div>
@@ -840,6 +890,105 @@ export default function EditorWorkspace({
                 className="inline-flex min-h-9 items-center justify-center rounded-lg bg-[#bd554d] px-3.5 text-xs font-medium text-white transition-colors hover:bg-[#a6443d]"
               >
                 确认退出
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmDeleteAccount && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="editor-delete-account-dialog-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4 backdrop-blur-[1px] print:hidden"
+          onClick={() => {
+            if (!deletingAccount) setConfirmDeleteAccount(false);
+          }}
+        >
+          <div
+            className="w-[min(calc(100vw-2rem),620px)] rounded-2xl border border-[#f2c8c3] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#fff2f0] text-[#bd554d]">
+                <Trash2 size={17} />
+              </span>
+              <h2
+                id="editor-delete-account-dialog-title"
+                className="text-base font-semibold text-ink"
+              >
+                注销账号并清空全部数据
+              </h2>
+            </div>
+            <p className="mt-2.5 text-xs leading-relaxed text-muted-ink">
+              您正在申请永久注销账号{" "}
+              <span className="font-semibold text-ink">{user.email}</span>
+              。此操作<strong>不可撤销</strong>，确认后将立即彻底清除：
+            </p>
+            <ul className="mt-2 list-disc space-y-1 overflow-x-auto rounded-xl border border-[#f7dad7] bg-[#fff9f8] py-2.5 pl-7 pr-4 text-xs text-[#7a342e]">
+              <li className="whitespace-nowrap">该账号下保存的所有简历文档与历史版本；</li>
+              <li className="whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
+              <li className="whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
+            </ul>
+            <div className="mt-3.5">
+              <label
+                htmlFor="delete-account-confirm-input"
+                className="mb-1.5 block text-xs font-medium text-ink"
+              >
+                请在下方输入{" "}
+                <span className="rounded bg-[#fff2f0] px-1.5 py-0.5 font-semibold text-[#bd554d]">
+                  确认注销
+                </span>{" "}
+                以继续：
+              </label>
+              <input
+                id="delete-account-confirm-input"
+                type="text"
+                autoFocus
+                value={deleteConfirmText}
+                placeholder="请输入：确认注销"
+                onChange={(e) => {
+                  setDeleteConfirmText(e.target.value);
+                  setDeleteAccountError("");
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    deleteConfirmText.trim() === "确认注销"
+                  ) {
+                    e.preventDefault();
+                    void handleDeleteAccount();
+                  } else if (e.key === "Escape" && !deletingAccount) {
+                    setConfirmDeleteAccount(false);
+                  }
+                }}
+                className="w-full rounded-lg border border-[#e5c2be] bg-white px-3 py-2 text-xs text-ink placeholder:text-neutral-400 focus:border-[#bd554d] focus:outline-none focus:ring-2 focus:ring-[#bd554d]/20 focus-visible:outline-none"
+              />
+            </div>
+            {deleteAccountError && (
+              <p className="mt-2 text-xs text-red-600" role="alert">
+                {deleteAccountError}
+              </p>
+            )}
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                disabled={deletingAccount}
+                onClick={() => setConfirmDeleteAccount(false)}
+                className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6] disabled:opacity-60"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                disabled={
+                  deletingAccount || deleteConfirmText.trim() !== "确认注销"
+                }
+                onClick={() => void handleDeleteAccount()}
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-[#bd554d] px-4 text-xs font-medium text-white transition-colors hover:bg-[#a6443d] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Trash2 size={13.5} />
+                {deletingAccount ? "正在注销…" : "永久注销并清空数据"}
               </button>
             </div>
           </div>
