@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import { getDocumentProxy } from "unpdf";
 import { requireUser } from "@/lib/server/auth";
 import { ApiError, requireSameOrigin, withApiErrors } from "@/lib/server/http";
+import { canUseFeature, FEATURE_UPGRADE_PROMPTS } from "@/lib/membership";
 import { isResumeData } from "@/lib/resume-library";
 import { parseResumeText } from "@/lib/resume-parser";
 
@@ -162,7 +163,14 @@ if (!doc) { ""; } else {
 
 export const POST = withApiErrors(async (request) => {
   requireSameOrigin(request);
-  await requireUser();
+  const user = await requireUser();
+  if (!canUseFeature(user.membershipPlan, "importResume")) {
+    throw new ApiError(
+      403,
+      "membership_required",
+      FEATURE_UPGRADE_PROMPTS.importResume,
+    );
+  }
 
   let formData: FormData;
   try {

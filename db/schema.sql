@@ -103,3 +103,39 @@ CREATE TABLE IF NOT EXISTS online_resume_views (
 );
 CREATE INDEX IF NOT EXISTS online_resume_views_slug_viewed_idx
   ON online_resume_views(slug, viewed_at DESC);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_plan text NOT NULL DEFAULT 'free';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at timestamptz;
+
+CREATE TABLE IF NOT EXISTS redemption_codes (
+  code text PRIMARY KEY,
+  plan_type text NOT NULL CHECK (plan_type IN ('monthly', 'quarterly', 'yearly')),
+  duration_days integer NOT NULL CHECK (duration_days > 0),
+  batch_note text NOT NULL DEFAULT '',
+  redeemed_by uuid REFERENCES users(id) ON DELETE SET NULL,
+  redeemed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS redemption_codes_redeemed_by_idx
+  ON redemption_codes(redeemed_by);
+
+CREATE TABLE IF NOT EXISTS membership_orders (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES users(id) ON DELETE SET NULL,
+  user_email text NOT NULL,
+  plan_type text NOT NULL CHECK (plan_type IN ('monthly', 'quarterly', 'yearly')),
+  duration_days integer NOT NULL CHECK (duration_days > 0),
+  amount_cents integer NOT NULL DEFAULT 0,
+  channel text NOT NULL DEFAULT 'redemption_code',
+  external_ref text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS membership_orders_user_id_idx
+  ON membership_orders(user_id, created_at DESC);
+
+INSERT INTO redemption_codes (code, plan_type, duration_days, batch_note)
+VALUES
+  ('ROK-M30-DEMO-8888', 'monthly', 30, '系统内置测试月卡兑换码'),
+  ('ROK-Q90-DEMO-8888', 'quarterly', 90, '系统内置测试季卡兑换码'),
+  ('ROK-Y365-DEMO-8888', 'yearly', 365, '系统内置测试年卡兑换码')
+ON CONFLICT (code) DO NOTHING;

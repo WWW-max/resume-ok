@@ -18,7 +18,15 @@ import {
   AlertTriangle,
   Pencil,
   Trash2,
+  Crown,
 } from "lucide-react";
+import {
+  canCreateMoreResumes,
+  canUseFeature,
+  FEATURE_UPGRADE_PROMPTS,
+  getMaxResumesForPlan,
+  type MembershipPlan,
+} from "@/lib/membership";
 import { ClearableInput } from "./ClearableField";
 
 type ConfirmAction = {
@@ -28,11 +36,15 @@ type ConfirmAction = {
 
 export function LibraryPanel({
   store,
+  plan = "free",
+  onRequirePro,
   importing = false,
   onImportFile,
   onEdit,
 }: {
   store: ReturnType<typeof useResumeLibrary>;
+  plan?: MembershipPlan;
+  onRequirePro?: (reason: string) => void;
   importing?: boolean;
   onImportFile?: (file: File) => void;
   onEdit?: () => void;
@@ -41,6 +53,12 @@ export function LibraryPanel({
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(
     null,
   );
+  const canAddResume = canCreateMoreResumes(
+    plan,
+    store.library.documents.length,
+  );
+  const maxPlanResumes = getMaxResumesForPlan(plan);
+  const canImportFile = canUseFeature(plan, "importResume");
 
   useEffect(() => {
     if (!confirmAction) return;
@@ -74,41 +92,72 @@ export function LibraryPanel({
           <button
             className={ui["outline-green"]}
             disabled={store.library.documents.length >= 100}
-            onClick={() => store.add()}
+            onClick={() => {
+              if (!canAddResume) {
+                onRequirePro?.(
+                  `当前版本最多支持创建 ${maxPlanResumes} 份简历，升级会员即可创建更多定制简历。`,
+                );
+                return;
+              }
+              store.add();
+            }}
           >
             <Plus size={15} />
             新建空白简历
+            {!canAddResume && <Crown size={13} className="text-[#0cb449]" />}
           </button>
           <button
             className={ui["soft-button"]}
             disabled={store.library.documents.length >= 100}
-            onClick={() => store.add(true)}
+            onClick={() => {
+              if (!canAddResume) {
+                onRequirePro?.(
+                  `当前版本最多支持创建 ${maxPlanResumes} 份简历，升级会员即可复制并管理更多版本的简历。`,
+                );
+                return;
+              }
+              store.add(true);
+            }}
           >
             <Copy size={15} />
             复制当前简历
+            {!canAddResume && <Crown size={13} className="text-[#0cb449]" />}
           </button>
         </div>
-        {onImportFile && (
-          <label
-            className={`${ui["outline-green"]} ${ui["upload-button"]} w-full ${importing || store.library.documents.length >= 100 ? "pointer-events-none opacity-60" : ""}`}
-          >
-            <Upload size={15} />
-            {importing ? "正在解析文件…" : "导入 PDF / Markdown 简历"}
-            <input
-              aria-label="导入 PDF 或 Markdown 简历"
-              type="file"
-              disabled={importing || store.library.documents.length >= 100}
-              accept=".pdf,.md,.txt,application/pdf,text/markdown,text/plain"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (file) {
-                  onImportFile(file);
-                }
-              }}
-            />
-          </label>
-        )}
+        {onImportFile &&
+          (canImportFile ? (
+            <label
+              className={`${ui["outline-green"]} ${ui["upload-button"]} w-full ${importing || store.library.documents.length >= 100 ? "pointer-events-none opacity-60" : ""}`}
+            >
+              <Upload size={15} />
+              {importing ? "正在解析文件…" : "导入 PDF / Markdown 简历"}
+              <input
+                aria-label="导入 PDF 或 Markdown 简历"
+                type="file"
+                disabled={importing || store.library.documents.length >= 100}
+                accept=".pdf,.md,.txt,application/pdf,text/markdown,text/plain"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) {
+                    onImportFile(file);
+                  }
+                }}
+              />
+            </label>
+          ) : (
+            <button
+              type="button"
+              onClick={() =>
+                onRequirePro?.(FEATURE_UPGRADE_PROMPTS.importResume)
+              }
+              className={`${ui["outline-green"]} w-full`}
+            >
+              <Upload size={15} />
+              导入 PDF / Markdown 简历
+              <Crown size={13} className="text-[#0cb449]" />
+            </button>
+          ))}
         {store.library.documents
           .filter((d) => !d.archived)
           .map((doc) => (
@@ -175,6 +224,12 @@ export function LibraryPanel({
                 const file = e.target.files?.[0];
                 e.target.value = "";
                 if (!file) return;
+                if (!canAddResume) {
+                  onRequirePro?.(
+                    `当前版本最多支持 ${maxPlanResumes} 份简历，升级会员即可导入多份简历备份。`,
+                  );
+                  return;
+                }
                 try {
                   if (file.size > 10 * 1024 * 1024)
                     throw new Error("备份文件不能超过 10 MB。");

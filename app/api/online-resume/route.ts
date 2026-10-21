@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/server/auth";
+import { canUseFeature, FEATURE_UPGRADE_PROMPTS } from "@/lib/membership";
 import {
   ApiError,
   readJsonObject,
@@ -26,6 +27,13 @@ export const GET = withApiErrors(async () => {
 export const POST = withApiErrors(async (request) => {
   requireSameOrigin(request);
   const user = await requireUser();
+  if (!canUseFeature(user.membershipPlan, "shareOnlineResume")) {
+    throw new ApiError(
+      403,
+      "membership_required",
+      FEATURE_UPGRADE_PROMPTS.shareOnlineResume,
+    );
+  }
   const body = await readJsonObject(request, MAX_BODY_BYTES);
 
   const documentId =

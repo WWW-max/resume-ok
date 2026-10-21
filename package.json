@@ -10,6 +10,7 @@
     "lint": "eslint",
     "test": "node --test tests/*.test.cjs",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "codes:generate": "node --env-file=.env.local scripts/generate-codes.mjs",
     "test:integration": "node --env-file=.env.local --test tests/integration/*.test.mjs"
   },
   "dependencies": {

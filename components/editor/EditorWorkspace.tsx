@@ -46,10 +46,20 @@ import {
   Check,
   ExternalLink,
   RefreshCw,
+  Crown,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 import type { ResumeData } from "@/lib/resume-data";
 import { encodeSourceTag } from "@/lib/online-resume-token";
+import { MembershipModal } from "@/components/editor/MembershipModal";
+import {
+  canExportFormat,
+  canUseFeature,
+  FEATURE_UPGRADE_PROMPTS,
+  formatMembershipExpiry,
+  type MembershipPlan,
+  type MembershipStatus,
+} from "@/lib/membership";
 
 interface OnlineResumeViewLog {
   id: string;
@@ -74,12 +84,32 @@ export default function EditorWorkspace({
   user,
 }: {
   initialView?: string;
-  user: { id: string; email: string };
+  user: {
+    id: string;
+    email: string;
+    membershipPlan?: MembershipPlan;
+    membershipExpiresAt?: string | null;
+    isPro?: boolean;
+    planLabel?: string;
+  };
 }) {
   const router = useRouter();
   const store = useResumeLibrary(user.id);
   const data = store.active.data;
   const setData = store.updateData;
+  const [membership, setMembership] = useState<MembershipStatus>(() => ({
+    plan: user.membershipPlan ?? "free",
+    expiresAt: user.membershipExpiresAt ?? null,
+    isPro: Boolean(user.isPro),
+    planLabel: user.planLabel ?? "免费版",
+  }));
+  const [membershipModalOpen, setMembershipModalOpen] = useState(false);
+  const [membershipModalReason, setMembershipModalReason] = useState("");
+
+  function requirePro(reason: string) {
+    setMembershipModalReason(reason);
+    setMembershipModalOpen(true);
+  }
   const [view, setView] = useState(initialView);
   const [previewOnly, setPreviewOnly] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -313,6 +343,20 @@ export default function EditorWorkspace({
   }
   function openDownloadDialog(format: ExportFormat) {
     setDownloadMenuOpen(false);
+    if (!canExportFormat(membership.plan, format)) {
+      const formatLabel =
+        format === "pdf"
+          ? "PDF (.pdf)"
+          : format === "word"
+            ? "Word (.doc)"
+            : format === "image"
+              ? "高清长图 (.png)"
+              : "Markdown (.md)";
+      requirePro(
+        `导出 ${formatLabel} 为会员专享功能，升级后即可无限制导出全部格式。`,
+      );
+      return;
+    }
     const defaultName =
       store.active.name.trim() ||
       (data.name.trim() ? `${data.name.trim()}_简历` : "我的简历");
@@ -362,6 +406,10 @@ export default function EditorWorkspace({
   }
   async function handleTranslateToEnglish() {
     if (translating || !store.ready) return;
+    if (!canUseFeature(membership.plan, "translateEnglish")) {
+      requirePro(FEATURE_UPGRADE_PROMPTS.translateEnglish);
+      return;
+    }
     if (store.library.documents.length >= 100) {
       setExportError(
         "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
@@ -390,6 +438,10 @@ export default function EditorWorkspace({
   }
   async function handleImportResumeFile(file: File) {
     if (importing || !store.ready) return;
+    if (!canUseFeature(membership.plan, "importResume")) {
+      requirePro(FEATURE_UPGRADE_PROMPTS.importResume);
+      return;
+    }
     if (store.library.documents.length >= 100) {
       setExportError(
         "简历总数已达上限（100 份），请先在「我的简历」中清理旧简历。",
@@ -446,6 +498,13 @@ export default function EditorWorkspace({
   }
 
   function openOnlineResumeModal() {
+    if (
+      !canUseFeature(membership.plan, "shareOnlineResume") &&
+      !activePublishedSlug
+    ) {
+      requirePro(FEATURE_UPGRADE_PROMPTS.shareOnlineResume);
+      return;
+    }
     const defaultSlug = (
       activePublishedSlug ||
       store.active.name.trim() ||
@@ -628,11 +687,20 @@ export default function EditorWorkspace({
             type="button"
             className={ui["soft-button"]}
             disabled={importing || !store.ready}
-            onClick={() => importInputRef.current?.click()}
+            onClick={() => {
+              if (!canUseFeature(membership.plan, "importResume")) {
+                requirePro(FEATURE_UPGRADE_PROMPTS.importResume);
+                return;
+              }
+              importInputRef.current?.click();
+            }}
             title="支持上传 PDF (.pdf)、Markdown (.md) 或文本 (.txt) 简历自动解析生成新简历"
           >
             <Upload size={17} />
             <span>{importing ? "解析中…" : "导入简历"}</span>
+            {!canUseFeature(membership.plan, "importResume") && (
+              <Crown size={13} className="text-[#0cb449]" />
+            )}
           </button>
           <button
             type="button"
@@ -643,6 +711,9 @@ export default function EditorWorkspace({
           >
             <Languages size={17} />
             <span>{translating ? "翻译中…" : "译为英文"}</span>
+            {!canUseFeature(membership.plan, "translateEnglish") && (
+              <Crown size={13} className="text-[#0cb449]" />
+            )}
           </button>
           <button
             type="button"
@@ -653,6 +724,10 @@ export default function EditorWorkspace({
           >
             <Globe size={17} className={activePublishedSlug ? "text-[#0cb449]" : ""} />
             <span>在线简历</span>
+            {!canUseFeature(membership.plan, "shareOnlineResume") &&
+              !activePublishedSlug && (
+                <Crown size={13} className="text-[#0cb449]" />
+              )}
             {activePublishedSlug && (
               <span
                 className={`size-2 rounded-full ${
@@ -665,6 +740,21 @@ export default function EditorWorkspace({
                 }
               />
             )}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMembershipModalReason("");
+              setMembershipModalOpen(true);
+            }}
+            className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[8px] border px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors max-[540px]:px-2 max-[540px]:text-[12px] ${
+              membership.isPro
+                ? "border-[#b5e8c8] bg-[#e9f9ef] text-[#0c8a3e] hover:bg-[#daf4e4]"
+                : "border-[#c4ecd3] bg-[#f2fcf6] text-[#0c9442] hover:bg-[#e3f8eb]"
+            }`}
+          >
+            <Crown size={15} className="text-[#0cb449]" />
+            <span>{membership.isPro ? "PRO 会员" : "升级会员"}</span>
           </button>
           <div className="relative" ref={downloadMenuRef}>
             <button
@@ -698,9 +788,17 @@ export default function EditorWorkspace({
                 >
                   <FileText size={16} className="shrink-0 text-[#0cb449]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink">
-                      下载 PDF (.pdf)
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-ink">
+                        下载 PDF (.pdf)
+                      </p>
+                      {!canExportFormat(membership.plan, "pdf") && (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-[#e8f8ee] px-1.5 py-0.5 text-[10px] font-semibold text-[#0c8a3e]">
+                          <Crown size={10} />
+                          PRO
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-muted-ink">
                       标准 A4 排版，推荐投递
                     </p>
@@ -717,9 +815,17 @@ export default function EditorWorkspace({
                     className="shrink-0 text-[#0cb449]"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink">
-                      下载 Word (.doc)
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-ink">
+                        下载 Word (.doc)
+                      </p>
+                      {!canExportFormat(membership.plan, "word") && (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-[#e8f8ee] px-1.5 py-0.5 text-[10px] font-semibold text-[#0c8a3e]">
+                          <Crown size={10} />
+                          PRO
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-muted-ink">
                       支持 Word / WPS 编辑
                     </p>
@@ -733,9 +839,17 @@ export default function EditorWorkspace({
                 >
                   <ImageIcon size={16} className="shrink-0 text-[#0cb449]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink">
-                      下载图片 (.png)
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-ink">
+                        下载图片 (.png)
+                      </p>
+                      {!canExportFormat(membership.plan, "image") && (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-[#e8f8ee] px-1.5 py-0.5 text-[10px] font-semibold text-[#0c8a3e]">
+                          <Crown size={10} />
+                          PRO
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-muted-ink">
                       高清长图，方便手机查看
                     </p>
@@ -749,9 +863,17 @@ export default function EditorWorkspace({
                 >
                   <FileCode size={16} className="shrink-0 text-[#0cb449]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-ink">
-                      下载 Markdown (.md)
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-ink">
+                        下载 Markdown (.md)
+                      </p>
+                      {!canExportFormat(membership.plan, "markdown") && (
+                        <span className="inline-flex items-center gap-0.5 rounded bg-[#e8f8ee] px-1.5 py-0.5 text-[10px] font-semibold text-[#0c8a3e]">
+                          <Crown size={10} />
+                          PRO
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-muted-ink">
                       纯文本，便于归档与编辑
                     </p>
@@ -789,13 +911,47 @@ export default function EditorWorkspace({
                     {user.email.slice(0, 1).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] text-muted-ink">当前登录账号</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-[11px] text-muted-ink">当前登录账号</p>
+                      <span
+                        className={`rounded px-1.5 py-0.2 text-[10px] font-semibold ${
+                          membership.isPro
+                            ? "bg-[#e8f8ee] text-[#0c8a3e]"
+                            : "bg-neutral-100 text-neutral-500"
+                        }`}
+                      >
+                        {membership.isPro ? "PRO" : "免费版"}
+                      </span>
+                    </div>
                     <p className="truncate text-xs font-semibold text-ink">
                       {user.email}
                     </p>
+                    {membership.isPro && membership.expiresAt && (
+                      <p className="text-[10px] text-[#158844]">
+                        有效期至 {formatMembershipExpiry(membership.expiresAt)}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-1 grid gap-0.5">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setMembershipModalReason("");
+                      setMembershipModalOpen(true);
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg bg-[#f3fbf6] px-2.5 py-2 text-left text-xs font-semibold text-[#0d853d] transition-colors hover:bg-[#e5f7ec]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Crown size={14} className="text-[#0cb449]" />
+                      {membership.isPro ? "会员中心 / 续期" : "升级 PRO 会员"}
+                    </span>
+                    <span className="text-[10px] font-medium text-[#1b8c48]">
+                      兑换激活码 →
+                    </span>
+                  </button>
                   <button
                     type="button"
                     role="menuitem"
@@ -930,6 +1086,14 @@ export default function EditorWorkspace({
               <li className="whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
               <li className="whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
             </ul>
+            {membership.isPro && (
+              <div className="mt-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                ⚠️ 检测到您当前拥有有效的{" "}
+                <strong>{membership.planLabel}</strong>（有效期至{" "}
+                {formatMembershipExpiry(membership.expiresAt)}
+                ），注销账号后会员权益将立即作废且无法恢复！
+              </div>
+            )}
             <div className="mt-3.5">
               <label
                 htmlFor="delete-account-confirm-input"
@@ -1533,6 +1697,16 @@ export default function EditorWorkspace({
           </div>
         </div>
       )}
+      <MembershipModal
+        open={membershipModalOpen}
+        reason={membershipModalReason}
+        membership={membership}
+        onClose={() => setMembershipModalOpen(false)}
+        onRedeemed={(next) => {
+          setMembership(next);
+          router.refresh();
+        }}
+      />
       {exportError && (
         <div className={ui["export-error"]} role="alert">
           {exportError}
@@ -1611,10 +1785,17 @@ export default function EditorWorkspace({
               }}
             />
           ) : view === "templates" ? (
-            <TemplatePanel data={data} onChange={setData} />
+            <TemplatePanel
+              data={data}
+              plan={membership.plan}
+              onRequirePro={requirePro}
+              onChange={setData}
+            />
           ) : view === "resumes" ? (
             <LibraryPanel
               store={store}
+              plan={membership.plan}
+              onRequirePro={requirePro}
               importing={importing}
               onImportFile={(file) => void handleImportResumeFile(file)}
               onEdit={() => {

@@ -12,6 +12,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
+import { formatMembershipExpiry } from "@/lib/membership";
 const links = [
   { href: "/#top", label: "首页" },
   { href: "/editor?view=templates", label: "模板" },
@@ -22,7 +23,13 @@ const links = [
 export function LandingHeader({
   user,
 }: {
-  user?: { id: string; email: string } | null;
+  user?: {
+    id: string;
+    email: string;
+    isPro?: boolean;
+    planLabel?: string;
+    membershipExpiresAt?: string | null;
+  } | null;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -142,9 +149,20 @@ export function LandingHeader({
                         {user.email.slice(0, 1).toUpperCase()}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[11px] text-muted-ink">
-                          当前登录账号
-                        </p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[11px] text-muted-ink">
+                            当前登录账号
+                          </p>
+                          <span
+                            className={`rounded px-1.5 py-0.2 text-[10px] font-semibold ${
+                              user.isPro
+                                ? "bg-[#e8f8ee] text-[#0c8a3e]"
+                                : "bg-neutral-100 text-neutral-500"
+                            }`}
+                          >
+                            {user.isPro ? "PRO" : "免费版"}
+                          </span>
+                        </div>
                         <p className="truncate text-xs font-semibold text-ink">
                           {user.email}
                         </p>
@@ -346,6 +364,16 @@ export function LandingHeader({
               <li className="whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
               <li className="whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
             </ul>
+            {user.isPro && (
+              <div className="mt-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                ⚠️ 检测到您当前拥有有效的{" "}
+                <strong>{user.planLabel || "PRO 会员"}</strong>
+                {user.membershipExpiresAt
+                  ? `（有效期至 ${formatMembershipExpiry(user.membershipExpiresAt)}）`
+                  : ""}
+                ，注销账号后会员权益将立即作废且无法恢复！
+              </div>
+            )}
             <div className="mt-3.5">
               <label
                 htmlFor="landing-delete-confirm-input"

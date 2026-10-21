@@ -3,15 +3,13 @@ import {
   ArrowRight,
   Check,
   Clover,
-  FileText,
+  Crown,
   LayoutTemplate,
   MousePointer2,
   ShieldCheck,
   Smartphone,
   Download,
   Sparkles,
-  Star,
-  LockKeyhole,
   Heart,
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/LandingHeader";
@@ -19,6 +17,7 @@ import { ProductShowcase } from "@/components/landing/ProductShowcase";
 import { StepIllustration } from "@/components/landing/StepIllustration";
 import { Brand } from "@/components/Brand";
 import { currentUser } from "@/lib/server/auth";
+import { MEMBERSHIP_PLANS, PLAN_ENTITLEMENTS } from "@/lib/membership";
 const features = [
   {
     icon: LayoutTemplate,
@@ -236,41 +235,125 @@ export default async function LandingPage() {
         </section>
         <section
           id="pricing"
-          className="relative isolate scroll-mt-24 overflow-hidden bg-[linear-gradient(120deg,#f1fcf5,white,#e9fff0)] px-5 py-12 sm:px-8"
+          className="relative isolate scroll-mt-24 overflow-hidden bg-[linear-gradient(120deg,#f1fcf5,white,#e9fff0)] px-5 py-14 sm:px-8 sm:py-16"
         >
           <Clover
             aria-hidden="true"
             className="absolute -left-4 top-8 -z-10 size-28 -rotate-12 fill-green-100 text-green-200/70"
           />
-          <div className="mx-auto max-w-[980px] text-center">
-            <h2 className="text-xl font-semibold sm:text-2xl">
-              好简历，不应该有门槛
-            </h2>
-            <p className="mt-3 text-sm text-neutral-500">
-              免费注册并登录。把时间留给内容，把排版和可靠保存交给 ResumeOK。
-            </p>
-            <div className="mt-9 grid grid-cols-2 gap-7 sm:grid-cols-4">
-              {[
-                { icon: LayoutTemplate, value: "3 种", label: "精选简历模板" },
-                { icon: FileText, value: "6 大", label: "可编辑内容模块" },
-                { icon: LockKeyhole, value: "账号隔离", label: "PostgreSQL 持久化" },
-                { icon: Star, value: "免费", label: "编辑与 PDF 导出" },
-              ].map(({ icon: Icon, value, label }) => (
-                <div
-                  className="flex items-center justify-center gap-3"
-                  key={value}
-                >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-green-50 text-green-500">
-                    <Icon size={21} />
-                  </span>
-                  <div className="text-left">
-                    <strong className="text-[15px] sm:text-lg font-semibold text-green-700">
-                      {value}
-                    </strong>
-                    <p className="mt-1 text-xs text-neutral-500">{label}</p>
+          <div className="mx-auto max-w-[1120px]">
+            <div className="text-center">
+              <p className="text-xs font-semibold text-brand-dark">
+                简单透明 · 买断时长无自动扣费
+              </p>
+              <h2 className="mt-2.5 text-2xl font-bold tracking-tight sm:text-[30px]">
+                选择适合你的求职方案
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-500">
+                免费版即可制作并导出标准 PDF 简历；升级 PRO 会员解锁多份简历、智能导入、一键转英文及 HR 访客实时追踪。
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex flex-col justify-between rounded-2xl border border-[#dfeee5] bg-white p-5 shadow-xs">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-ink">免费版</span>
+                    <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                      永久免费
+                    </span>
                   </div>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-xs font-bold text-ink">¥</span>
+                    <span className="text-3xl font-extrabold tracking-tight text-ink">
+                      0
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-neutral-400">
+                    满足单份基础简历制作与导出
+                  </p>
+                  <ul className="mt-5 space-y-2.5 text-xs text-[#2c4d37]">
+                    {PLAN_ENTITLEMENTS.free.displayFeatures.map((feat) => (
+                      <li key={feat} className="flex items-center gap-2">
+                        <Check size={14} className="shrink-0 text-green-600" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
+                <Link
+                  href={user ? "/editor" : "/login?next=%2Feditor"}
+                  className="mt-6 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-green-200 bg-green-50/60 text-xs font-semibold text-green-800 transition-colors hover:bg-green-100/70"
+                >
+                  免费开始使用
+                </Link>
+              </div>
+
+              {MEMBERSHIP_PLANS.map((plan) => {
+                const featured = plan.id === "quarterly";
+                return (
+                  <div
+                    key={plan.id}
+                    className={`relative flex flex-col justify-between rounded-2xl border p-5 transition-shadow ${
+                      featured
+                        ? "border-[#12b653] bg-white shadow-[0_14px_34px_#12b6531c] ring-2 ring-[#12b653]/20"
+                        : "border-[#d8efe1] bg-white shadow-xs"
+                    }`}
+                  >
+                    {plan.badge && (
+                      <span className="absolute -top-2.5 right-4 rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                        {plan.badge}
+                      </span>
+                    )}
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-ink">
+                          <Crown size={14} className="text-[#0cb449]" />
+                          {plan.name}
+                        </span>
+                        <span className="rounded-md bg-[#e8f8ee] px-2 py-0.5 text-[11px] font-medium text-[#118a43]">
+                          {plan.periodLabel}
+                        </span>
+                      </div>
+                      <div className="mt-3 flex items-baseline gap-1.5">
+                        <span className="text-xs font-bold text-[#0c9c43]">
+                          ¥
+                        </span>
+                        <span className="text-3xl font-extrabold tracking-tight text-ink">
+                          {plan.price}
+                        </span>
+                        <span className="text-xs text-neutral-400 line-through">
+                          ¥{plan.originalPrice}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs font-medium text-[#158844]">
+                        {plan.dailyCostLabel}
+                      </p>
+                      <ul className="mt-5 space-y-2.5 text-xs text-[#2c4d37]">
+                        {PLAN_ENTITLEMENTS[plan.id].displayFeatures.map((feat) => (
+                          <li key={feat} className="flex items-center gap-2">
+                            <Check
+                              size={14}
+                              className="shrink-0 text-[#0cb449]"
+                            />
+                            <span>{feat}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Link
+                      href={user ? "/editor" : "/login?next=%2Feditor"}
+                      className={`mt-6 inline-flex min-h-10 w-full items-center justify-center rounded-xl text-xs font-semibold transition-colors ${
+                        featured
+                          ? "bg-brand text-white hover:bg-brand-dark"
+                          : "border border-green-300 bg-[#f2fbf6] text-green-800 hover:bg-[#e3f7ec]"
+                      }`}
+                    >
+                      进入工作台开通
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

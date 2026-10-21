@@ -3,6 +3,10 @@ import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { db } from "./db";
 import { hashSessionToken } from "@/lib/session-token";
+import {
+  resolveMembershipStatus,
+  type MembershipPlan,
+} from "@/lib/membership";
 
 export const SESSION_COOKIE = "resumeok_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
@@ -10,6 +14,10 @@ export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 export interface AuthUser {
   id: string;
   email: string;
+  membershipPlan: MembershipPlan;
+  membershipExpiresAt: string | null;
+  isPro: boolean;
+  planLabel: string;
 }
 
 function cookieOptions(maxAge = SESSION_MAX_AGE_SECONDS) {
@@ -36,14 +44,35 @@ export async function startSession(userId: string): Promise<void> {
 export async function currentUser(): Promise<AuthUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  const result = await db().query<AuthUser>(
-    `SELECT users.id, users.email
+  const result = await db().query<{
+    id: string;
+    email: string;
+    membership_plan: string | null;
+    membership_expires_at: Date | string | null;
+  }>(
+    `SELECT users.id,
+            users.email,
+            users.membership_plan,
+            users.membership_expires_at
        FROM sessions
        JOIN users ON users.id = sessions.user_id
       WHERE sessions.token_hash = $1 AND sessions.expires_at > now()`,
     [hashSessionToken(token)],
   );
-  return result.rows[0] ?? null;
+  const row = result.rows[0];
+  if (!row) return null;
+  const status = resolveMembershipStatus(
+    row.membership_plan,
+    row.membership_expires_at,
+  );
+  return {
+    id: row.id,
+    email: row.email,
+    membershipPlan: status.plan,
+    membershipExpiresAt: status.expiresAt,
+    isPro: status.isPro,
+    planLabel: status.planLabel,
+  };
 }
 
 export async function requireUser(): Promise<AuthUser> {
