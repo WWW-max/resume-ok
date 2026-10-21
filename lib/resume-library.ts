@@ -23,7 +23,7 @@ export function createLibrary(): ResumeLibrary {
     documents: [
       {
         id: "first-resume",
-        name: "吴志鹏(2026-07-05)",
+        name: "示例简历",
         data: structuredClone(defaultResumeData),
         updatedAt: "",
       },
