@@ -20,8 +20,16 @@ export async function sendLoginCode(email: string, code: string) {
         }
       : {}),
   });
+  const rawFrom = process.env.SMTP_FROM?.trim();
+  const fromAddress =
+    rawFrom && (!smtpUser || !rawFrom.includes("@resume-ok.local"))
+      ? rawFrom
+      : smtpUser
+        ? `ResumeOK <${smtpUser}>`
+        : "ResumeOK <no-reply@resume-ok.local>";
+
   await transport.sendMail({
-    from: process.env.SMTP_FROM ?? "ResumeOK <no-reply@resume-ok.local>",
+    from: fromAddress,
     to: email,
     subject: `${code} 是你的 ResumeOK 登录验证码`,
     text: `你的 ResumeOK 登录验证码是：${code}\n\n验证码将在 10 分钟后失效，且只能使用一次。若非本人操作，请忽略本邮件。`,

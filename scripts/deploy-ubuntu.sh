@@ -60,13 +60,14 @@ fi
 echo "==> [3/6] 初始化环境变量与启动 PostgreSQL 数据库容器..."
 if [ ! -f .env.local ]; then
   cp .env.example .env.local
-  if [[ "$SITE_HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    sed -i "s|^APP_URL=.*|APP_URL=http://${SITE_HOST}|" .env.local
-  else
-    sed -i "s|^APP_URL=.*|APP_URL=https://${SITE_HOST}|" .env.local
-  fi
   # 生产环境默认隐藏本地测试收件箱入口（如需开启真实 SMTP 请编辑 .env.local）
   sed -i "s|^NEXT_PUBLIC_MAILBOX_URL=.*|NEXT_PUBLIC_MAILBOX_URL=|" .env.local
+fi
+
+if [[ "$SITE_HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  sed -i "s|^APP_URL=.*|APP_URL=http://${SITE_HOST}|" .env.local
+else
+  sed -i "s|^APP_URL=.*|APP_URL=https://${SITE_HOST}|" .env.local
 fi
 
 sudo docker compose up -d --wait
@@ -90,7 +91,7 @@ if [[ "$SITE_HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   CADDY_SITE=":80"
   ACCESS_URL="http://${SITE_HOST}"
 else
-  CADDY_SITE="${SITE_HOST}"
+  CADDY_SITE="${SITE_HOST}, www.${SITE_HOST}"
   ACCESS_URL="https://${SITE_HOST}"
 fi
 
