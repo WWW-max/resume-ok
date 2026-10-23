@@ -3,10 +3,22 @@ import nodemailer from "nodemailer";
 
 export async function sendLoginCode(email: string, code: string) {
   const port = Number(process.env.SMTP_PORT ?? "1025");
+  const smtpUser = process.env.SMTP_USER?.trim();
+  const smtpPass = process.env.SMTP_PASS?.trim();
   const transport = nodemailer.createTransport({
     host: process.env.SMTP_HOST ?? "127.0.0.1",
     port,
-    secure: false,
+    secure: process.env.SMTP_SECURE
+      ? process.env.SMTP_SECURE === "true"
+      : port === 465,
+    ...(smtpUser && smtpPass
+      ? {
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        }
+      : {}),
   });
   await transport.sendMail({
     from: process.env.SMTP_FROM ?? "ResumeOK <no-reply@resume-ok.local>",
