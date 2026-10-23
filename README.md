@@ -2,6 +2,18 @@
 
 按 `public/designs/web-ui.png` 实现的在线简历编辑器。Next.js 16.2、React 19、TypeScript、Tailwind CSS，后端使用 Next.js Route Handlers 与本地 PostgreSQL。
 
+## 技术栈
+
+- **核心框架**：Next.js 16 (App Router) + React 19 + TypeScript
+- **样式与组件**：Tailwind CSS v4、Radix UI、Base UI、Lucide React
+- **富文本编辑**：Tiptap (`@tiptap/react` 及其扩展插件)
+- **PDF 导出与解析**：jsPDF、html2canvas、unpdf
+- **后端接口**：Next.js Route Handlers (内置服务端 API，统一全栈架构)
+- **数据存储**：PostgreSQL (使用 `pg` 驱动与连接池管理)
+- **认证与安全**：基于 HttpOnly Cookie + SHA-256 会话机制、bcryptjs 哈希、Google OAuth 2.0 / OIDC (`google-auth-library`)
+- **邮件通知**：Nodemailer (开发环境配合 Mailpit 捕获，生产环境支持标准 SMTP)
+- **测试与规范**：Node.js 原生测试套件 (`node --test`)、ESLint
+
 ## 本地启动
 
 需要 Node.js 20+、pnpm 与 Docker Compose。
