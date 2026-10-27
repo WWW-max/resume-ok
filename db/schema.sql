@@ -153,3 +153,17 @@ VALUES
   ('ROK-Q90-DEMO-8888', 'quarterly', 90, '系统内置测试季卡兑换码'),
   ('ROK-Y365-DEMO-8888', 'yearly', 365, '系统内置测试年卡兑换码')
 ON CONFLICT (code) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_name text NOT NULL,
+  user_id uuid REFERENCES users(id) ON DELETE SET NULL,
+  visitor_id text NOT NULL DEFAULT '',
+  page_path text NOT NULL DEFAULT '',
+  props jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS analytics_events_name_created_idx
+  ON analytics_events(event_name, created_at DESC);
+CREATE INDEX IF NOT EXISTS analytics_events_created_idx
+  ON analytics_events(created_at DESC);

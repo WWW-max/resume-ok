@@ -24,6 +24,7 @@ import {
   type MembershipStatus,
   type PaymentMethod,
 } from "@/lib/membership";
+import { trackEvent } from "@/lib/analytics";
 
 interface ActiveCheckoutOrder {
   orderNo: string;
@@ -172,6 +173,12 @@ export function MembershipModal({
   const activeOrderNo = activeOrder?.orderNo ?? "";
   const activeOrderStatus = activeOrder?.status ?? "";
 
+  useEffect(() => {
+    if (open) {
+      trackEvent("paywall_open", { trigger: reason || "主动点击升级按钮" });
+    }
+  }, [open, reason]);
+
   // 当存在待支付扫码订单时，每 2.5 秒自动轮询订单状态
   useEffect(() => {
     if (!open || !activeOrderNo || activeOrderStatus !== "pending") return;
@@ -242,6 +249,11 @@ export function MembershipModal({
         );
       }
       setActiveOrder(payload.order);
+      trackEvent("checkout_create", {
+        plan: selectedPlan,
+        payMethod,
+        orderNo: payload.order.orderNo,
+      });
     } catch (error) {
       setErrorMsg(
         error instanceof Error ? error.message : "创建订单失败，请稍后重试。",
@@ -574,7 +586,14 @@ export function MembershipModal({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setShowContactCard((prev) => !prev)}
+                onClick={() => {
+                  setShowContactCard((prev) => {
+                    if (!prev) {
+                      trackEvent("contact_cs_click", { action: "expand_card" });
+                    }
+                    return !prev;
+                  });
+                }}
                 className="inline-flex items-center gap-1 rounded-full border border-[#c6e9d3] bg-[#f2fbf6] px-2.5 py-1 text-xs font-semibold text-[#0d853d] transition-colors hover:bg-[#e3f7ec]"
               >
                 <MessageCircle size={12.5} />
@@ -615,6 +634,7 @@ export function MembershipModal({
                           .writeText(CUSTOMER_SERVICE_CONFIG.wechatId)
                           .catch(() => {});
                         setCopiedWechat(true);
+                        trackEvent("contact_cs_click", { action: "copy_wechat" });
                       }}
                       className="inline-flex items-center gap-1 rounded-md bg-brand px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-brand-dark"
                     >

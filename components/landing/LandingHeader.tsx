@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { formatMembershipExpiry } from "@/lib/membership";
+import { trackEvent } from "@/lib/analytics";
 const links = [
   { href: "/#top", label: "首页" },
   { href: "/editor?view=templates", label: "模板" },
@@ -41,6 +42,12 @@ export function LandingHeader({
   const [deleteAccountError, setDeleteAccountError] = useState("");
   const toggleRef = useRef<HTMLButtonElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      trackEvent("home_view");
+    }
+  }, []);
 
   useEffect(() => {
     if (!userMenuOpen) return;
