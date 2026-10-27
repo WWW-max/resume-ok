@@ -1,7 +1,7 @@
 "use client";
 import { safeNextPath } from "@/lib/auth-validation";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { AuthField, AuthSubmit, apiMessage } from "./AuthFormFields";
 
 type Mode = "password" | "code";
@@ -19,11 +19,20 @@ export function LoginForm({
   const [mode, setMode] = useState<Mode>("code");
   const [pending, setPending] = useState(false);
   const [requesting, setRequesting] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => {
+      setCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
+
   async function requestCode(form: HTMLFormElement) {
-    if (requesting) return;
+    if (requesting || cooldown > 0) return;
     const email = new FormData(form).get("email");
     if (!email) {
       setError("请先输入邮箱。");
@@ -41,6 +50,7 @@ export function LoginForm({
       const text = await apiMessage(response);
       if (!response.ok) throw new Error(text);
       setMessage(text);
+      setCooldown(60);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "验证码请求失败。");
     } finally {
@@ -140,11 +150,15 @@ export function LoginForm({
             />
             <button
               type="button"
-              disabled={requesting}
+              disabled={requesting || cooldown > 0}
               onClick={(event) => requestCode(event.currentTarget.form!)}
-              className="min-h-11 rounded-xl border border-green-200 px-4 text-sm font-medium text-green-700 hover:bg-green-50 disabled:opacity-60"
+              className="min-h-11 min-w-28 rounded-xl border border-green-200 px-4 text-sm font-medium tabular-nums text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {requesting ? "发送中…" : "发送验证码"}
+              {requesting
+                ? "发送中…"
+                : cooldown > 0
+                  ? `${cooldown}s 后重发`
+                  : "发送验证码"}
             </button>
           </div>
         )}
