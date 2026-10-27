@@ -69,6 +69,7 @@ import {
   type MembershipPlan,
   type MembershipStatus,
 } from "@/lib/membership";
+import { trackEvent } from "@/lib/analytics";
 
 interface OnlineResumeViewLog {
   id: string;
@@ -269,6 +270,10 @@ export default function EditorWorkspace({
   }, [onlineModalOpen]);
 
   useEffect(() => {
+    trackEvent("editor_open");
+  }, []);
+
+  useEffect(() => {
     if (!userMenuOpen && !downloadMenuOpen) return;
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -358,6 +363,11 @@ export default function EditorWorkspace({
   }
   function openDownloadDialog(format: ExportFormat) {
     setDownloadMenuOpen(false);
+    trackEvent("export_attempt", {
+      format,
+      plan: membership.plan,
+      allowed: canExportFormat(membership.plan, format),
+    });
     if (!canExportFormat(membership.plan, format)) {
       const formatLabel =
         format === "pdf"
