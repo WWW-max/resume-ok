@@ -11,7 +11,8 @@
     "test": "node --test tests/*.test.cjs",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "codes:generate": "node --env-file=.env.local scripts/generate-codes.mjs",
-    "test:integration": "node --env-file=.env.local --test tests/integration/*.test.mjs"
+    "test:integration": "node --env-file=.env.local --test tests/integration/*.test.mjs",
+    "deploy": "rsync -az --delete --exclude '.git' --exclude 'node_modules' --exclude '.next' --exclude '.env.local' ./ ubuntu@123.58.219.165:~/resume-ok/ && ssh ubuntu@123.58.219.165 'cd ~/resume-ok && pnpm install --frozen-lockfile && pnpm run db:migrate && pnpm build && pm2 restart resume-ok'"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
