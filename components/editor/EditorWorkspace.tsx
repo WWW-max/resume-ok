@@ -858,15 +858,15 @@ export default function EditorWorkspace({
             className={ui["soft-button"]}
             onClick={() => setPreviewOnly(!previewOnly)}
           >
-            <Eye size={17} className="max-[380px]:hidden" />
-            {previewOnly ? "编辑" : "预览"}
+            <Eye size={15} className="max-[420px]:hidden" />
+            <span>{previewOnly ? "编辑" : "预览"}</span>
           </button>
           <button
-            className={ui["soft-button"]}
+            className={`${ui["soft-button"]} max-[1280px]:hidden`}
             onClick={() => openPanel("assistant")}
           >
-            <Lightbulb size={17} />
-            助手
+            <Lightbulb size={16} />
+            <span>助手</span>
           </button>
           <input
             ref={importInputRef}
@@ -884,7 +884,7 @@ export default function EditorWorkspace({
           />
           <button
             type="button"
-            className={ui["soft-button"]}
+            className={`${ui["soft-button"]} max-[900px]:hidden`}
             disabled={importing || !store.ready}
             onClick={() => {
               if (!canUseFeature(membership.plan, "importResume")) {
@@ -893,23 +893,29 @@ export default function EditorWorkspace({
               }
               importInputRef.current?.click();
             }}
+            aria-label={importing ? "解析中" : "导入简历"}
             title="支持上传 PDF (.pdf)、Markdown (.md) 或文本 (.txt) 简历自动解析生成新简历"
           >
-            <Upload size={17} />
-            <span>{importing ? "解析中…" : "导入简历"}</span>
+            <Upload size={16} />
+            <span className="max-[1080px]:hidden">
+              {importing ? "解析中…" : "导入简历"}
+            </span>
             {!canUseFeature(membership.plan, "importResume") && (
               <Crown size={13} className="text-[#0cb449]" />
             )}
           </button>
           <button
             type="button"
-            className={ui["soft-button"]}
+            className={`${ui["soft-button"]} max-[900px]:hidden`}
             disabled={translating || !store.ready}
             onClick={() => void handleTranslateToEnglish()}
+            aria-label={translating ? "翻译中" : "译为英文"}
             title="基于当前简历自动新建一份英文版副本（保留原中文简历）"
           >
-            <Languages size={17} />
-            <span>{translating ? "翻译中…" : "译为英文"}</span>
+            <Languages size={16} />
+            <span className="max-[1080px]:hidden">
+              {translating ? "翻译中…" : "译为英文"}
+            </span>
             {!canUseFeature(membership.plan, "translateEnglish") && (
               <Crown size={13} className="text-[#0cb449]" />
             )}
@@ -919,17 +925,19 @@ export default function EditorWorkspace({
             className={ui["soft-button"]}
             disabled={!store.ready}
             onClick={openOnlineResumeModal}
+            aria-label="在线简历"
             title="生成或同步发布在线简历专属链接，方便 HR 随时在电脑或手机上预览与下载 PDF"
           >
-            <Globe size={17} className={activePublishedSlug ? "text-[#0cb449]" : ""} />
-            <span>在线简历</span>
+            <Globe size={15} className={activePublishedSlug ? "text-[#0cb449]" : ""} />
+            <span className="max-[640px]:hidden">在线简历</span>
+            <span className="max-[420px]:hidden min-[641px]:hidden">在线</span>
             {!canUseFeature(membership.plan, "shareOnlineResume") &&
               !activePublishedSlug && (
-                <Crown size={13} className="text-[#0cb449]" />
+                <Crown size={13} className="text-[#0cb449] max-[540px]:hidden" />
               )}
             {activePublishedSlug && (
               <span
-                className={`size-2 rounded-full ${
+                className={`size-2 shrink-0 rounded-full ${
                   hasUnpublishedChanges ? "bg-amber-500" : "bg-[#0cb449]"
                 }`}
                 title={
@@ -946,14 +954,19 @@ export default function EditorWorkspace({
               setMembershipModalReason("");
               setMembershipModalOpen(true);
             }}
-            className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[8px] border px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors max-[540px]:px-2 max-[540px]:text-[12px] ${
+            className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[8px] border px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-colors max-[900px]:min-h-9 max-[900px]:px-2.5 max-[900px]:py-1.5 max-[900px]:text-[12px] max-[540px]:px-2 max-[540px]:gap-1 ${
               membership.isPro
                 ? "border-[#b5e8c8] bg-[#e9f9ef] text-[#0c8a3e] hover:bg-[#daf4e4]"
                 : "border-[#c4ecd3] bg-[#f2fcf6] text-[#0c9442] hover:bg-[#e3f8eb]"
             }`}
           >
-            <Crown size={15} className="text-[#0cb449]" />
-            <span>{membership.isPro ? "PRO 会员" : "升级会员"}</span>
+            <Crown size={14} className="shrink-0 text-[#0cb449]" />
+            <span className="max-[820px]:hidden">
+              {membership.isPro ? "PRO 会员" : "升级会员"}
+            </span>
+            <span className="min-[821px]:hidden">
+              {membership.isPro ? "PRO" : "升级"}
+            </span>
           </button>
           <div className="relative" ref={downloadMenuRef}>
             <button
@@ -964,14 +977,14 @@ export default function EditorWorkspace({
               disabled={exporting || !store.ready}
               onClick={() => setDownloadMenuOpen((prev) => !prev)}
             >
-              <Download size={17} />
-              <span className="hidden sm:inline">
+              <Download size={15} />
+              <span className="max-[640px]:hidden">
                 {exporting ? "导出中…" : "下载简历"}
               </span>
-              <span className="sm:hidden">{exporting ? "导出中" : "导出"}</span>
+              <span className="min-[641px]:hidden">{exporting ? "导出中" : "导出"}</span>
               <ChevronDown
-                size={14}
-                className={`shrink-0 transition-transform ${downloadMenuOpen ? "rotate-180" : ""}`}
+                size={13}
+                className={`shrink-0 transition-transform max-[420px]:hidden ${downloadMenuOpen ? "rotate-180" : ""}`}
               />
             </button>
             {downloadMenuOpen && (
@@ -1087,17 +1100,17 @@ export default function EditorWorkspace({
               aria-expanded={userMenuOpen}
               aria-haspopup="menu"
               onClick={() => setUserMenuOpen((prev) => !prev)}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d8efe1] bg-[#f4fbf6] pl-1.5 pr-3 py-1 text-xs sm:text-sm font-medium text-[#1a4026] transition-colors hover:border-[#65d995] hover:bg-[#e7faed]"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[#d8efe1] bg-[#f4fbf6] p-1 text-xs font-medium text-[#1a4026] transition-colors hover:border-[#65d995] hover:bg-[#e7faed] min-[901px]:min-h-10 min-[901px]:gap-2 min-[901px]:py-1 min-[901px]:pr-3 min-[901px]:pl-1.5 min-[901px]:text-sm"
             >
               <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#d7f5e3] text-xs font-bold text-[#168347]">
                 {user.email.slice(0, 1).toUpperCase()}
               </span>
-              <span className="hidden max-w-40 truncate sm:inline">
+              <span className="max-w-36 truncate max-[1200px]:hidden">
                 {user.email}
               </span>
               <ChevronDown
                 size={14}
-                className={`shrink-0 text-[#4a805c] transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                className={`shrink-0 text-[#4a805c] transition-transform max-[540px]:hidden ${userMenuOpen ? "rotate-180" : ""}`}
               />
             </button>
             {userMenuOpen && (
@@ -1154,6 +1167,46 @@ export default function EditorWorkspace({
                   <button
                     type="button"
                     role="menuitem"
+                    disabled={importing || !store.ready}
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      if (!canUseFeature(membership.plan, "importResume")) {
+                        requirePro(FEATURE_UPGRADE_PROMPTS.importResume);
+                        return;
+                      }
+                      importInputRef.current?.click();
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644] min-[901px]:hidden"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Upload size={14} className="text-[#388855]" />
+                      {importing ? "解析简历中…" : "导入简历 (.pdf / .md)"}
+                    </span>
+                    {!canUseFeature(membership.plan, "importResume") && (
+                      <Crown size={12} className="text-[#0cb449]" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={translating || !store.ready}
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      void handleTranslateToEnglish();
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644] min-[901px]:hidden"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Languages size={14} className="text-[#388855]" />
+                      {translating ? "翻译简历中…" : "一键译为英文简历"}
+                    </span>
+                    {!canUseFeature(membership.plan, "translateEnglish") && (
+                      <Crown size={12} className="text-[#0cb449]" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
                     onClick={() => {
                       openPanel("resumes");
                       setUserMenuOpen(false);
@@ -1162,18 +1215,6 @@ export default function EditorWorkspace({
                   >
                     <Files size={14} className="text-[#388855]" />
                     我的简历
-                  </button>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      openPanel("settings");
-                      setUserMenuOpen(false);
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
-                  >
-                    <Settings size={14} className="text-[#388855]" />
-                    排版设置
                   </button>
                   {user.isAdmin && (
                     <Link
@@ -1272,7 +1313,7 @@ export default function EditorWorkspace({
           }}
         >
           <div
-            className="w-[min(calc(100vw-2rem),620px)] rounded-2xl border border-[#f2c8c3] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            className="max-h-[calc(100dvh-2rem)] w-[min(calc(100vw-2rem),620px)] overflow-y-auto rounded-2xl border border-[#f2c8c3] bg-white p-4 shadow-[0_16px_40px_#10391d26] sm:p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2.5">
@@ -1291,10 +1332,10 @@ export default function EditorWorkspace({
               <span className="font-semibold text-ink">{user.email}</span>
               。此操作<strong>不可撤销</strong>，确认后将立即彻底清除：
             </p>
-            <ul className="mt-2 list-disc space-y-1 overflow-x-auto rounded-xl border border-[#f7dad7] bg-[#fff9f8] py-2.5 pl-7 pr-4 text-xs text-[#7a342e]">
-              <li className="whitespace-nowrap">该账号下保存的所有简历文档与历史版本；</li>
-              <li className="whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
-              <li className="whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
+            <ul className="mt-2 list-disc space-y-1 overflow-x-auto rounded-xl border border-[#f7dad7] bg-[#fff9f8] py-2.5 pl-6 pr-3.5 text-xs text-[#7a342e] sm:pl-7 sm:pr-4">
+              <li className="sm:whitespace-nowrap">该账号下保存的所有简历文档与历史版本；</li>
+              <li className="sm:whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
+              <li className="sm:whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
             </ul>
             {membership.isPro && (
               <div className="mt-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
@@ -1461,10 +1502,10 @@ export default function EditorWorkspace({
           onClick={() => setOnlineModalOpen(false)}
         >
           <div
-            className="w-full max-w-[660px] rounded-2xl border border-[#d8efe1] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-[660px] overflow-y-auto rounded-2xl border border-[#d8efe1] bg-white p-4 shadow-[0_16px_40px_#10391d26] sm:p-5"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
               <div className="flex min-w-0 items-center gap-2.5">
                 <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#e8f8ee] text-[#0cb449]">
                   <Globe size={18} />
@@ -1508,7 +1549,7 @@ export default function EditorWorkspace({
                   专属链接地址（支持中文姓名或自定义后缀）
                 </label>
                 <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
-                  <span className="shrink-0 select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c]">
+                  <span className="max-w-[52%] shrink-0 truncate select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c] sm:max-w-none">
                     {siteOrigin}/online-resume/
                   </span>
                   <input
@@ -1613,8 +1654,8 @@ export default function EditorWorkspace({
 
             {activeOnlineInfo && (
               <div className="mt-3.5 rounded-xl border border-[#d8efe1] bg-white p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
                     <span className="font-semibold text-[#153a22]">
                       访问记录
                     </span>
@@ -1751,13 +1792,13 @@ export default function EditorWorkspace({
               </p>
             )}
 
-            <div className="mt-5 flex items-center justify-between gap-2">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
               {activePublishedSlug ? (
                 <button
                   type="button"
                   disabled={onlineSaving}
                   onClick={() => setConfirmOnlineAction("unpublish")}
-                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-[#f2c8c3] bg-[#fff7f6] px-3.5 text-xs font-medium text-[#bd554d] shadow-[0_1px_2px_rgba(189,85,77,0.06)] transition-colors hover:border-[#e6aca5] hover:bg-[#ffecea] disabled:opacity-60"
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-[#f2c8c3] bg-[#fff7f6] px-3 text-xs font-medium text-[#bd554d] shadow-[0_1px_2px_rgba(189,85,77,0.06)] transition-colors hover:border-[#e6aca5] hover:bg-[#ffecea] disabled:opacity-60 sm:px-3.5"
                 >
                   <EyeOff size={13.5} />
                   关闭在线访问
@@ -1765,7 +1806,7 @@ export default function EditorWorkspace({
               ) : (
                 <span />
               )}
-              <div className="flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setOnlineModalOpen(false)}
@@ -2154,21 +2195,21 @@ export default function EditorWorkspace({
                 )}
               </button>
               <button
-                className={ui["secondary-button"]}
+                className={`${ui["secondary-button"]} max-[1160px]:hidden`}
                 onClick={() => openPanel("templates")}
               >
                 <LayoutGrid size={15} />
                 模板库
               </button>
               <button
-                className={ui["secondary-button"]}
+                className={`${ui["secondary-button"]} max-[1160px]:hidden`}
                 onClick={() => openPanel("assistant")}
               >
                 <Sparkles size={15} />
                 简历检查
               </button>
               <span
-                className={`${ui["toolbar-pill"]} hidden min-[1450px]:inline-flex`}
+                className={`${ui["toolbar-pill"]} max-[1450px]:hidden`}
               >
                 A4 (210 × 297mm)
               </span>

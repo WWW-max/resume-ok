@@ -6,24 +6,24 @@ export const ui = {
   workspace:
     "workspace h-dvh w-full overflow-hidden flex flex-col text-ink [background:radial-gradient(ellipse_at_100%_92%,_#e2faef_0,_transparent_27%),_#e7fdee] print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
   topbar:
-    "topbar h-19 shrink-0 flex items-center gap-6 px-8 bg-[#ffffffda] border-b border-line max-[900px]:h-16 max-[900px]:px-4 max-[540px]:px-3 max-[540px]:gap-2 print:hidden!",
+    "topbar h-19 shrink-0 flex items-center gap-4 lg:gap-6 px-6 lg:px-8 bg-[#ffffffda] border-b border-line max-[900px]:h-14 max-[900px]:px-3 max-[540px]:px-2.5 max-[540px]:gap-1.5 print:hidden!",
   brand:
-    "brand inline-flex items-center gap-3 text-[27px] font-[750] tracking-[-1.2px] whitespace-nowrap max-[900px]:text-[22px] max-[900px]:gap-2 max-[540px]:text-[19px]",
+    "brand inline-flex items-center gap-3 text-[27px] font-[750] tracking-[-1.2px] whitespace-nowrap max-[900px]:text-[20px] max-[900px]:gap-1.5 max-[540px]:text-[17px] max-[540px]:gap-1",
   "brand-clover":
-    "brand-clover w-11 h-11 text-[#37ba58] fill-[#61d477] [.brand-small_&]:w-[34px] [.brand-small_&]:h-[34px] max-[900px]:w-[34px] max-[900px]:h-[34px] max-[540px]:w-7 max-[540px]:h-7",
+    "brand-clover w-11 h-11 text-[#37ba58] fill-[#61d477] [.brand-small_&]:w-[34px] [.brand-small_&]:h-[34px] max-[900px]:w-7 max-[900px]:h-7 max-[540px]:w-6 max-[540px]:h-6",
   "brand-ok": "brand-ok text-[#0cb449]",
   "brand-small":
     "brand-small [&.brand-small]:text-[23px] [&.brand-small]:gap-[9px]",
   tagline:
-    "tagline text-[13px] text-muted-ink tracking-[0.3px] max-[1250px]:hidden",
+    "tagline text-[13px] text-muted-ink tracking-[0.3px] max-[1480px]:hidden",
   "top-actions":
-    "top-actions ml-auto flex min-w-0 items-center gap-3 max-[540px]:gap-1.5",
+    "top-actions ml-auto flex min-w-0 items-center gap-2 lg:gap-2.5 max-[900px]:gap-1.5 max-[540px]:gap-1",
   "soft-button":
-    "soft-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-white border border-[#ebf6ee] hover:bg-[#e7faed] max-[540px]:[.top-actions_&]:[&:nth-child(2)]:hidden max-[540px]:px-2 max-[540px]:text-[12px]",
+    "soft-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-white border border-[#ebf6ee] hover:bg-[#e7faed] max-[900px]:min-h-9 max-[900px]:px-2.5 max-[900px]:py-1.5 max-[900px]:gap-1.5 max-[900px]:text-[12px] max-[540px]:px-2 max-[540px]:gap-1",
   "primary-button":
-    "primary-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-brand text-white border border-brand hover:bg-brand-dark max-[540px]:px-2 max-[540px]:gap-1.5 max-[540px]:text-[12px]",
+    "primary-button inline-flex min-h-11 items-center justify-center gap-2 text-[13px] rounded-[8px] px-3 py-2 whitespace-nowrap bg-brand text-white border border-brand hover:bg-brand-dark max-[900px]:min-h-9 max-[900px]:px-2.5 max-[900px]:py-1.5 max-[900px]:gap-1.5 max-[900px]:text-[12px] max-[540px]:px-2 max-[540px]:gap-1",
   "secondary-button":
-    "secondary-button inline-flex min-h-11 items-center justify-center gap-2 text-[12px] rounded-[8px] px-2 py-2 whitespace-nowrap text-[#1a6b35] bg-[#c8ffda] hover:bg-[#9dffbe]",
+    "secondary-button inline-flex min-h-10 items-center justify-center gap-1.5 text-[12px] rounded-[8px] px-2.5 py-1.5 whitespace-nowrap text-[#1a6b35] bg-[#c8ffda] hover:bg-[#9dffbe] max-[900px]:min-h-8 max-[900px]:px-2",
   "back-button":
     "back-button inline-flex items-center justify-center gap-2 text-[13px] rounded-[8px] p-2 whitespace-nowrap text-[#4a7a5a] [margin:0_12px_10px] hover:text-[#069b43] hover:bg-[#eef9f3] min-h-11",
   "toolbar-pill":
@@ -59,7 +59,7 @@ export const ui = {
   "toolbar-group":
     "toolbar-group flex min-w-0 items-center gap-2 max-[1250px]:gap-1",
   "preview-canvas":
-    "preview-canvas flex-1 min-w-0 overflow-x-auto overflow-y-scroll [scrollbar-gutter:stable] overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[540px]:px-3 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
+    "preview-canvas flex-1 min-w-0 overflow-x-auto overflow-y-scroll [scrollbar-gutter:stable] overscroll-contain min-h-0 px-8 pt-3 pb-9 min-[1600px]:pt-6 max-[1100px]:px-4 max-[540px]:px-2 print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full!",
   "paper-size":
     "paper-size [margin:0_auto] [.preview-only_&]:mx-auto print:block! print:h-auto! print:overflow-visible! print:p-0! print:m-0! print:w-full! print:[&_>_div]:[transform:none]!",
   "resume-paper":

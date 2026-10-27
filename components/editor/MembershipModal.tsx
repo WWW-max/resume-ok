@@ -346,7 +346,7 @@ export function MembershipModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[92vh] w-[min(calc(100vw-2rem),740px)] overflow-y-auto rounded-3xl border border-[#cdebd9] bg-white p-5 shadow-[0_24px_60px_#10391d2e] sm:p-7"
+        className="max-h-[calc(100dvh-2rem)] w-[min(calc(100vw-2rem),740px)] overflow-y-auto rounded-3xl border border-[#cdebd9] bg-white p-4 shadow-[0_24px_60px_#10391d2e] sm:p-7"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
@@ -486,7 +486,7 @@ export function MembershipModal({
               type="button"
               disabled={creatingOrder}
               onClick={() => void handleCreateCheckoutOrder()}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-brand-dark disabled:opacity-60"
+              className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-brand-dark disabled:opacity-60 sm:w-auto"
             >
               <QrCode size={15} />
               {creatingOrder
@@ -550,7 +550,7 @@ export function MembershipModal({
 
         {/* 6大核心权益说明 */}
         <div className="mt-4 rounded-2xl border border-[#e3f3e9] bg-[#f9fdfb] p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-1">
             <h3 className="text-xs font-semibold text-[#1b4d2e]">
               PRO 会员解锁全部 6 大核心权益
             </h3>

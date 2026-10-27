@@ -195,20 +195,20 @@ export function ViewStatisticDashboard({
 
   return (
     <div className="min-h-dvh bg-[#f4fbf6] text-ink">
-      <header className="sticky top-0 z-20 flex h-15 items-center justify-between border-b border-[#d8efe1] bg-white/95 px-4 sm:px-8 backdrop-blur-xs">
-        <div className="flex items-center gap-3">
-          <Link href="/" aria-label="ResumeOK 首页">
+      <header className="sticky top-0 z-20 flex h-15 items-center justify-between gap-2 border-b border-[#d8efe1] bg-white/95 px-3.5 sm:px-8 backdrop-blur-xs">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Link href="/" aria-label="ResumeOK 首页" className="shrink-0">
             <Brand />
           </Link>
-          <span className="h-4 w-px bg-[#d8efe1]" />
-          <div className="flex items-center gap-2">
-            <Globe size={16} className="text-[#0cb449]" />
-            <h1 className="text-sm sm:text-base font-semibold text-[#153a22]">
+          <span className="hidden h-4 w-px bg-[#d8efe1] min-[420px]:inline-block" />
+          <div className="hidden min-w-0 items-center gap-1.5 min-[420px]:flex sm:gap-2">
+            <Globe size={16} className="shrink-0 text-[#0cb449]" />
+            <h1 className="truncate text-xs font-semibold text-[#153a22] sm:text-base">
               在线简历访客统计
             </h1>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {selectedSlug && (
             <a
               href={`/online-resume/${encodeURIComponent(selectedSlug)}`}
@@ -222,7 +222,8 @@ export function ViewStatisticDashboard({
           )}
           <Link href="/editor" className={ui["primary-button"]}>
             <ArrowLeft size={16} />
-            <span>返回简历编辑器</span>
+            <span className="hidden sm:inline">返回简历编辑器</span>
+            <span className="sm:hidden">返回工作台</span>
           </Link>
         </div>
       </header>
@@ -325,7 +326,7 @@ export function ViewStatisticDashboard({
                 ))}
               </div>
 
-              <div className="relative flex items-center">
+              <div className="relative flex w-full items-center sm:w-auto">
                 <Search
                   size={14}
                   className="pointer-events-none absolute left-2.5 text-[#6e9179]"
@@ -335,7 +336,7 @@ export function ViewStatisticDashboard({
                   value={searchText}
                   placeholder="搜索投递标记 / 城市 / IP / 设备…"
                   onChange={(e) => setSearchText(e.target.value)}
-                  className="h-9 w-56 rounded-lg border border-[#d2ebda] bg-white pl-8 pr-3 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none"
+                  className="h-9 w-full rounded-lg border border-[#d2ebda] bg-white pl-8 pr-3 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none sm:w-56"
                 />
               </div>
 

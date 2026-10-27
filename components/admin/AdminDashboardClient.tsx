@@ -262,36 +262,38 @@ export function AdminDashboardClient({
     <div className="min-h-screen bg-[#f6faf7] text-ink">
       {/* 顶部导航栏 */}
       <header className="sticky top-0 z-30 border-b border-[#d9ece0] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <Link href="/" className="shrink-0">
               <Brand />
             </Link>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#bce6cb] bg-[#eaf9f0] px-2.5 py-0.5 text-xs font-bold text-[#0d853d]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#bce6cb] bg-[#eaf9f0] px-2 py-0.5 text-[11px] font-bold text-[#0d853d] sm:px-2.5 sm:text-xs">
               <ShieldCheck size={13} />
-              Admin 运营中台
+              <span className="hidden min-[400px]:inline">Admin </span>运营中台
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
-            <span className="hidden rounded-lg bg-[#f2fbf6] px-2.5 py-1.5 font-medium text-[#255c39] sm:inline-block">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs sm:gap-2.5">
+            <span className="hidden rounded-lg bg-[#f2fbf6] px-2.5 py-1.5 font-medium text-[#255c39] md:inline-block">
               管理员：{adminEmail}
             </span>
             <button
               type="button"
               onClick={() => void refreshDashboard(rangeDays)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#cde8d6] bg-white px-3 py-1.5 font-semibold text-[#184d2b] transition-colors hover:bg-[#f2fbf6] disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#cde8d6] bg-white px-2.5 py-1.5 font-semibold text-[#184d2b] transition-colors hover:bg-[#f2fbf6] disabled:opacity-60 sm:px-3"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
-              刷新数据
+              <span>
+                刷新<span className="hidden min-[440px]:inline">数据</span>
+              </span>
             </button>
             <Link
               href="/editor"
-              className="inline-flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="inline-flex items-center gap-1 rounded-lg bg-brand px-2.5 py-1.5 font-semibold text-white transition-colors hover:bg-brand-dark sm:px-3"
             >
               <ArrowLeft size={13} />
-              返回工作台
+              <span>返回工作台</span>
             </Link>
           </div>
         </div>
@@ -758,8 +760,8 @@ export function AdminDashboardClient({
                         <span className="font-semibold text-ink">
                           {step.label}
                         </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[11px] text-muted-ink">
+                        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+                          <span className="hidden text-[11px] text-muted-ink sm:inline">
                             {step.desc}
                           </span>
                           {stepRate && (
@@ -767,7 +769,7 @@ export function AdminDashboardClient({
                               环比 {stepRate}
                             </span>
                           )}
-                          <span className="w-12 text-right font-mono text-sm font-extrabold text-ink">
+                          <span className="w-10 text-right font-mono text-sm font-extrabold text-ink sm:w-12">
                             {step.count}
                           </span>
                         </div>
@@ -865,7 +867,7 @@ export function AdminDashboardClient({
               <div className="mt-3 overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#e5f3ea] text-muted-ink">
+                    <tr className="whitespace-nowrap border-b border-[#e5f3ea] text-muted-ink">
                       <th className="py-2.5 pr-4 font-semibold">发生时间</th>
                       <th className="py-2.5 pr-4 font-semibold">事件名称</th>
                       <th className="py-2.5 pr-4 font-semibold">
@@ -934,9 +936,9 @@ export function AdminDashboardClient({
               </p>
               <form
                 onSubmit={(e) => void handleGenerateCodes(e)}
-                className="mt-4 flex flex-wrap items-end gap-3"
+                className="mt-4 grid gap-3 sm:grid-cols-[1.2fr_110px_1.5fr_auto] sm:items-end"
               >
-                <div className="min-w-[180px] flex-1">
+                <div className="min-w-0">
                   <label className="block text-[11px] font-semibold text-muted-ink">
                     套餐类型
                   </label>
@@ -957,7 +959,7 @@ export function AdminDashboardClient({
                   </select>
                 </div>
 
-                <div className="w-28">
+                <div className="min-w-0">
                   <label className="block text-[11px] font-semibold text-muted-ink">
                     生成数量
                   </label>
@@ -971,7 +973,7 @@ export function AdminDashboardClient({
                   />
                 </div>
 
-                <div className="min-w-[220px] flex-1">
+                <div className="min-w-0">
                   <label className="block text-[11px] font-semibold text-muted-ink">
                     批次备注（选填）
                   </label>
@@ -987,7 +989,7 @@ export function AdminDashboardClient({
                 <button
                   type="submit"
                   disabled={generatingCodes}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand px-5 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-brand px-5 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
                 >
                   <Plus size={14} />
                   {generatingCodes ? "正在生成…" : "立即生成"}
@@ -1080,7 +1082,7 @@ export function AdminDashboardClient({
               <div className="mt-3 overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#e5f3ea] text-muted-ink">
+                    <tr className="whitespace-nowrap border-b border-[#e5f3ea] text-muted-ink">
                       <th className="py-2.5 pr-4 font-semibold">激活码</th>
                       <th className="py-2.5 pr-4 font-semibold">套餐档位</th>
                       <th className="py-2.5 pr-4 font-semibold">状态</th>
@@ -1180,7 +1182,7 @@ export function AdminDashboardClient({
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#e5f3ea] text-muted-ink">
+                    <tr className="whitespace-nowrap border-b border-[#e5f3ea] text-muted-ink">
                       <th className="py-2.5 pr-4 font-semibold">用户邮箱</th>
                       <th className="py-2.5 pr-4 font-semibold">当前会员状态</th>
                       <th className="py-2.5 pr-4 font-semibold">到期时间</th>
@@ -1285,7 +1287,7 @@ export function AdminDashboardClient({
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[#e5f3ea] text-muted-ink">
+                  <tr className="whitespace-nowrap border-b border-[#e5f3ea] text-muted-ink">
                     <th className="py-2.5 pr-4 font-semibold">订单号</th>
                     <th className="py-2.5 pr-4 font-semibold">用户邮箱</th>
                     <th className="py-2.5 pr-4 font-semibold">套餐类型</th>

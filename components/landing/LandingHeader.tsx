@@ -266,6 +266,9 @@ export function LandingHeader({
               ? [
                   ...links,
                   { href: "/editor", label: `我的简历 (${user.email})` },
+                  ...(user.isAdmin
+                    ? [{ href: "/admin-dashboard", label: "运营管理中台" }]
+                    : []),
                 ]
               : [...links, { href: "/login", label: "登录 / 注册" }]
             ).map((link) => (
@@ -360,7 +363,7 @@ export function LandingHeader({
           }}
         >
           <div
-            className="w-[min(calc(100vw-2rem),620px)] rounded-2xl border border-[#f2c8c3] bg-white p-5 shadow-[0_16px_40px_#10391d26]"
+            className="max-h-[calc(100dvh-2rem)] w-[min(calc(100vw-2rem),620px)] overflow-y-auto rounded-2xl border border-[#f2c8c3] bg-white p-4 shadow-[0_16px_40px_#10391d26] sm:p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2.5">
@@ -379,10 +382,10 @@ export function LandingHeader({
               <span className="font-semibold text-ink">{user.email}</span>
               。此操作<strong>不可撤销</strong>，确认后将立即彻底清除：
             </p>
-            <ul className="mt-2 list-disc space-y-1 overflow-x-auto rounded-xl border border-[#f7dad7] bg-[#fff9f8] py-2.5 pl-7 pr-4 text-xs text-[#7a342e]">
-              <li className="whitespace-nowrap">该账号下保存的所有简历文档与历史版本；</li>
-              <li className="whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
-              <li className="whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
+            <ul className="mt-2 list-disc space-y-1 overflow-x-auto rounded-xl border border-[#f7dad7] bg-[#fff9f8] py-2.5 pl-6 pr-3.5 text-xs text-[#7a342e] sm:pl-7 sm:pr-4">
+              <li className="sm:whitespace-nowrap">该账号下保存的所有简历文档与历史版本；</li>
+              <li className="sm:whitespace-nowrap">所有已发布的在线简历分享链接及访客统计记录；</li>
+              <li className="sm:whitespace-nowrap">账号登录凭证、关联绑定信息及尚未到期的会员权益（视为自愿放弃，不予退还或转移）。</li>
             </ul>
             {user.isPro && (
               <div className="mt-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
