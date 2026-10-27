@@ -29,7 +29,7 @@ export const CUSTOMER_SERVICE_CONFIG = {
     process.env.NEXT_PUBLIC_SUPPORT_WECHAT || "ResumeOK_VIP",
   /** 客服联系邮箱或备用联系方式 */
   supportEmail:
-    process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@resumeok.cn",
+    process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "service@resumeok.cn",
   /** 客服微信二维码图片地址（可选：将二维码图片放到 public/brand/support-qr.png 后填入路径即可直接展示图片） */
   qrCodeImageUrl: process.env.NEXT_PUBLIC_SUPPORT_QR || "",
   /** 外部 24 小时自动发卡商品页链接（可选：如面包多、爱发电、闲鱼商品链接） */
