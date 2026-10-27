@@ -11,6 +11,18 @@ import {
 export const SESSION_COOKIE = "resumeok_session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
+const DEFAULT_ADMIN_EMAILS = ["464711201@qq.com", "service@resumeok.cn"];
+
+function checkIsAdminEmail(email: string): boolean {
+  const raw = process.env.ADMIN_EMAILS || "";
+  const extra = raw
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+  const adminSet = new Set([...DEFAULT_ADMIN_EMAILS, ...extra]);
+  return adminSet.has(email.trim().toLowerCase());
+}
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -18,6 +30,7 @@ export interface AuthUser {
   membershipExpiresAt: string | null;
   isPro: boolean;
   planLabel: string;
+  isAdmin?: boolean;
 }
 
 function cookieOptions(maxAge = SESSION_MAX_AGE_SECONDS) {
@@ -72,6 +85,7 @@ export async function currentUser(): Promise<AuthUser | null> {
     membershipExpiresAt: status.expiresAt,
     isPro: status.isPro,
     planLabel: status.planLabel,
+    isAdmin: checkIsAdminEmail(row.email),
   };
 }
 

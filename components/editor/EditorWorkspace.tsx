@@ -56,6 +56,7 @@ import {
   ExternalLink,
   RefreshCw,
   Crown,
+  ShieldCheck,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 import type { ResumeData } from "@/lib/resume-data";
@@ -101,6 +102,7 @@ export default function EditorWorkspace({
     membershipExpiresAt?: string | null;
     isPro?: boolean;
     planLabel?: string;
+    isAdmin?: boolean;
   };
 }) {
   const router = useRouter();
@@ -1173,6 +1175,17 @@ export default function EditorWorkspace({
                     <Settings size={14} className="text-[#388855]" />
                     排版设置
                   </button>
+                  {user.isAdmin && (
+                    <Link
+                      href="/admin-dashboard"
+                      role="menuitem"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                    >
+                      <ShieldCheck size={14} className="text-[#0cb449]" />
+                      运营管理中台
+                    </Link>
+                  )}
                   <button
                     type="button"
                     role="menuitem"

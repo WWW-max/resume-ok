@@ -10,6 +10,7 @@ import {
   Trash2,
   ChevronDown,
   FileText,
+  ShieldCheck,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { formatMembershipExpiry } from "@/lib/membership";
@@ -30,6 +31,7 @@ export function LandingHeader({
     isPro?: boolean;
     planLabel?: string;
     membershipExpiresAt?: string | null;
+    isAdmin?: boolean;
   } | null;
 }) {
   const router = useRouter();
@@ -185,6 +187,17 @@ export function LandingHeader({
                         <FileText size={14} className="text-[#388855]" />
                         进入简历工作台
                       </Link>
+                      {user.isAdmin && (
+                        <Link
+                          href="/admin-dashboard"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                        >
+                          <ShieldCheck size={14} className="text-[#0cb449]" />
+                          运营管理中台
+                        </Link>
+                      )}
                       <button
                         type="button"
                         role="menuitem"
