@@ -51,10 +51,10 @@ function MiniResume() {
         },
       ].map(({ title, company, role }, i) => (
         <div className="mt-3" key={title}>
-          <h3 className="flex items-center gap-1 border-b border-green-100 pb-1 text-[7px] font-semibold text-green-800">
+          <p className="flex items-center gap-1 border-b border-green-100 pb-1 text-[7px] font-semibold text-green-800">
             <BriefcaseBusiness size={8} />
             {title}
-          </h3>
+          </p>
           <div className="mt-1.5 flex items-center justify-between text-[6px]">
             <strong>{company}</strong>
             <span className="text-[5px] text-neutral-400">
@@ -121,7 +121,7 @@ export function ProductShowcase() {
             ))}
           </div>
           <div className="border-x border-green-50 bg-white/80 px-2 py-4">
-            <h3 className="text-[8px] font-bold sm:text-[10px]">编辑简历</h3>
+            <p className="text-[8px] font-bold sm:text-[10px]">编辑简历</p>
             <p className="mt-1 text-[5px] text-neutral-400">
               让每一个优势，都被看见
             </p>

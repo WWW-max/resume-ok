@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { ArrowLeft, FileCheck2, ShieldCheck } from "lucide-react";
 
-export const metadata = {
-  title: "用户服务协议 · ResumeOK",
-  description: "ResumeOK 用户服务协议与使用条款",
+export const metadata: Metadata = {
+  title: "用户服务协议",
+  description:
+    "ResumeOK 用户服务协议与使用条款，涵盖在线简历制作、导出下载、账号安全及在线简历分享规范。",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {

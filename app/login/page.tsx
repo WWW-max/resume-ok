@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { safeNextPath } from "@/lib/auth-validation";
@@ -7,7 +8,14 @@ import { hashSessionToken } from "@/lib/session-token";
 import { cookies } from "next/headers";
 import Image from "next/image";
 
-export const metadata = { title: "登录 / 注册 · ResumeOK" };
+export const metadata: Metadata = {
+  title: "登录 / 注册",
+  description:
+    "登录或注册 ResumeOK 账号，支持邮箱验证码与 Google 一键登录，云端安全保存并多端同步你的个人简历。",
+  alternates: {
+    canonical: "/login",
+  },
+};
 
 export default async function LoginPage({
   searchParams,

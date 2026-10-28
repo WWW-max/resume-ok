@@ -18,6 +18,7 @@ import { StepIllustration } from "@/components/landing/StepIllustration";
 import { Brand } from "@/components/Brand";
 import { currentUser } from "@/lib/server/auth";
 import { MEMBERSHIP_PLANS, PLAN_ENTITLEMENTS } from "@/lib/membership";
+import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/seo";
 const features = [
   {
     icon: LayoutTemplate,
@@ -73,13 +74,85 @@ const steps = [
     href: "/editor",
   },
 ];
+const faqs = [
+  {
+    question: "ResumeOK 在线制作和导出 PDF 简历是免费的吗？",
+    answer:
+      "是的，ResumeOK 提供永久免费的基础版方案，支持创建个人简历、切换专业简历模板、实时预览排版、智能内容完整度检查以及无水印一键导出标准 A4 PDF 简历。",
+  },
+  {
+    question: "导出的 PDF 简历支持长简历自动 A4 分页吗？",
+    answer:
+      "支持。ResumeOK 内置智能 A4 分页计算引擎，在导出单页或多页长简历时会自动识别文字行高与页边距，避免文字在跨页处被截断，同时支持自定义字号、行距与页边距。",
+  },
+  {
+    question: "可以把已有的旧 PDF 简历导入编辑，或者一键转成英文简历吗？",
+    answer:
+      "可以。通过编辑器内的「导入简历」功能上传已有 PDF、图片或文本简历，系统会自动解析并填充至对应模块；升级 PRO 会员后还可一键生成地道专业的英文版本简历。",
+  },
+  {
+    question: "我的个人简历数据安全吗？会不会被公开或泄露？",
+    answer:
+      "您的所有简历数据均按账号严格隔离加密保存，默认仅您本人登录后可见，平台绝不向任何第三方出售或共享个人数据。仅当您主动开启「在线简历分享」时才会生成专属访问链接，且随时可一键关闭。",
+  },
+];
 export default async function LandingPage() {
   const user = await currentUser().catch(() => null);
+  const siteUrl = getSiteUrl();
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: siteUrl,
+        description: SITE_DESCRIPTION,
+        inLanguage: "zh-CN",
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: SITE_NAME,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        url: siteUrl,
+        description: SITE_DESCRIPTION,
+        offers: [
+          {
+            "@type": "Offer",
+            name: "免费版",
+            price: "0",
+            priceCurrency: "CNY",
+          },
+          ...MEMBERSHIP_PLANS.map((plan) => ({
+            "@type": "Offer",
+            name: plan.name,
+            price: String(plan.price),
+            priceCurrency: "CNY",
+          })),
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      },
+    ],
+  };
   return (
     <div
       id="top"
       className="min-h-screen bg-white text-ink selection:bg-green-100"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <a
         href="#main-content"
         className="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:bg-white focus:p-4 focus:shadow-lg"
@@ -357,6 +430,36 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
+        <section
+          id="faq"
+          className="scroll-mt-24 bg-[#f8fcf9] px-5 py-14 sm:px-8 sm:py-16"
+        >
+          <div className="mx-auto max-w-[960px]">
+            <div className="text-center">
+              <p className="text-xs font-semibold text-brand-dark">
+                常见疑问解答
+              </p>
+              <h2 className="mt-2.5 text-2xl font-bold tracking-tight sm:text-[28px]">
+                关于在线简历制作与导出
+              </h2>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {faqs.map((item) => (
+                <article
+                  key={item.question}
+                  className="rounded-2xl border border-[#dfeee5] bg-white p-5 shadow-xs"
+                >
+                  <h3 className="text-sm font-semibold text-ink">
+                    {item.question}
+                  </h3>
+                  <p className="mt-2 text-xs leading-6 text-neutral-500">
+                    {item.answer}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
       <footer
         id="about"
@@ -394,10 +497,22 @@ export default async function LandingPage() {
                 产品功能
               </Link>
               <Link
-                href="#templates"
+                href="/editor?view=templates"
                 className="transition-colors hover:text-green-700"
               >
                 精选模板
+              </Link>
+              <Link
+                href="#pricing"
+                className="transition-colors hover:text-green-700"
+              >
+                价格方案
+              </Link>
+              <Link
+                href="#faq"
+                className="transition-colors hover:text-green-700"
+              >
+                常见问题
               </Link>
               <Link
                 href="/terms"

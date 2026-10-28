@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth-validation";
+
+export const metadata: Metadata = {
+  title: "注册账号",
+  robots: { index: false, follow: true },
+};
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
   const params = await searchParams;

@@ -25,14 +25,23 @@ export async function generateMetadata({
   const record = await getPublicOnlineResumeBySlug(slug);
   if (!record) {
     return {
-      title: "未找到在线简历 · ResumeOK",
+      title: "未找到在线简历",
+      robots: { index: false, follow: false },
     };
   }
   const candidateName = record.data.name.trim() || record.title || slug;
   const role = record.data.title.trim();
+  const pageTitle = `${candidateName}${role ? ` - ${role}` : ""} | 在线简历`;
+  const description = `${candidateName}${role ? `（${role}）` : ""}的在线简历预览与 PDF 下载`;
   return {
-    title: `${candidateName}${role ? ` - ${role}` : ""} | 在线简历 · ResumeOK`,
-    description: `${candidateName}${role ? `（${role}）` : ""}的在线简历预览与 PDF 下载`,
+    title: pageTitle,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title: `${pageTitle} · ResumeOK`,
+      description,
+      type: "profile",
+    },
   };
 }
 

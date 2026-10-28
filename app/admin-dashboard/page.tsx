@@ -7,7 +7,7 @@ import { AdminDashboardClient } from "@/components/admin/AdminDashboardClient";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "运营管理中台 — ResumeOK",
+  title: "运营管理中台",
   robots: {
     index: false,
     follow: false,

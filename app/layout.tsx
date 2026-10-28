@@ -2,6 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { documentStyles } from "@/lib/ui-styles";
+import {
+  getSiteUrl,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_TITLE,
+} from "@/lib/seo";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -9,16 +16,64 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "ResumeOK — 让每一份简历，更接近 Offer",
-  description:
-    "在线制作专业简历，支持实时预览和一键导出 PDF。免费好用的简历编辑器。",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: siteUrl }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: "productivity",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: siteUrl,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/designs/landing.png",
+        width: 1200,
+        height: 630,
+        alt: "ResumeOK 在线简历制作与实时预览编辑器",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/designs/landing.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover", // iOS notch / safe area
+  themeColor: "#13ad50",
 };
 
 export default function RootLayout({

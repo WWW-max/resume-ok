@@ -504,3 +504,25 @@ test("online resume source tag token obfuscates plain text and roundtrips cleanl
   assert.equal(encodeSourceTag("   "), "");
   assert.equal(decodeSourceTag(""), "");
 });
+
+const { getSiteUrl, DEFAULT_SITE_URL } = require("../lib/seo.ts");
+test("getSiteUrl normalizes valid origins and falls back safely on invalid values", () => {
+  const prevAppUrl = process.env.APP_URL;
+  const prevPublicUrl = process.env.NEXT_PUBLIC_APP_URL;
+  try {
+    delete process.env.APP_URL;
+    delete process.env.NEXT_PUBLIC_APP_URL;
+    assert.equal(getSiteUrl(), DEFAULT_SITE_URL);
+
+    process.env.APP_URL = "https://resume.example.com/some/path?query=1";
+    assert.equal(getSiteUrl(), "https://resume.example.com");
+
+    process.env.APP_URL = "not-a-valid-url";
+    assert.equal(getSiteUrl(), DEFAULT_SITE_URL);
+  } finally {
+    if (prevAppUrl === undefined) delete process.env.APP_URL;
+    else process.env.APP_URL = prevAppUrl;
+    if (prevPublicUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = prevPublicUrl;
+  }
+});

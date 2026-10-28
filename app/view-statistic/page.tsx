@@ -5,7 +5,7 @@ import { currentUser } from "@/lib/server/auth";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "在线简历访客统计 · ResumeOK",
+  title: "在线简历访客统计",
   robots: { index: false, follow: false },
 };
 

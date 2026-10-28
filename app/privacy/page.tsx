@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { ArrowLeft, FileCheck2, ShieldCheck } from "lucide-react";
 
-export const metadata = {
-  title: "隐私政策 · ResumeOK",
-  description: "ResumeOK 隐私政策与个人信息保护说明",
+export const metadata: Metadata = {
+  title: "隐私政策",
+  description:
+    "ResumeOK 隐私政策与个人信息保护说明，详细阐述个人简历数据加密存储、账号级隔离保护与隐私安全承诺。",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {
