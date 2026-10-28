@@ -56,12 +56,14 @@ import {
   ExternalLink,
   RefreshCw,
   Crown,
+  KeyRound,
   ShieldCheck,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 import type { ResumeData } from "@/lib/resume-data";
 import { encodeSourceTag } from "@/lib/online-resume-token";
 import { MembershipModal } from "@/components/editor/MembershipModal";
+import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
 import {
   canExportFormat,
   canUseFeature,
@@ -148,6 +150,7 @@ export default function EditorWorkspace({
   );
   const [downloadFilename, setDownloadFilename] = useState("");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -1232,6 +1235,18 @@ export default function EditorWorkspace({
                     role="menuitem"
                     onClick={() => {
                       setUserMenuOpen(false);
+                      setPasswordModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <KeyRound size={14} className="text-[#388855]" />
+                    设置 / 修改密码
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
                       setConfirmLogout(true);
                     }}
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
@@ -1260,6 +1275,11 @@ export default function EditorWorkspace({
           </div>
         </div>
       </header>
+      <PasswordSetupModal
+        open={passwordModalOpen}
+        userEmail={user.email}
+        onClose={() => setPasswordModalOpen(false)}
+      />
       {confirmLogout && (
         <div
           role="dialog"

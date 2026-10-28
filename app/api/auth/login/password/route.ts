@@ -28,6 +28,13 @@ export const POST = withApiErrors(async (request) => {
     password || "invalid",
     user?.password_hash ?? DUMMY_PASSWORD_HASH,
   );
+  if (user && !user.password_hash) {
+    throw new ApiError(
+      401,
+      "password_not_set",
+      "该账号尚未设置密码，请先使用「验证码登录」，登录后可在右上角菜单中设置密码。",
+    );
+  }
   if (!user?.password_hash || !valid)
     throw new ApiError(401, "invalid_credentials", "邮箱或密码错误。");
   await startSession(user.id);

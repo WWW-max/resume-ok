@@ -10,9 +10,11 @@ import {
   Trash2,
   ChevronDown,
   FileText,
+  KeyRound,
   ShieldCheck,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
+import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
 import { formatMembershipExpiry } from "@/lib/membership";
 import { trackEvent } from "@/lib/analytics";
 const links = [
@@ -37,6 +39,7 @@ export function LandingHeader({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -203,6 +206,18 @@ export function LandingHeader({
                         role="menuitem"
                         onClick={() => {
                           setUserMenuOpen(false);
+                          setPasswordModalOpen(true);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                      >
+                        <KeyRound size={14} className="text-[#388855]" />
+                        设置 / 修改密码
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false);
                           setConfirmLogout(true);
                         }}
                         className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
@@ -283,6 +298,16 @@ export function LandingHeader({
             ))}
             {user && (
               <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    setPasswordModalOpen(true);
+                  }}
+                  className="min-h-11 rounded-lg px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-50"
+                >
+                  设置 / 修改密码
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -460,6 +485,13 @@ export function LandingHeader({
             </div>
           </div>
         </div>
+      )}
+      {user && (
+        <PasswordSetupModal
+          open={passwordModalOpen}
+          userEmail={user.email}
+          onClose={() => setPasswordModalOpen(false)}
+        />
       )}
     </>
   );

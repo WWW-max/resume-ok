@@ -6,7 +6,7 @@ import { ApiError, readJsonObject, requireSameOrigin, withApiErrors } from "@/li
 import { sendLoginCode } from "@/lib/server/mailer";
 
 export const runtime = "nodejs";
-const GENERIC_MESSAGE = "验证码已发送，请查收邮箱；未注册的邮箱验证后将自动创建账号。";
+const GENERIC_MESSAGE = "验证码已发送，请查收邮箱。";
 
 export const POST = withApiErrors(async (request) => {
   requireSameOrigin(request);

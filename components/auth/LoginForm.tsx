@@ -191,7 +191,7 @@ export function LoginForm({
         <p className="text-xs leading-5 text-neutral-500">
           {mode === "code"
             ? "未注册的邮箱将在验证成功后自动创建账号。"
-            : "密码登录仅适用于已设置密码的账号，新用户请使用验证码登录。"}
+            : "首次登录或未设密码请先用「验证码登录」，登录后可在右上角菜单中设置或修改密码。"}
         </p>
         <AuthSubmit pending={pending}>
           {mode === "code" ? "登录 / 注册" : "登录"}
