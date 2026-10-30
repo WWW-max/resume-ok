@@ -45,7 +45,7 @@ import type {
   AdminRedemptionCodeItem,
 } from "@/lib/server/admin";
 
-type AdminTabId = "overview" | "analytics" | "codes" | "users" | "orders";
+type AdminTabId = "overview" | "analytics" | "codes" | "users" | "orders" | "feedbacks";
 
 const EVENT_LABELS: Record<string, string> = {
   home_view: "访问官网首页",
@@ -208,7 +208,43 @@ export function AdminDashboardClient({
     }
   }
 
-  const { overview, funnel, codes, users, orders } = data;
+  const [adoptingId, setAdoptingId] = useState<string>("");
+
+  async function handleAdoptFeedback(feedbackId: string) {
+    if (adoptingId) return;
+    setAdoptingId(feedbackId);
+    setActionError("");
+    setActionNotice("");
+    try {
+      const res = await fetch("/api/admin/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedbackId }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        grantedToEmail?: string | null;
+        message?: string;
+        error?: { message?: string };
+      };
+      if (!res.ok) {
+        throw new Error(
+          payload.error?.message || payload.message || "采纳建议失败",
+        );
+      }
+      setActionNotice(
+        payload.grantedToEmail
+          ? `已采纳该建议，并已为账号 ${payload.grantedToEmail} 自动赠送 30 天 PRO 会员！`
+          : "已标记为采纳！（该条反馈未关联已注册邮箱，请通过所留联系方式人工发放）",
+      );
+      await refreshDashboard(rangeDays);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "操作失败");
+    } finally {
+      setAdoptingId("");
+    }
+  }
+
+  const { overview, funnel, codes, users, orders, feedbacks = [] } = data;
 
   const filteredCodes = codes.filter((item) => {
     if (codeFilter === "unused") return !item.redeemedAt;
@@ -268,6 +304,7 @@ export function AdminDashboardClient({
     { id: "codes", label: "激活码发卡", badge: overview.unusedCodeCount },
     { id: "users", label: "用户与会员", badge: overview.totalUsers },
     { id: "orders", label: "订单流水", badge: orders.length },
+    { id: "feedbacks", label: "用户建议反馈", badge: feedbacks.length },
   ];
 
   return (
@@ -1374,7 +1411,11 @@ export function AdminDashboardClient({
                             ? "激活码兑换"
                             : o.channel === "admin_grant"
                               ? "后台手动开通"
-                              : `${o.payMethod} (${o.channel})`}
+                              : o.channel === "referral_reward"
+                                ? "邀请3人赠送"
+                                : o.channel === "feedback_reward"
+                                  ? "建议采纳赠送"
+                                  : `${o.payMethod} (${o.channel})`}
                         </td>
                         <td className="whitespace-nowrap py-2.5 pr-4">
                           {o.status === "paid" ? (
@@ -1399,6 +1440,92 @@ export function AdminDashboardClient({
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* TAB 6: 用户建议反馈 */}
+        {activeTab === "feedbacks" && (
+          <div className="rounded-2xl border border-[#daece1] bg-white p-5 shadow-2xs">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-bold text-ink">
+                  用户反馈与产品建议 ({feedbacks.length})
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-ink">
+                  点击「采纳并赠 30 天会员」可自动为该用户账号开通或顺延 1 个月 PRO 会员
+                </p>
+              </div>
+            </div>
+
+            {feedbacks.length === 0 ? (
+              <div className="py-10 text-center text-xs text-muted-ink">
+                暂无用户提交建议或反馈
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {feedbacks.map((fb) => (
+                  <div
+                    key={fb.id}
+                    className="flex flex-col justify-between gap-3 rounded-xl border border-[#e3f1e8] bg-[#fafdfb] p-4 sm:flex-row sm:items-center"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="border-0 bg-green-100 text-[11px] font-semibold text-green-800"
+                        >
+                          {fb.category === "feature"
+                            ? "功能建议"
+                            : fb.category === "template"
+                              ? "模板需求"
+                              : fb.category === "ux"
+                                ? "体验优化"
+                                : fb.category === "bug"
+                                  ? "Bug 反馈"
+                                  : "其他合作"}
+                        </Badge>
+                        <span className="font-mono text-xs text-ink">
+                          账号：{fb.userEmail || "未登录访客"}
+                        </span>
+                        {fb.contact && (
+                          <span className="font-mono text-xs text-muted-ink">
+                            联系方式：{fb.contact}
+                          </span>
+                        )}
+                        <span className="text-[11px] text-neutral-400">
+                          {formatDateTime(fb.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-relaxed text-ink">
+                        {fb.content}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {fb.status === "adopted" ? (
+                        <Badge className="border-0 bg-[#eaf9f0] px-3 py-1 text-xs font-semibold text-[#0d853d]">
+                          <Check className="mr-1 h-3.5 w-3.5" />
+                          已采纳 · 已赠 {fb.rewardedDays || 30} 天
+                        </Badge>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={adoptingId === fb.id}
+                          onClick={() => void handleAdoptFeedback(fb.id)}
+                          className="h-8 rounded-lg bg-brand px-3 text-xs font-semibold text-white hover:bg-brand-dark"
+                        >
+                          <Sparkles className="mr-1 h-3.5 w-3.5" />
+                          {adoptingId === fb.id
+                            ? "处理中..."
+                            : "采纳并送 30 天会员"}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

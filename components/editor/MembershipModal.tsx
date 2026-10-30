@@ -149,12 +149,14 @@ export function MembershipModal({
   membership,
   onClose,
   onRedeemed,
+  onOpenRewards,
 }: {
   open: boolean;
   reason?: string;
   membership: MembershipStatus;
   onClose: () => void;
   onRedeemed: (next: MembershipStatus) => void;
+  onOpenRewards?: (tab: "invite" | "feedback") => void;
 }) {
   const [selectedPlan, setSelectedPlan] =
     useState<Exclude<MembershipPlan, "free">>("quarterly");
@@ -697,6 +699,30 @@ export function MembershipModal({
             >
               {successMsg}
             </p>
+          )}
+
+          {onOpenRewards && (
+            <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-green-200 bg-green-50/70 px-3.5 py-2.5 text-xs">
+              <span className="font-medium text-green-900">
+                🎁 <strong>免费领 PRO 月卡：</strong>邀请 3 位好友注册，或提交产品建议被采纳，立送 1 个月会员！
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onOpenRewards("invite")}
+                  className="rounded-lg bg-green-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-green-700"
+                >
+                  去邀请好友
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenRewards("feedback")}
+                  className="rounded-lg border border-green-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-green-800 transition hover:bg-green-100"
+                >
+                  提建议送会员
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

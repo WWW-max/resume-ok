@@ -167,3 +167,34 @@ CREATE INDEX IF NOT EXISTS analytics_events_name_created_idx
   ON analytics_events(event_name, created_at DESC);
 CREATE INDEX IF NOT EXISTS analytics_events_created_idx
   ON analytics_events(created_at DESC);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code text UNIQUE;
+
+CREATE TABLE IF NOT EXISTS user_referrals (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  inviter_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  invitee_id uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  invitee_email text NOT NULL,
+  reward_granted boolean NOT NULL DEFAULT false,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS user_referrals_inviter_idx
+  ON user_referrals(inviter_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS user_feedback (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES users(id) ON DELETE SET NULL,
+  user_email text NOT NULL DEFAULT '',
+  category text NOT NULL DEFAULT 'suggestion',
+  content text NOT NULL,
+  contact text NOT NULL DEFAULT '',
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'adopted', 'replied')),
+  admin_note text NOT NULL DEFAULT '',
+  rewarded_days integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS user_feedback_user_idx
+  ON user_feedback(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS user_feedback_created_idx
+  ON user_feedback(created_at DESC);

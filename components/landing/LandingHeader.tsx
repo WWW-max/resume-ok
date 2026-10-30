@@ -12,9 +12,12 @@ import {
   FileText,
   KeyRound,
   ShieldCheck,
+  Gift,
+  MessageSquarePlus,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
+import { CommunityRewardsModal } from "@/components/editor/CommunityRewardsModal";
 import { Input } from "@/components/ui/input";
 import { formatMembershipExpiry } from "@/lib/membership";
 import { trackEvent } from "@/lib/analytics";
@@ -41,6 +44,7 @@ export function LandingHeader({
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [rewardsModalTab, setRewardsModalTab] = useState<"invite" | "feedback" | null>(null);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -50,8 +54,19 @@ export function LandingHeader({
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.pathname === "/") {
-      trackEvent("home_view");
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/") {
+        trackEvent("home_view");
+      }
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get("ref");
+        if (ref && ref.trim()) {
+          window.localStorage.setItem("rok_ref", ref.trim().toUpperCase());
+        }
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
@@ -119,7 +134,7 @@ export function LandingHeader({
           </Link>
           <nav
             aria-label="首页导航"
-            className="hidden items-center gap-8 text-sm font-medium text-ink lg:flex"
+            className="hidden items-center gap-7 text-sm font-medium text-ink lg:flex"
           >
             {links.map((link, i) => (
               <Link
@@ -130,8 +145,23 @@ export function LandingHeader({
                 {link.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => setRewardsModalTab("feedback")}
+              className="relative py-6 text-sm font-medium text-ink transition-colors hover:text-brand"
+            >
+              联系我们
+            </button>
           </nav>
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setRewardsModalTab("invite")}
+              className="hidden sm:inline-flex min-h-9 items-center gap-1.5 rounded-full border border-green-200 bg-green-50/80 px-3 py-1.5 text-xs font-semibold text-green-800 transition-colors hover:border-green-300 hover:bg-green-100"
+            >
+              <Gift size={14} className="text-green-600" />
+              免费领会员
+            </button>
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
@@ -202,6 +232,30 @@ export function LandingHeader({
                           运营管理中台
                         </Link>
                       )}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          setRewardsModalTab("invite");
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#0c8a3e] transition-colors hover:bg-[#eef9f3]"
+                      >
+                        <Gift size={14} className="text-[#0cb449]" />
+                        邀请好友送月卡
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          setRewardsModalTab("feedback");
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                      >
+                        <MessageSquarePlus size={14} className="text-[#388855]" />
+                        联系我们 / 提建议送会员
+                      </button>
                       <button
                         type="button"
                         role="menuitem"
@@ -297,6 +351,26 @@ export function LandingHeader({
                 {link.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setRewardsModalTab("invite");
+              }}
+              className="min-h-11 rounded-lg px-4 py-3 text-left text-sm font-semibold text-green-700 hover:bg-green-50"
+            >
+              🎁 邀请好友送月卡
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setRewardsModalTab("feedback");
+              }}
+              className="min-h-11 rounded-lg px-4 py-3 text-left text-sm font-medium text-ink hover:bg-green-50"
+            >
+              💬 联系我们 / 提建议送会员
+            </button>
             {user && (
               <>
                 <button
@@ -494,6 +568,12 @@ export function LandingHeader({
           onClose={() => setPasswordModalOpen(false)}
         />
       )}
+      <CommunityRewardsModal
+        open={rewardsModalTab !== null}
+        initialTab={rewardsModalTab ?? "invite"}
+        userEmail={user?.email ?? null}
+        onClose={() => setRewardsModalTab(null)}
+      />
     </>
   );
 }

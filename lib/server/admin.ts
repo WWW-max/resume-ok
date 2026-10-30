@@ -8,6 +8,7 @@ import {
   resolveMembershipStatus,
   type MembershipPlan,
 } from "@/lib/membership";
+import { listAdminFeedbacks, type UserFeedbackRecord } from "./rewards";
 
 /**
  * 默认站长管理员白名单邮箱：
@@ -120,6 +121,7 @@ export interface AdminDashboardSnapshot {
   codes: AdminRedemptionCodeItem[];
   users: AdminUserItem[];
   orders: AdminOrderItem[];
+  feedbacks: UserFeedbackRecord[];
 }
 
 export async function getAdminDashboardData(
@@ -456,12 +458,15 @@ export async function getAdminDashboardData(
     createdAt: r.created_at.toISOString(),
   }));
 
+  const feedbacks = await listAdminFeedbacks(60).catch(() => []);
+
   return {
     overview,
     funnel,
     codes,
     users,
     orders,
+    feedbacks,
   };
 }
 

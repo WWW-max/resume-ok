@@ -58,11 +58,14 @@ import {
   Crown,
   KeyRound,
   ShieldCheck,
+  Gift,
+  MessageSquarePlus,
 } from "lucide-react";
 import type { ExportFormat } from "@/lib/export-pdf";
 import type { ResumeData } from "@/lib/resume-data";
 import { encodeSourceTag } from "@/lib/online-resume-token";
 import { MembershipModal } from "@/components/editor/MembershipModal";
+import { CommunityRewardsModal } from "@/components/editor/CommunityRewardsModal";
 import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
 import { Input } from "@/components/ui/input";
 import {
@@ -157,6 +160,9 @@ export default function EditorWorkspace({
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState("");
+  const [rewardsModalTab, setRewardsModalTab] = useState<
+    "invite" | "feedback" | null
+  >(null);
   const [onlineRecords, setOnlineRecords] = useState<
     Record<string, OnlineResumeClientInfo>
   >({});
@@ -954,6 +960,15 @@ export default function EditorWorkspace({
           </button>
           <button
             type="button"
+            onClick={() => setRewardsModalTab("invite")}
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[8px] border border-[#c4ecd3] bg-[#f4fbf6] px-2.5 py-2 text-[13px] font-semibold whitespace-nowrap text-[#0c8a3e] transition-colors hover:bg-[#e5f7ec] max-[1100px]:hidden"
+            title="邀请 3 位好友注册或提建议被采纳，免费送 1 个月 PRO 会员"
+          >
+            <Gift size={14} className="shrink-0 text-[#0cb449]" />
+            <span>免费领会员</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setMembershipModalReason("");
               setMembershipModalOpen(true);
@@ -1231,6 +1246,30 @@ export default function EditorWorkspace({
                       运营管理中台
                     </Link>
                   )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setRewardsModalTab("invite");
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-[#0c8a3e] transition-colors hover:bg-[#eef9f3]"
+                  >
+                    <Gift size={14} className="text-[#0cb449]" />
+                    邀请好友送月卡
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      setRewardsModalTab("feedback");
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-ink transition-colors hover:bg-[#eef9f3] hover:text-[#08a644]"
+                  >
+                    <MessageSquarePlus size={14} className="text-[#388855]" />
+                    联系我们 / 提建议送会员
+                  </button>
                   <button
                     type="button"
                     role="menuitem"
@@ -1980,6 +2019,16 @@ export default function EditorWorkspace({
           setMembership(next);
           router.refresh();
         }}
+        onOpenRewards={(tab) => {
+          setMembershipModalOpen(false);
+          setRewardsModalTab(tab);
+        }}
+      />
+      <CommunityRewardsModal
+        open={rewardsModalTab !== null}
+        initialTab={rewardsModalTab ?? "invite"}
+        userEmail={user.email}
+        onClose={() => setRewardsModalTab(null)}
       />
       {exportError && (
         <div className={ui["export-error"]} role="alert">

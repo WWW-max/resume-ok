@@ -15,6 +15,7 @@ import {
   requireSameOrigin,
   withApiErrors,
 } from "@/lib/server/http";
+import { processNewUserReferral } from "@/lib/server/rewards";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
@@ -26,9 +27,11 @@ export const POST = withApiErrors(async (request) => {
   const body = await readJsonObject(request, 16 * 1024);
   const email = normalizeEmail(body.email);
   const code = typeof body.code === "string" ? body.code.trim() : "";
+  const ref = typeof body.ref === "string" ? body.ref.trim() : "";
   const candidate = /^\d{6}$/.test(code) ? code : "invalid";
 
   const pendingGoogleToken = (await cookies()).get(GOOGLE_LINK_COOKIE)?.value;
+  let isNewUser = false;
   const user = await transaction(async (client) => {
     const result = isValidEmail(email)
       ? await client.query<{
@@ -78,10 +81,11 @@ export const POST = withApiErrors(async (request) => {
       pendingGoogleToken
     );
     // A code proves mailbox ownership. Never create an account before this point.
-    await client.query(
-      "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING",
+    const inserted = await client.query<{ id: string }>(
+      "INSERT INTO users (email) VALUES ($1) ON CONFLICT (email) DO NOTHING RETURNING id",
       [email]
     );
+    isNewUser = (inserted.rows?.length ?? 0) > 0;
     const account = await client.query<{ id: string; email: string }>(
       "SELECT id, email FROM users WHERE email = $1",
       [email]
@@ -95,6 +99,9 @@ export const POST = withApiErrors(async (request) => {
   });
 
   if (!user) throw new ApiError(401, "invalid_code", "验证码无效或已过期。");
+  if (isNewUser && ref) {
+    await processNewUserReferral(user.id, user.email, ref);
+  }
   await startSession(user.id);
   if (pendingGoogleToken)
     (await cookies()).set(GOOGLE_LINK_COOKIE, "", googleCookieOptions(0));

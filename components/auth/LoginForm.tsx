@@ -26,6 +26,18 @@ export function LoginForm({
   const [error, setError] = useState("");
 
   useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+      if (ref && ref.trim()) {
+        window.localStorage.setItem("rok_ref", ref.trim().toUpperCase());
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  useEffect(() => {
     if (cooldown <= 0) return;
     const timer = window.setTimeout(() => {
       setCooldown((prev) => Math.max(0, prev - 1));
@@ -71,6 +83,12 @@ export function LoginForm({
         mode === "password"
           ? "/api/auth/login/password"
           : "/api/auth/login/code/verify";
+      let ref = "";
+      try {
+        ref = window.localStorage.getItem("rok_ref") || "";
+      } catch {
+        // ignore
+      }
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,7 +96,7 @@ export function LoginForm({
           email: form.get("email"),
           ...(mode === "password"
             ? { password: form.get("password") }
-            : { code: form.get("code") }),
+            : { code: form.get("code"), ref }),
         }),
       });
       if (!response.ok) throw new Error(await apiMessage(response));
