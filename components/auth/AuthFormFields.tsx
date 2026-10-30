@@ -2,16 +2,16 @@ import type { InputHTMLAttributes } from "react";
 
 export function AuthField({
   label,
+  placeholder,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-green-950">
-      {label}
-      <input
-        {...props}
-        className="min-h-11 rounded-xl border border-green-200 bg-white px-4 text-base outline-none transition focus:border-brand focus:ring-4 focus:ring-green-100 disabled:bg-neutral-50"
-      />
-    </label>
+    <input
+      aria-label={label}
+      placeholder={placeholder ?? label}
+      {...props}
+      className="min-h-11 w-full rounded-xl border border-green-200 bg-white px-4 text-sm text-green-950 placeholder:text-neutral-400 outline-none transition focus:border-brand focus:ring-4 focus:ring-green-100 disabled:bg-neutral-50"
+    />
   );
 }
 

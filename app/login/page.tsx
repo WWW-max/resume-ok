@@ -47,8 +47,7 @@ export default async function LoginPage({
   return (
     <AuthCard
       title="欢迎使用 ResumeOK"
-      description="登录或注册，随时随地继续完善你的简历。"
-      footer="首次登录会自动创建账号，无需单独注册。"
+      description="登录或注册，随时随地继续完善你的简历"
     >
       {notice && (
         <p
@@ -58,12 +57,23 @@ export default async function LoginPage({
           {notice}
         </p>
       )}
+      <LoginForm
+        key={googleEmail}
+        next={next}
+        mailboxUrl={mailboxUrl}
+        initialEmail={googleEmail}
+      />
+      <div className="my-4 flex items-center gap-3 text-xs text-neutral-400">
+        <span className="h-px flex-1 bg-neutral-100" />
+        或
+        <span className="h-px flex-1 bg-neutral-100" />
+      </div>
       {googleConfig() ? (
-        <form action="/api/auth/google" method="get" className="mb-4">
+        <form action="/api/auth/google" method="get">
           <input type="hidden" name="next" value={next} />
           <button
             type="submit"
-            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full border border-neutral-500 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <Image
               src="/brand/google-g.png"
@@ -77,12 +87,12 @@ export default async function LoginPage({
           </button>
         </form>
       ) : (
-        <div className="mb-4">
+        <div>
           <button
             type="button"
             disabled
             aria-describedby="google-unavailable"
-            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 disabled:cursor-not-allowed"
+            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 disabled:cursor-not-allowed"
           >
             <Image
               src="/brand/google-g.png"
@@ -102,17 +112,6 @@ export default async function LoginPage({
           </p>
         </div>
       )}
-      <div className="mb-4 flex items-center gap-3 text-xs text-neutral-400">
-        <span className="h-px flex-1 bg-neutral-100" />
-        或使用邮箱
-        <span className="h-px flex-1 bg-neutral-100" />
-      </div>
-      <LoginForm
-        key={googleEmail}
-        next={next}
-        mailboxUrl={mailboxUrl}
-        initialEmail={googleEmail}
-      />
     </AuthCard>
   );
 }

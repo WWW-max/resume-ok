@@ -122,6 +122,7 @@ export function LoginForm({
       <form onSubmit={submit} className="mt-4 grid gap-3">
         <AuthField
           label="邮箱"
+          placeholder="请输入邮箱"
           name="email"
           defaultValue={initialEmail}
           type="email"
@@ -132,15 +133,17 @@ export function LoginForm({
         {mode === "password" ? (
           <AuthField
             label="密码"
+            placeholder="请输入密码"
             name="password"
             type="password"
             autoComplete="current-password"
             required
           />
         ) : (
-          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
             <AuthField
               label="6 位验证码"
+              placeholder="请输入 6 位验证码"
               name="code"
               inputMode="numeric"
               autoComplete="one-time-code"
@@ -188,11 +191,6 @@ export function LoginForm({
             {error}
           </p>
         )}
-        <p className="text-xs leading-5 text-neutral-500">
-          {mode === "code"
-            ? "未注册的邮箱将在验证成功后自动创建账号。"
-            : "首次登录或未设密码请先用「验证码登录」，登录后可在右上角菜单中设置或修改密码。"}
-        </p>
         <AuthSubmit pending={pending}>
           {mode === "code" ? "登录 / 注册" : "登录"}
         </AuthSubmit>
