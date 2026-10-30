@@ -10,6 +10,13 @@ import {
 } from "@/lib/resume-data";
 import { Plus, Trash2 } from "lucide-react";
 import { ClearableInput, ClearableTextarea } from "./ClearableField";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 type ListKey =
   | "workExperiences"
   | "educations"
@@ -212,19 +219,25 @@ export function ExperienceForm({
                           }
                         />
                       ) : field.type === "degree" ? (
-                        <select
-                          id={fieldId}
+                        <Select
                           value={String(values[field.key])}
-                          onChange={(e) =>
-                            update(item.id, field.key, e.target.value)
+                          onValueChange={(val) =>
+                            update(item.id, field.key, val)
                           }
                         >
-                          {["高中", "大专", "本科", "硕士", "博士", "其他"].map(
-                            (d) => (
-                              <option key={d}>{d}</option>
-                            ),
-                          )}
-                        </select>
+                          <SelectTrigger id={fieldId}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["高中", "大专", "本科", "硕士", "博士", "其他"].map(
+                              (d) => (
+                                <SelectItem key={d} value={d}>
+                                  {d}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
                       ) : (
                         <ClearableInput
                           id={fieldId}

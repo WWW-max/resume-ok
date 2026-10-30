@@ -23,6 +23,18 @@ import {
   Users,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MEMBERSHIP_PLANS,
   formatMembershipExpiry,
@@ -267,71 +279,89 @@ export function AdminDashboardClient({
             <Link href="/" className="shrink-0">
               <Brand />
             </Link>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#bce6cb] bg-[#eaf9f0] px-2 py-0.5 text-[11px] font-bold text-[#0d853d] sm:px-2.5 sm:text-xs">
+            <Badge
+              variant="outline"
+              className="shrink-0 gap-1 border-[#bce6cb] bg-[#eaf9f0] px-2 py-0.5 text-[11px] font-bold text-[#0d853d] sm:px-2.5 sm:text-xs"
+            >
               <ShieldCheck size={13} />
               <span className="hidden min-[400px]:inline">Admin </span>运营中台
-            </span>
+            </Badge>
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5 text-xs sm:gap-2.5">
             <span className="hidden rounded-lg bg-[#f2fbf6] px-2.5 py-1.5 font-medium text-[#255c39] md:inline-block">
               管理员：{adminEmail}
             </span>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => void refreshDashboard(rangeDays)}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#cde8d6] bg-white px-2.5 py-1.5 font-semibold text-[#184d2b] transition-colors hover:bg-[#f2fbf6] disabled:opacity-60 sm:px-3"
+              className="h-8 gap-1.5 rounded-lg border-[#cde8d6] bg-white px-2.5 text-xs font-semibold text-[#184d2b] shadow-none hover:bg-[#f2fbf6] sm:px-3"
             >
               <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
               <span>
                 刷新<span className="hidden min-[440px]:inline">数据</span>
               </span>
-            </button>
-            <Link
-              href="/editor"
-              className="inline-flex items-center gap-1 rounded-lg bg-brand px-2.5 py-1.5 font-semibold text-white transition-colors hover:bg-brand-dark sm:px-3"
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="h-8 gap-1 rounded-lg bg-brand px-2.5 text-xs font-semibold text-white hover:bg-brand-dark sm:px-3"
             >
-              <ArrowLeft size={13} />
-              <span>返回工作台</span>
-            </Link>
+              <Link href="/editor">
+                <ArrowLeft size={13} />
+                <span>返回工作台</span>
+              </Link>
+            </Button>
           </div>
         </div>
 
         {/* 二级 Tab 切换栏 */}
-        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 sm:px-6">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setActionError("");
-                  setActionNotice("");
-                }}
-                className={`relative flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors sm:text-sm ${
-                  active
-                    ? "border-brand text-brand"
-                    : "border-transparent text-muted-ink hover:text-ink"
-                }`}
-              >
-                <span>{tab.label}</span>
-                {typeof tab.badge === "number" && (
-                  <span
-                    className={`rounded-full px-1.5 py-0.2 text-[11px] ${
+        <div className="mx-auto max-w-7xl overflow-x-auto px-4 sm:px-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={(val) => {
+              setActiveTab(val as AdminTabId);
+              setActionError("");
+              setActionNotice("");
+            }}
+          >
+            <TabsList
+              variant="line"
+              className="flex h-auto w-max justify-start gap-1 rounded-none bg-transparent p-0"
+            >
+              {tabs.map((tab) => {
+                const active = activeTab === tab.id;
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className={`relative flex shrink-0 items-center gap-1.5 rounded-none border-0 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors after:hidden sm:text-sm ${
                       active
-                        ? "bg-[#e3f7ec] text-[#0d853d]"
-                        : "bg-neutral-100 text-neutral-600"
+                        ? "border-brand text-brand data-[state=active]:text-brand"
+                        : "border-transparent text-muted-ink hover:text-ink"
                     }`}
                   >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                    <span>{tab.label}</span>
+                    {typeof tab.badge === "number" && (
+                      <Badge
+                        variant="secondary"
+                        className={`px-1.5 py-0 text-[11px] ${
+                          active
+                            ? "bg-[#e3f7ec] text-[#0d853d]"
+                            : "bg-neutral-100 text-neutral-600"
+                        }`}
+                      >
+                        {tab.badge}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
         </div>
       </header>
 
@@ -524,61 +554,64 @@ export function AdminDashboardClient({
                 >
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div>
-                      <label className="block text-[11px] font-semibold text-muted-ink">
+                      <Label className="text-[11px] font-semibold text-muted-ink">
                         套餐类型
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         value={genPlan}
-                        onChange={(e) =>
-                          setGenPlan(
-                            e.target.value as Exclude<MembershipPlan, "free">,
-                          )
+                        onValueChange={(val) =>
+                          setGenPlan(val as Exclude<MembershipPlan, "free">)
                         }
-                        className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink focus:border-brand focus:outline-none"
                       >
-                        {MEMBERSHIP_PLANS.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} (¥{p.price} / {p.durationDays}天)
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MEMBERSHIP_PLANS.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name} (¥{p.price} / {p.durationDays}天)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-muted-ink">
+                      <Label className="text-[11px] font-semibold text-muted-ink">
                         生成数量 (1-50)
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         type="number"
                         min={1}
                         max={50}
+                        disableClear
                         value={genCount}
                         onChange={(e) =>
                           setGenCount(Number(e.target.value || 1))
                         }
-                        className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink focus:border-brand focus:outline-none"
+                        className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-muted-ink">
+                      <Label className="text-[11px] font-semibold text-muted-ink">
                         批次备注
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         type="text"
                         value={genNote}
                         onChange={(e) => setGenNote(e.target.value)}
                         placeholder="如：微信客户发卡"
-                        className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink focus:border-brand focus:outline-none"
+                        className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink"
                       />
                     </div>
                   </div>
-                  <button
+                  <Button
                     type="submit"
                     disabled={generatingCodes}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                    className="h-9 gap-1.5 rounded-xl bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-dark"
                   >
                     <Plus size={14} />
                     {generatingCodes ? "正在生成…" : "立即生成激活码"}
-                  </button>
+                  </Button>
                 </form>
 
                 {newlyGeneratedCodes.length > 0 && (
@@ -654,44 +687,54 @@ export function AdminDashboardClient({
                 >
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="block text-[11px] font-semibold text-muted-ink">
+                      <Label className="text-[11px] font-semibold text-muted-ink">
                         用户登录邮箱
-                      </label>
-                      <input
+                      </Label>
+                      <Input
                         type="email"
                         required
                         value={grantEmail}
                         onChange={(e) => setGrantEmail(e.target.value)}
                         placeholder="user@example.com"
-                        className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink focus:border-brand focus:outline-none"
+                        className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-muted-ink">
+                      <Label className="text-[11px] font-semibold text-muted-ink">
                         变更会员档位
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         value={grantPlan}
-                        onChange={(e) =>
-                          setGrantPlan(e.target.value as MembershipPlan)
+                        onValueChange={(val) =>
+                          setGrantPlan(val as MembershipPlan)
                         }
-                        className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink focus:border-brand focus:outline-none"
                       >
-                        <option value="monthly">开通/顺延 月卡 (+30天)</option>
-                        <option value="quarterly">开通/顺延 季卡 (+90天)</option>
-                        <option value="yearly">开通/顺延 年卡 (+365天)</option>
-                        <option value="free">重置为 免费版</option>
-                      </select>
+                        <SelectTrigger className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">
+                            开通/顺延 月卡 (+30天)
+                          </SelectItem>
+                          <SelectItem value="quarterly">
+                            开通/顺延 季卡 (+90天)
+                          </SelectItem>
+                          <SelectItem value="yearly">
+                            开通/顺延 年卡 (+365天)
+                          </SelectItem>
+                          <SelectItem value="free">重置为 免费版</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                  <button
+                  <Button
                     type="submit"
                     disabled={grantingUser}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                    className="h-9 gap-1.5 rounded-xl bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-dark"
                   >
                     <Crown size={14} />
                     {grantingUser ? "正在执行…" : "立即执行会员变更"}
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>
@@ -939,61 +982,64 @@ export function AdminDashboardClient({
                 className="mt-4 grid gap-3 sm:grid-cols-[1.2fr_110px_1.5fr_auto] sm:items-end"
               >
                 <div className="min-w-0">
-                  <label className="block text-[11px] font-semibold text-muted-ink">
+                  <Label className="text-[11px] font-semibold text-muted-ink">
                     套餐类型
-                  </label>
-                  <select
+                  </Label>
+                  <Select
                     value={genPlan}
-                    onChange={(e) =>
-                      setGenPlan(
-                        e.target.value as Exclude<MembershipPlan, "free">,
-                      )
+                    onValueChange={(val) =>
+                      setGenPlan(val as Exclude<MembershipPlan, "free">)
                     }
-                    className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink focus:border-brand focus:outline-none"
                   >
-                    {MEMBERSHIP_PLANS.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} (¥{p.price} · {p.durationDays}天)
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MEMBERSHIP_PLANS.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name} (¥{p.price} · {p.durationDays}天)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="min-w-0">
-                  <label className="block text-[11px] font-semibold text-muted-ink">
+                  <Label className="text-[11px] font-semibold text-muted-ink">
                     生成数量
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     type="number"
                     min={1}
                     max={50}
+                    disableClear
                     value={genCount}
                     onChange={(e) => setGenCount(Number(e.target.value || 1))}
-                    className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink focus:border-brand focus:outline-none"
+                    className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs font-semibold text-ink"
                   />
                 </div>
 
                 <div className="min-w-0">
-                  <label className="block text-[11px] font-semibold text-muted-ink">
+                  <Label className="text-[11px] font-semibold text-muted-ink">
                     批次备注（选填）
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     type="text"
                     value={genNote}
                     onChange={(e) => setGenNote(e.target.value)}
                     placeholder="如：小红书活动批次 / 微信私域客户"
-                    className="mt-1 w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink focus:border-brand focus:outline-none"
+                    className="mt-1 h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink"
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={generatingCodes}
-                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-brand px-5 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                  className="h-9 gap-1.5 rounded-xl bg-brand px-5 text-xs font-semibold text-white hover:bg-brand-dark"
                 >
                   <Plus size={14} />
                   {generatingCodes ? "正在生成…" : "立即生成"}
-                </button>
+                </Button>
               </form>
 
               {newlyGeneratedCodes.length > 0 && (
@@ -1167,14 +1213,14 @@ export function AdminDashboardClient({
                 <div className="relative w-full sm:w-64">
                   <Search
                     size={14}
-                    className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-ink"
+                    className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-muted-ink"
                   />
-                  <input
+                  <Input
                     type="text"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="搜索用户邮箱…"
-                    className="w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] py-1.5 pr-3 pl-8 text-xs text-ink focus:border-brand focus:outline-none"
+                    className="h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] py-1.5 pl-8 text-xs text-ink"
                   />
                 </div>
               </div>

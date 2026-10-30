@@ -1,5 +1,7 @@
 import { AuthCard } from "@/components/auth/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { safeNextPath } from "@/lib/auth-validation";
 import { db } from "@/lib/server/db";
 import { googleConfig } from "@/lib/server/google-config";
@@ -64,16 +66,17 @@ export default async function LoginPage({
         initialEmail={googleEmail}
       />
       <div className="my-4 flex items-center gap-3 text-xs text-neutral-400">
-        <span className="h-px flex-1 bg-neutral-100" />
-        或
-        <span className="h-px flex-1 bg-neutral-100" />
+        <Separator className="flex-1 bg-neutral-100" />
+        <span>或</span>
+        <Separator className="flex-1 bg-neutral-100" />
       </div>
       {googleConfig() ? (
         <form action="/api/auth/google" method="get">
           <input type="hidden" name="next" value={next} />
-          <button
+          <Button
             type="submit"
-            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            variant="outline"
+            className="min-h-11 w-full gap-3 rounded-xl border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 shadow-none hover:bg-neutral-50"
           >
             <Image
               src="/brand/google-g.png"
@@ -84,15 +87,16 @@ export default async function LoginPage({
               unoptimized
             />
             使用 Google 登录
-          </button>
+          </Button>
         </form>
       ) : (
         <div>
-          <button
+          <Button
             type="button"
+            variant="outline"
             disabled
             aria-describedby="google-unavailable"
-            className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 disabled:cursor-not-allowed"
+            className="min-h-11 w-full gap-3 rounded-xl border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-500 shadow-none disabled:cursor-not-allowed"
           >
             <Image
               src="/brand/google-g.png"
@@ -103,7 +107,7 @@ export default async function LoginPage({
               unoptimized
             />
             使用 Google 登录
-          </button>
+          </Button>
           <p
             id="google-unavailable"
             className="mt-1.5 text-center text-xs text-neutral-500"

@@ -2,6 +2,8 @@
 import { safeNextPath } from "@/lib/auth-validation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AuthField, AuthSubmit, apiMessage } from "./AuthFormFields";
 
 type Mode = "password" | "code";
@@ -93,32 +95,32 @@ export function LoginForm({
 
   return (
     <>
-      <div
-        className="grid grid-cols-2 rounded-xl bg-green-50 p-1"
-        role="tablist"
-        aria-label="登录方式"
+      <Tabs
+        value={mode}
+        onValueChange={(value) => {
+          setMode(value as Mode);
+          setError("");
+          setMessage("");
+        }}
       >
-        {(["code", "password"] as const).map((value) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={mode === value}
-            onClick={() => {
-              setMode(value);
-              setError("");
-              setMessage("");
-            }}
-            className={`min-h-9 rounded-lg text-sm font-medium ${
-              mode === value
-                ? "bg-white text-green-800 shadow-sm"
-                : "text-neutral-500"
-            }`}
+        <TabsList
+          aria-label="登录方式"
+          className="grid h-11 w-full grid-cols-2 rounded-xl bg-green-50 p-1"
+        >
+          <TabsTrigger
+            value="code"
+            className="min-h-9 rounded-lg text-sm font-medium text-neutral-500 data-[state=active]:bg-white data-[state=active]:text-green-800 data-[state=active]:shadow-sm"
           >
-            {value === "password" ? "密码登录" : "验证码登录"}
-          </button>
-        ))}
-      </div>
+            验证码登录
+          </TabsTrigger>
+          <TabsTrigger
+            value="password"
+            className="min-h-9 rounded-lg text-sm font-medium text-neutral-500 data-[state=active]:bg-white data-[state=active]:text-green-800 data-[state=active]:shadow-sm"
+          >
+            密码登录
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
       <form onSubmit={submit} className="mt-4 grid gap-3">
         <AuthField
           label="邮箱"
@@ -151,18 +153,19 @@ export function LoginForm({
               maxLength={6}
               required
             />
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled={requesting || cooldown > 0}
               onClick={(event) => requestCode(event.currentTarget.form!)}
-              className="min-h-11 min-w-28 rounded-xl border border-green-200 px-4 text-sm font-medium tabular-nums text-green-700 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-11 min-w-28 rounded-xl border-green-200 bg-white px-4 text-sm font-medium tabular-nums text-green-700 shadow-none hover:bg-green-50 hover:text-green-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {requesting
                 ? "发送中…"
                 : cooldown > 0
                   ? `${cooldown}s 后重发`
                   : "发送验证码"}
-            </button>
+            </Button>
           </div>
         )}
         {message && (

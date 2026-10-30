@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
+import { Input } from "@/components/ui/input";
 import { ui } from "@/lib/ui-styles";
 
 interface ViewLogItem {
@@ -326,17 +327,17 @@ export function ViewStatisticDashboard({
                 ))}
               </div>
 
-              <div className="relative flex w-full items-center sm:w-auto">
+              <div className="relative flex w-full items-center sm:w-56">
                 <Search
                   size={14}
-                  className="pointer-events-none absolute left-2.5 text-[#6e9179]"
+                  className="pointer-events-none absolute left-2.5 z-10 text-[#6e9179]"
                 />
-                <input
+                <Input
                   type="text"
                   value={searchText}
                   placeholder="搜索投递标记 / 城市 / IP / 设备…"
                   onChange={(e) => setSearchText(e.target.value)}
-                  className="h-9 w-full rounded-lg border border-[#d2ebda] bg-white pl-8 pr-3 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none sm:w-56"
+                  className="h-9 rounded-lg border-[#d2ebda] bg-white pl-8 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60]"
                 />
               </div>
 

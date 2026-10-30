@@ -7,6 +7,14 @@ import {
   type ResumeAppearance,
 } from "@/lib/resume-appearance";
 import { Check, RotateCcw, WandSparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 export function SettingsPanel({
   data,
   onChange,
@@ -37,14 +45,14 @@ export function SettingsPanel({
                 当简历超出 A4 一页不多时，自动微调行距与页边距收敛至一页
               </p>
             </div>
-            <button
+            <Button
               type="button"
               onClick={onSmartOnePage}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-brand-dark"
+              className="h-9 shrink-0 gap-1.5 rounded-lg bg-brand px-3 py-2 text-xs font-medium text-white hover:bg-brand-dark"
             >
               <WandSparkles size={14} />
               智能一页
-            </button>
+            </Button>
           </div>
         )}
         <fieldset>
@@ -89,17 +97,21 @@ export function SettingsPanel({
         </div>
         <div className={ui["field"]}>
           <label htmlFor="resume-spacing">内容间距</label>
-          <select
-            id="resume-spacing"
+          <Select
             value={appearance.spacing}
-            onChange={(e) =>
-              update({ spacing: e.target.value as ResumeAppearance["spacing"] })
+            onValueChange={(val) =>
+              update({ spacing: val as ResumeAppearance["spacing"] })
             }
           >
-            <option value="comfortable">舒适 · 更多留白</option>
-            <option value="compact">紧凑 · 更多内容</option>
-            <option value="tight">极简紧凑 · 一页优选</option>
-          </select>
+            <SelectTrigger id="resume-spacing">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="comfortable">舒适 · 更多留白</SelectItem>
+              <SelectItem value="compact">紧凑 · 更多内容</SelectItem>
+              <SelectItem value="tight">极简紧凑 · 一页优选</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <fieldset>
           <legend>个人信息布局</legend>

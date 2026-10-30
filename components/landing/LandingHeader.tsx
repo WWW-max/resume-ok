@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
+import { Input } from "@/components/ui/input";
 import { formatMembershipExpiry } from "@/lib/membership";
 import { trackEvent } from "@/lib/analytics";
 const links = [
@@ -433,7 +434,7 @@ export function LandingHeader({
                 </span>{" "}
                 以继续：
               </label>
-              <input
+              <Input
                 id="landing-delete-confirm-input"
                 type="text"
                 autoFocus
@@ -454,7 +455,7 @@ export function LandingHeader({
                     setConfirmDeleteAccount(false);
                   }
                 }}
-                className="w-full rounded-lg border border-[#e5c2be] bg-white px-3 py-2 text-xs text-ink placeholder:text-neutral-400 focus:border-[#bd554d] focus:outline-none focus:ring-2 focus:ring-[#bd554d]/20 focus-visible:outline-none"
+                className="h-9 rounded-lg border-[#e5c2be] bg-white px-3 py-2 text-xs text-ink focus:border-[#bd554d]"
               />
             </div>
             {deleteAccountError && (

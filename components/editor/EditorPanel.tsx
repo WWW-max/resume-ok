@@ -19,6 +19,7 @@ import { ProjectForm } from "./ProjectForm";
 import { SkillsForm } from "./SkillsForm";
 import { SummaryForm } from "./SummaryForm";
 import { ClearableInput, ClearableTextarea } from "./ClearableField";
+import { Input } from "@/components/ui/input";
 import {
   UserRound,
   BriefcaseBusiness,
@@ -373,7 +374,7 @@ export function EditorPanel({
             ) : (
               <div className="px-[17px] pb-[18px]">
                 {editingTitle ? (
-                  <input
+                  <Input
                     type="text"
                     aria-label="模块名称"
                     autoFocus
@@ -409,7 +410,8 @@ export function EditorPanel({
                       }
                       setEditingTitle(false);
                     }}
-                    className="w-48 rounded-[7px] border border-[#19af60] bg-white px-2.5 py-1 -ml-2.5 text-[18px] font-[650] text-ink ring-2 ring-[#19af60]/20 focus:outline-none"
+                    wrapperClassName="w-52 -ml-2.5"
+                    className="h-9 rounded-[7px] border-[#19af60] bg-white px-2.5 py-1 text-[18px] font-[650] text-ink"
                   />
                 ) : (
                   <button
@@ -497,7 +499,7 @@ export function EditorPanel({
                 <div className="mt-3 border-t border-[#e5f4ea] pt-2.5">
                   <p className="font-medium text-ink">或自定义其他模块名称</p>
                   <div className="flex items-center gap-2">
-                    <input
+                    <Input
                       type="text"
                       maxLength={50}
                       value={customTitleInput}
@@ -509,7 +511,8 @@ export function EditorPanel({
                           addCustomSection(customTitleInput);
                         }
                       }}
-                      className="min-w-0 flex-1 rounded-[7px] border border-[#d2ebda] bg-white px-2.5 py-2 text-[13px] text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none"
+                      wrapperClassName="min-w-0 flex-1"
+                      className="h-9 rounded-[7px] border-[#d2ebda] bg-white px-2.5 py-2 text-[13px] text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60]"
                     />
                     <button
                       type="button"

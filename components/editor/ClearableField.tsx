@@ -13,7 +13,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
-  X,
+  CircleX,
   Undo2,
   Redo2,
   Bold,
@@ -28,6 +28,7 @@ import {
   Link2,
   RemoveFormatting,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type ClearActionProps = {
@@ -56,9 +57,10 @@ function ClearButton({
       )}
       aria-label={label}
       title={label}
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClear}
     >
-      <X size={14} aria-hidden="true" />
+      <CircleX size={15} aria-hidden="true" />
     </button>
   );
 }
@@ -71,28 +73,15 @@ export function ClearableInput({
   className,
   ...props
 }: ClearableInputProps) {
-  const dateLike = ["date", "datetime-local", "month", "time", "week"].includes(
-    type,
-  );
   return (
-    <div className="relative w-full">
-      <input
-        {...props}
-        type={type}
-        value={value}
-        className={cn(dateLike ? "pr-16!" : "pr-10!", className)}
-      />
-      {String(value ?? "").length > 0 && (
-        <ClearButton
-          label={clearLabel}
-          onClear={onClear}
-          className={cn(
-            "top-1/2 -translate-y-1/2",
-            dateLike ? "right-8" : "right-2",
-          )}
-        />
-      )}
-    </div>
+    <Input
+      {...props}
+      type={type}
+      value={value}
+      clearLabel={clearLabel}
+      onClear={onClear}
+      className={className}
+    />
   );
 }
 

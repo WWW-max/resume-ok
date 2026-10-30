@@ -2,6 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import { Check, KeyRound, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function PasswordSetupModal({
   open,
@@ -111,13 +114,13 @@ export function PasswordSetupModal({
 
         <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 space-y-3">
           <div>
-            <label
+            <Label
               htmlFor="new-password-input"
-              className="mb-1 block text-xs font-medium text-ink"
+              className="mb-1.5 text-xs font-medium text-ink"
             >
               新登录密码（至少 8 位）
-            </label>
-            <input
+            </Label>
+            <Input
               id="new-password-input"
               type="password"
               autoFocus
@@ -132,18 +135,18 @@ export function PasswordSetupModal({
                 setSuccess("");
               }}
               placeholder="请输入至少 8 位密码"
-              className="w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink placeholder:text-neutral-400 focus:border-brand focus:bg-white focus:outline-none"
+              className="h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink focus:bg-white"
             />
           </div>
 
           <div>
-            <label
+            <Label
               htmlFor="confirm-password-input"
-              className="mb-1 block text-xs font-medium text-ink"
+              className="mb-1.5 text-xs font-medium text-ink"
             >
               确认新密码
-            </label>
-            <input
+            </Label>
+            <Input
               id="confirm-password-input"
               type="password"
               required
@@ -157,7 +160,7 @@ export function PasswordSetupModal({
                 setSuccess("");
               }}
               placeholder="请再次输入新密码"
-              className="w-full rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink placeholder:text-neutral-400 focus:border-brand focus:bg-white focus:outline-none"
+              className="h-9 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3 py-2 text-xs text-ink focus:bg-white"
             />
           </div>
 
@@ -180,22 +183,23 @@ export function PasswordSetupModal({
             </p>
           )}
 
-          <div className="pt-2 flex justify-end gap-2">
-            <button
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
               type="button"
+              variant="outline"
               disabled={saving}
               onClick={handleClose}
-              className="inline-flex min-h-9 items-center justify-center rounded-lg border border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:bg-[#f4fbf6] disabled:opacity-60"
+              className="h-9 rounded-lg border-[#d8efe1] bg-white px-3.5 text-xs font-medium text-ink shadow-none hover:bg-[#f4fbf6]"
             >
               {success ? "完成" : "取消"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={saving}
-              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-xs font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              className="h-9 rounded-lg bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-dark"
             >
               {saving ? "保存中…" : "保存密码"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

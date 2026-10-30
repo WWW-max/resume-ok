@@ -25,6 +25,7 @@ import {
   type PaymentMethod,
 } from "@/lib/membership";
 import { trackEvent } from "@/lib/analytics";
+import { Input } from "@/components/ui/input";
 
 interface ActiveCheckoutOrder {
   orderNo: string;
@@ -661,7 +662,7 @@ export function MembershipModal({
             onSubmit={(e) => void handleRedeem(e)}
             className="mt-2.5 flex flex-col gap-2 sm:flex-row"
           >
-            <input
+            <Input
               id="membership-redeem-input"
               type="text"
               value={codeInput}
@@ -671,7 +672,8 @@ export function MembershipModal({
                 setSuccessMsg("");
               }}
               placeholder="请输入激活码，例如：ROK-Q90-XXXX-XXXX"
-              className="min-w-0 flex-1 rounded-xl border border-[#cfead9] bg-[#f9fdfb] px-3.5 py-2.5 font-mono text-xs uppercase tracking-wider text-ink placeholder:font-sans placeholder:normal-case placeholder:tracking-normal placeholder:text-neutral-400 focus:border-[#12b653] focus:bg-white focus:outline-none focus-visible:outline-none"
+              wrapperClassName="min-w-0 flex-1"
+              className="h-10 rounded-xl border-[#cfead9] bg-[#f9fdfb] px-3.5 py-2.5 font-mono text-xs uppercase tracking-wider text-ink placeholder:font-sans placeholder:normal-case placeholder:tracking-normal placeholder:text-neutral-400 focus:border-[#12b653] focus:bg-white"
             />
             <button
               type="submit"

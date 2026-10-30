@@ -64,6 +64,7 @@ import type { ResumeData } from "@/lib/resume-data";
 import { encodeSourceTag } from "@/lib/online-resume-token";
 import { MembershipModal } from "@/components/editor/MembershipModal";
 import { PasswordSetupModal } from "@/components/auth/PasswordSetupModal";
+import { Input } from "@/components/ui/input";
 import {
   canExportFormat,
   canUseFeature,
@@ -1376,7 +1377,7 @@ export default function EditorWorkspace({
                 </span>{" "}
                 以继续：
               </label>
-              <input
+              <Input
                 id="delete-account-confirm-input"
                 type="text"
                 autoFocus
@@ -1397,7 +1398,7 @@ export default function EditorWorkspace({
                     setConfirmDeleteAccount(false);
                   }
                 }}
-                className="w-full rounded-lg border border-[#e5c2be] bg-white px-3 py-2 text-xs text-ink placeholder:text-neutral-400 focus:border-[#bd554d] focus:outline-none focus:ring-2 focus:ring-[#bd554d]/20 focus-visible:outline-none"
+                className="h-9 rounded-lg border-[#e5c2be] bg-white px-3 py-2 text-xs text-ink focus:border-[#bd554d]"
               />
             </div>
             {deleteAccountError && (
@@ -1463,8 +1464,8 @@ export default function EditorWorkspace({
               >
                 简历名称
               </label>
-              <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
-                <input
+              <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60]">
+                <Input
                   id="download-filename-input"
                   type="text"
                   autoFocus
@@ -1480,7 +1481,8 @@ export default function EditorWorkspace({
                       setDownloadFormat(null);
                     }
                   }}
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                  wrapperClassName="min-w-0 flex-1"
+                  className="h-9 border-0 bg-transparent px-3 py-2 text-sm text-[#1a4026] placeholder:text-[#93b39e]"
                 />
                 <span className="shrink-0 border-l border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs font-medium text-[#4a805c]">
                   {downloadFormat === "pdf"
@@ -1568,11 +1570,11 @@ export default function EditorWorkspace({
                 >
                   专属链接地址（支持中文姓名或自定义后缀）
                 </label>
-                <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60] focus-within:ring-2 focus-within:ring-[#19af60]/20">
+                <div className="flex items-center overflow-hidden rounded-lg border border-[#d2ebda] bg-white focus-within:border-[#19af60]">
                   <span className="max-w-[52%] shrink-0 truncate select-none border-r border-[#ebf6ee] bg-[#f4fbf6] px-2.5 py-2 text-xs text-[#4a805c] sm:max-w-none">
                     {siteOrigin}/online-resume/
                   </span>
-                  <input
+                  <Input
                     id="online-resume-slug-input"
                     type="text"
                     autoFocus
@@ -1591,7 +1593,8 @@ export default function EditorWorkspace({
                         setOnlineModalOpen(false);
                       }
                     }}
-                    className="min-w-0 flex-1 bg-transparent px-2.5 py-2 text-sm font-medium text-[#1a4026] placeholder:text-[#93b39e] focus:outline-none"
+                    wrapperClassName="min-w-0 flex-1"
+                    className="h-9 border-0 bg-transparent px-2.5 py-2 text-sm font-medium text-[#1a4026] placeholder:text-[#93b39e]"
                   />
                 </div>
               </div>
@@ -1603,7 +1606,7 @@ export default function EditorWorkspace({
                 >
                   投递公司 / HR 追踪标记（选填，自动加密不会显示明文）
                 </label>
-                <input
+                <Input
                   id="online-resume-source-input"
                   type="text"
                   maxLength={40}
@@ -1613,7 +1616,7 @@ export default function EditorWorkspace({
                     setOnlineSourceTagInput(e.target.value);
                     setCopiedOnlineUrl(false);
                   }}
-                  className="w-full rounded-lg border border-[#d2ebda] bg-white px-3 py-2 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60] focus:outline-none focus:ring-2 focus-within:ring-[#19af60]/20"
+                  className="h-9 rounded-lg border-[#d2ebda] bg-white px-3 py-2 text-xs text-[#1a4026] placeholder:text-[#93b39e] focus:border-[#19af60]"
                 />
               </div>
             </div>
